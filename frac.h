@@ -23,7 +23,13 @@ frac *pow_f();
 
 void print_f(frac *frac_a) {
 
-  printf("%d / %d\n", frac_a->num, frac_a->denom);
+  printf("%d", frac_a->num);
+
+  if (frac_a->denom != 1 ) {
+    printf(" / %d", frac_a->denom);
+  }
+
+  printf("\n");
   
 }
 
@@ -35,13 +41,15 @@ frac  *init_f(int num, int denom) {
 
     printf("Error:");
     return NULL;
-    
-  }
+
+  } else {
   
     frac *frac_a= (frac *)calloc(1,sizeof(frac));
     frac_a->num = num;
     frac_a->denom = denom;
     return frac_a;
+
+  }
   
 }
 
