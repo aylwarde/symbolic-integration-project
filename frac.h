@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "int_utils.h"
 
@@ -23,13 +24,13 @@ frac *pow_f();
 
 void print_f(frac *frac_a) {
 
-  printf("%d", frac_a->num);
+  printf("%ld", frac_a->num);
 
   if (frac_a->denom != 1 ) {
-    printf(" / %d", frac_a->denom);
+    printf("/%ld", frac_a->denom);
   }
 
-  printf("\n");
+  //printf("\n");
   
 }
 
@@ -141,5 +142,18 @@ frac *divide_f(frac *frac_a, frac *frac_b) {
 
   return multiply_f(frac_a, reciprocal_f(frac_b));
   
+}
+
+//returns true if rational zero, false otherwise
+bool zero_f(frac *frac_a)
+{
+	bool result = false;
+
+	if(frac_a->num==0)
+	{
+		result = true;
+	}
+	
+	return result;
 }
 
