@@ -3,30 +3,20 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "frac.h"
-
 /*defining a polynomial structure over integers and some basic polynomial operations */
 
 typedef struct poly {
 	int deg;
-	frac **coefficients;
+	int *coefficients;
 } poly;
 
 //allocate a polynomial of certain degree, and intialize all coeffs to zero
 poly *initialize_p(int degree)
 {
-	int i;
-
 	poly *result= (poly *)calloc(1,sizeof(poly));
-	frac **coefficients=(frac **)calloc(degree+1,sizeof(frac));
-
-	for(i=0; i<=degree; ++i)
-	{
-		coefficients[i] = init_f(0,1);
-	}
-
-	result->deg = degree;
-	result->coefficients = coefficients;
+	int * coefficients=(int *)calloc(degree+1,sizeof(int));
+	result->deg=degree;
+	result->coefficients=coefficients;
 	return result;
 	}
 
@@ -34,12 +24,9 @@ poly *initialize_p(int degree)
 void assign_coeffs_p(poly *polynomial)
 {
 	int i;
-	for(i=0; i<=polynomial->deg; ++i)
+	for(i=0; i<polynomial->deg+1; ++i)
 	{
-		printf("Enter coefficient of x^%d:\n", (polynomial->deg-i));
-		scanf("%d", &polynomial->coefficients[i]->num);
-		printf("/");
-		scanf("%d", &polynomial->coefficients[i]->denom);
+	       	scanf("%d", &polynomial->coefficients[i]);
 	}
 }
 
@@ -49,12 +36,10 @@ void display_p(poly *polynomial)
 	int i;
 	for(i=0; i<polynomial->deg;++i)
 	{
-		print_f(polynomial->coefficients[i]);
-		printf("x^%d+",polynomial->deg-i);
+		printf("%d(x^%d)+", polynomial->coefficients[i],polynomial->deg-i);
 
 	}
-	print_f(polynomial->coefficients[polynomial->deg]);
-	printf("\n");
+	printf("%d\n", polynomial->coefficients[polynomial->deg]);
 }
 
 
@@ -68,12 +53,12 @@ void free_p(poly *polynomial)
 //check if polynomial is zero (return boolean value)
 bool zero_p(poly *polynomial)
 {	int i;
-	bool result = true;
+	bool result=true;
 	for(i=0; i<polynomial->deg+1;++i)
 	{
-		if(!zero_f(polynomial->coefficients[i]))
+		if(polynomial->coefficients[i]!=0)
 		{ 
-			result = false;
+			result=false;
 		}
 	}
 	return result;
@@ -92,7 +77,7 @@ void strip_p(poly *polynomial)
 	
 	else
 	{
-		while(zero_f(polynomial->coefficients[leading_zeroes]))
+		while(polynomial->coefficients[leading_zeroes]==0)
 		{
 			++leading_zeroes;
 		}
@@ -126,7 +111,7 @@ poly *negative_p(poly *polynomial)
 	neg_polynomial = initialize_p(polynomial->deg);
 	for(i=0; i<=neg_polynomial->deg; ++i)
 	{ 
-		neg_polynomial->coefficients[i] = negative_f(polynomial->coefficients[i]);
+		neg_polynomial->coefficients[i]=(-1)*polynomial->coefficients[i];
 	}
 	return neg_polynomial;
 }
@@ -152,7 +137,7 @@ poly *add_p(poly *polynomial1, poly *polynomial2)
 		} 
 		for(i=difference; i<result->deg+1; ++i)
 		{
-			result->coefficients[i] = add_f(polynomial1->coefficients[i],polynomial2->coefficients[i-difference]);
+			result->coefficients[i] = polynomial1->coefficients[i]+polynomial2->coefficients[i-difference];
 		}
 	}
 	strip_p(result);
@@ -181,7 +166,7 @@ poly *multiply_p(poly *polynomial1, poly *polynomial2)
 	{
 		for(j=0;j<polynomial2->deg+1;++j)
 		{
-			result->coefficients[i+j]=add_f(result->coefficients[i+j], multiply_f(polynomial1->coefficients[i], polynomial2->coefficients[j]));
+			result->coefficients[i+j]+=polynomial1->coefficients[i]*polynomial2->coefficients[j];
 		}
 	}
 	strip_p(result);
@@ -193,7 +178,8 @@ poly *multiply_p(poly *polynomial1, poly *polynomial2)
 poly **divide_p(poly *polynomial1, poly *polynomial2)
 {
 	int d=0;
-	frac *t;
+	int t;
+	bool k;
 	poly *division, *quotient, *remainder;
 
 	poly **result = (poly **)calloc(2,sizeof(poly *));
@@ -203,7 +189,6 @@ poly **divide_p(poly *polynomial1, poly *polynomial2)
 	if(zero_p(polynomial2))
 	{
 		printf("Error: division by zero polynomial");
-		exit(0);
 	}
 	else 
 	{
@@ -213,7 +198,7 @@ poly **divide_p(poly *polynomial1, poly *polynomial2)
 		while(!zero_p(remainder) && (remainder->deg-polynomial2->deg)>=0)
 		{	
 			d = remainder->deg-polynomial2->deg;
-			t = divide_f(remainder->coefficients[0], polynomial2->coefficients[0]);
+			t = remainder->coefficients[0]/polynomial2->coefficients[0];
 			
 			division = initialize_p(d);
 			division->coefficients[0] = t;
@@ -221,10 +206,9 @@ poly **divide_p(poly *polynomial1, poly *polynomial2)
 			quotient = add_p(quotient, division);
 			remainder = subtract_p(remainder, multiply_p(polynomial2, division));
 		}
-	
+	}
 	result[0] = quotient;
 	result[1] = remainder;
-	}
 	return result;
 }
 
