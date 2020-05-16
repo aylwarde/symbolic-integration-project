@@ -256,14 +256,24 @@ bool equals_p(poly *poly1, poly *poly2) {
     return false;
     
   } else {
+    
     long coeffgcd = gcd(poly1->coefficients[0],poly2->coefficients[0]);
     int i = 0;
+    
     while ( i <=  poly1->degree) {
+      
       i++;
+      
       if ( coeffgcd != gcd(poly1->coefficients[i],poly2->coefficients[i])) {
+	
 	return false;
+	
       }
+      
     }
+    
     return true;
+    
   }
+  
 }
