@@ -12,6 +12,25 @@ typedef struct poly {
 	frac **coefficients;
 } poly;
 
+
+/* Functions defined in this header */
+void assign_coeffs_p();
+void display_p();
+void free_p();
+void strip_p();
+
+bool zero_p();
+
+poly *initialize_p();
+poly *equal_p();
+poly *negative_p();
+poly *add_p();
+poly *subtract_p();
+poly *multiply_p();
+poly **divide_p();
+/* End of function defs */
+
+
 //allocate a polynomial of certain degree, and intialize all coeffs to zero
 poly *initialize_p(int degree)
 {

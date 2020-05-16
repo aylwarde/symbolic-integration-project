@@ -12,6 +12,8 @@ typedef struct frac {
   long denom;
 } frac;
 
+
+/* Functions defined in this header */
 frac *init_f();
 
 void print_f();
@@ -27,6 +29,8 @@ frac *divide_f();
 frac *subtract_f();
 
 bool zero_f();
+/* End of function defs*/
+
 
 void print_f(frac *frac_a) {
 
