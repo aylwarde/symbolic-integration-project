@@ -4,14 +4,14 @@
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
 
-int gcd_z();
-int lcm_z();
-int pow_z();
+long gcd_z();
+long lcm_z();
+long pow_z();
 
-int gcd_z(int a, int b) {
+long gcd_z(long a, long b) {
   
-  int r = 0;
-  int q = 0;
+  long r = 0;
+  long q = 0;
   
   if(a==b) {
     
@@ -32,13 +32,13 @@ int gcd_z(int a, int b) {
   return -1;
 }
 
-int lcm_z(int a, int b) {
+long lcm_z(long a, long b) {
 
   return (a*b)/gcd_z(a,b);
 
 }
 
-int pow_z(int b, int exp) {
+long pow_z(long b, long exp) {
 
   if (exp == 0) {
 
@@ -50,7 +50,7 @@ int pow_z(int b, int exp) {
     
   } else {
 
-    int temp = pow_z(b, exp / 2);
+    long temp = pow_z(b, exp / 2);
     return temp * temp;
   }
 }
