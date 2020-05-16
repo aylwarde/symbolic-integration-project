@@ -1,15 +1,14 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
-#include <stdbool.h>
 
 #include "int_utils.h"
 
 /*defining frac struct*/
 
 typedef struct frac {
-  int num;
-  int denom;
+  long num;
+  long denom;
 } frac;
 
 frac *init_f();
@@ -21,24 +20,22 @@ frac *multiply_f();
 frac *negative_f();
 frac *reciprocal_f();
 frac *pow_f();
-bool zero_f();
-frac *divide_f();
 
 void print_f(frac *frac_a) {
 
   printf("%d", frac_a->num);
 
   if (frac_a->denom != 1 ) {
-    printf("/%d", frac_a->denom);
+    printf(" / %d", frac_a->denom);
   }
 
-  //printf("\n");
+  printf("\n");
   
 }
 
 
-//constructor for fractions; takes arguments for numerator & denominator and returns a pointer to a rational.
-frac  *init_f(int num, int denom) {
+//constructor for fractions; takes arguments for numerator & denominator and returns a polonger to a rational.
+frac  *init_f(long num, long denom) {
 
   if( denom == 0 ){
 
@@ -59,10 +56,10 @@ frac  *init_f(int num, int denom) {
 
 //fully reduces a fraction; i.e. returns an equal fraction such that numerator and denomenator are coprime.
 frac *reduce_f(frac *frac_a){
-  int div = gcd_z( frac_a->num , frac_a->denom );
+  long div = gcd_z( frac_a->num , frac_a->denom );
   
-  int newnum = frac_a->num / div;
-  int newdenom = frac_a->denom / div;
+  long newnum = frac_a->num / div;
+  long newdenom = frac_a->denom / div;
 
   return init_f(newnum, newdenom);
 }
@@ -71,7 +68,7 @@ frac *reduce_f(frac *frac_a){
 //adds two fractions
 frac *add_f(frac *frac_a, frac *frac_b) {
 
-  int newnum, newdenom;
+  long newnum, newdenom;
 
   newnum = ( frac_a->num * frac_b->denom ) + ( frac_a->denom * frac_b->num);
   newdenom = frac_a->denom * frac_b->denom;
@@ -84,7 +81,7 @@ frac *add_f(frac *frac_a, frac *frac_b) {
 //multiplies two fractions
 frac *multiply_f(frac *frac_a, frac *frac_b) {
 
-  int newnum, newdenom;
+  long newnum, newdenom;
 
   newnum = frac_a->num * frac_b->num;
   newdenom = frac_a->denom * frac_b->denom;
@@ -101,7 +98,8 @@ frac *negative_f(frac *frac_a) {
 }
 
 
-//returns the reciprocal of a fraction
+//returns the reciprocal of a fraction - make sure that the return value is not NULL as this may occur if you
+//provide a zero input and it will break any subsequent code
 frac *reciprocal_f(frac *frac_a) {
 
   return init_f(frac_a->denom, frac_a->num);
@@ -111,7 +109,7 @@ frac *reciprocal_f(frac *frac_a) {
 
 
 //exponentiates a fraction to ***INTEGER*** powers
-frac *pow_f(frac *frac_a, int exp) {
+frac *pow_f(frac *frac_a, long exp) {
 
   if ( exp == 0) {
     
@@ -128,34 +126,20 @@ frac *pow_f(frac *frac_a, int exp) {
   
 }
 
-//returns true if rational zero, false otherwise
-bool zero_f(frac *frac_a)
-{
-	bool result = false;
 
-	if(frac_a->num==0)
-	{
-		result = true;
-	}
-	
-	return result;
+
+//subtract frac_b from frac_a
+frac *subtract_f(frac *frac_a, frac *frac_b) {
+
+  return  add_f(frac_a, negative_f(frac_b));
+  
 }
+
 
 //divide frac_a by frac_b
-frac *divide_f(frac *frac_a, frac *frac_b)
-{
-	frac *result;
+frac *divide_f(frac *frac_a, frac *frac_b) {
 
-	if(zero_f(frac_b))
-	{
-		printf("Error: divisiion by zero");
-		exit(0);
-	}
-	
-	else
-	{
-		result = multiply_f(frac_a, reciprocal_f(frac_b));
-	}
-
-	return result;
+  return multiply_f(frac_a, reciprocal_f(frac_b));
+  
 }
+
