@@ -13,7 +13,9 @@ typedef struct frac {
 } frac;
 
 frac *init_f();
+
 void print_f();
+void free_f();
 
 frac *reduce_f();
 frac *add_f();
@@ -21,6 +23,10 @@ frac *multiply_f();
 frac *negative_f();
 frac *reciprocal_f();
 frac *pow_f();
+frac *divide_f();
+frac *subtract_f();
+
+bool zero_f();
 
 void print_f(frac *frac_a) {
 
@@ -31,6 +37,16 @@ void print_f(frac *frac_a) {
   }
 
   //printf("\n");
+  
+}
+
+
+//free a frac
+void free_f(frac *frac_a) {
+
+  free(frac_a->num);
+  free(frac_a->denom);
+  free(frac_a);
   
 }
 
