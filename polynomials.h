@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include "int_utils.h"
 #include "frac.h"
 
 /*defining a polynomial structure over integers and some basic polynomial operations */
@@ -20,9 +21,10 @@ void free_p();
 void strip_p();
 
 bool zero_p();
+bool equals_p();
 
 poly *initialize_p();
-poly *equal_p();
+poly *copy_p();
 poly *negative_p();
 poly *add_p();
 poly *subtract_p();
@@ -125,7 +127,7 @@ void strip_p(poly *polynomial)
 }
 
 //duplicate a polynomical structure
-poly *equal_p(poly *polynomial)
+poly *copy_p(poly *polynomial)
 {
 	int i;
 	poly *duplicate;
@@ -227,7 +229,7 @@ poly **divide_p(poly *polynomial1, poly *polynomial2)
 	else 
 	{
 		quotient = initialize_p(polynomial1->deg-polynomial2->deg);
-		remainder = equal_p(polynomial1);
+		remainder = copy_p(polynomial1);
 
 		while(!zero_p(remainder) && (remainder->deg-polynomial2->deg)>=0)
 		{	
@@ -247,3 +249,21 @@ poly **divide_p(poly *polynomial1, poly *polynomial2)
 	return result;
 }
 
+bool equals_p(poly *poly1, poly *poly2) {
+
+  if ( poly1->degree != poly2-> degree) {
+
+    return false;
+    
+  } else {
+    long coeffgcd = gcd(poly1->coefficients[0],poly2->coefficients[0]);
+    int i = 0;
+    while ( i <=  poly1->degree) {
+      i++;
+      if ( coeffgcd != gcd(poly1->coefficients[i],poly2->coefficients[i])) {
+	return false;
+      }
+    }
+    return true;
+  }
+}
