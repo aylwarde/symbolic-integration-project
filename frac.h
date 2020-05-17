@@ -29,6 +29,7 @@ frac *divide_f();
 frac *subtract_f();
 
 bool zero_f();
+bool equal_f();
 /* End of function defs*/
 
 
@@ -37,7 +38,7 @@ void print_f(frac *frac_a) {
   printf("%ld", frac_a->num);
 
   if (frac_a->denom != 1 ) {
-    printf("/%ld", frac_a->denom);
+    printf("/%ld\n", frac_a->denom);
   }
 
   //printf("\n");
@@ -48,8 +49,6 @@ void print_f(frac *frac_a) {
 //free a frac
 void free_f(frac *frac_a) {
 
-  free(frac_a->num);
-  free(frac_a->denom);
   free(frac_a);
   
 }
@@ -65,7 +64,7 @@ frac  *init_f(long num, long denom) {
 
   } else {
   
-    frac *frac_a= (frac *)calloc(1,sizeof(frac));
+    frac *frac_a = (frac *)calloc(1,sizeof(frac));
     frac_a->num = num;
     frac_a->denom = denom;
     return frac_a;
@@ -164,6 +163,7 @@ frac *divide_f(frac *frac_a, frac *frac_b) {
   
 }
 
+
 //returns true if rational zero, false otherwise
 bool zero_f(frac *frac_a)
 {
@@ -177,3 +177,10 @@ bool zero_f(frac *frac_a)
 	return result;
 }
 
+
+//returns true if two rationals are equal, false otw.
+bool equals_f(frac *frac_a, frac *frac_b) {
+
+  return zero_f(subtract_f(frac_a, frac_b));
+    
+}
