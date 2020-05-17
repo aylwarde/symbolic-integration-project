@@ -24,6 +24,7 @@ bool zero_p();
 bool equals_p();
 
 poly *initialize_p();
+poly *from_file_p(); //To Do ~ Joe
 poly *copy_p();
 poly *negative_p();
 poly *add_p();
@@ -249,31 +250,10 @@ poly **divide_p(poly *polynomial1, poly *polynomial2)
 	return result;
 }
 
-bool equals_p(poly *poly1, poly *poly2) {
+/*returns true if poly_a and poly_b are exactly equal in all coefficients; 
+  NOTE: will return false for poly_a, poly_b  equal up to a constant factor*/
+bool equals_p(polynomial *poly_a, polynomial * poly_b) {
 
-  if ( poly1->degree != poly2-> degree) {
-
-    return false;
-    
-  } else {
-    
-    long coeffgcd = gcd(poly1->coefficients[0],poly2->coefficients[0]);
-    int i = 0;
-    
-    while ( i <=  poly1->degree) {
-      
-      i++;
-      
-      if ( coeffgcd != gcd(poly1->coefficients[i],poly2->coefficients[i])) {
-	
-	return false;
-	
-      }
-      
-    }
-    
-    return true;
-    
-  }
+  return zero_p(subtract_p(poly_a, poly_b));
   
 }
