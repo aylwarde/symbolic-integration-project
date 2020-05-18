@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#include "int_utils.h"
 #include "frac.h"
 
 /*defining a polynomial structure over integers and some basic polynomial operations */
@@ -11,6 +12,27 @@ typedef struct poly {
 	int deg;
 	frac **coefficients;
 } poly;
+
+
+/* Functions defined in this header */
+void assign_coeffs_p();
+void display_p();
+void free_p();
+void strip_p();
+
+bool zero_p();
+bool equals_p();
+
+poly *initialize_p();
+poly *from_file_p(); //To Do ~ Joe
+poly *copy_p();
+poly *negative_p();
+poly *add_p();
+poly *subtract_p();
+poly *multiply_p();
+poly **divide_p();
+/* End of function defs */
+
 
 //allocate a polynomial of certain degree, and intialize all coeffs to zero
 poly *initialize_p(int degree)
@@ -106,7 +128,7 @@ void strip_p(poly *polynomial)
 }
 
 //duplicate a polynomical structure
-poly *equal_p(poly *polynomial)
+poly *copy_p(poly *polynomial)
 {
 	int i;
 	poly *duplicate;
@@ -208,7 +230,7 @@ poly **divide_p(poly *polynomial1, poly *polynomial2)
 	else 
 	{
 		quotient = initialize_p(polynomial1->deg-polynomial2->deg);
-		remainder = equal_p(polynomial1);
+		remainder = copy_p(polynomial1);
 
 		while(!zero_p(remainder) && (remainder->deg-polynomial2->deg)>=0)
 		{	
@@ -228,3 +250,10 @@ poly **divide_p(poly *polynomial1, poly *polynomial2)
 	return result;
 }
 
+/*returns true if poly_a and poly_b are exactly equal in all coefficients; 
+  NOTE: will return false for poly_a, poly_b  equal up to a constant factor*/
+bool equals_p(polynomial *poly_a, polynomial * poly_b) {
+
+  return zero_p(subtract_p(poly_a, poly_b));
+  
+}
