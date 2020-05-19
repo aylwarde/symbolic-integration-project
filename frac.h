@@ -28,6 +28,8 @@ frac *pow_f();
 frac *divide_f();
 frac *subtract_f();
 
+frac **copy_array_f();
+
 bool zero_f();
 bool equal_f();
 /* End of function defs*/
@@ -38,7 +40,7 @@ void print_f(frac *frac_a) {
   printf("%ld", frac_a->num);
 
   if (frac_a->denom != 1 ) {
-    printf("/%ld\n", frac_a->denom);
+    printf("/%ld", frac_a->denom);
   }
 
   //printf("\n");
@@ -59,7 +61,7 @@ frac  *init_f(long num, long denom) {
 
   if( denom == 0 ){
 
-    printf("Error:");
+    printf("Error:\n");
     return NULL;
 
   } else {
@@ -183,4 +185,22 @@ bool equals_f(frac *frac_a, frac *frac_b) {
 
   return zero_f(subtract_f(frac_a, frac_b));
     
+}
+
+
+
+//copy array of fractions
+frac **copy_array_f(frac **src, int len) {
+  
+  frac **result = (frac **)malloc(len*sizeof(frac));
+  int i;
+  
+  for (i=0;i<len;++i) {
+    
+    result[i]=src[i];
+    
+  }
+  
+  return result;
+  
 }
