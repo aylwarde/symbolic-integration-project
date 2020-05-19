@@ -59,7 +59,7 @@ frac  *init_f(long num, long denom) {
 
   if( denom == 0 ){
 
-    printf("Error:");
+    printf("Error:\n");
     return NULL;
 
   } else {
