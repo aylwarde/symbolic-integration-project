@@ -1,3 +1,7 @@
+#ifndef INT_UTILS_H
+#define INT_UTILS_H
+
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -54,3 +58,6 @@ long pow_z(long b, long exp) {
     return temp * temp;
   }
 }
+
+
+#endif /* INT_UTILS_H */
