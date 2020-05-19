@@ -2,8 +2,10 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 
 #include "int_utils.h"
+#include "file_utils.h"
 #include "frac.h"
 
 /*defining a polynomial structure over integers and some basic polynomial operations */
@@ -283,6 +285,38 @@ bool equals_p(poly *poly_a, poly * poly_b) {
 */
 poly **from_file_p(FILE *src, int *outlen) {
   // read the file src containing some polynomials and output an array containing those polynomials
+  char *data = file_to_str(src);
+
+  printf("%s\n", data);
+
+  char *tok1, *tok2;
+  char *line;
+
+  // placeholder pointer
+  char *ptr1 = data;
+  int i=1;
+
+  tok1 = strtok_r(data, "\n", &ptr1);
+
+  while ( tok1 != NULL) {
+    
+    printf("%s\n", tok1);
+    
+    char *ptr2 = tok1;
+    tok2 = strtok_r(tok1, " ", &ptr2);
+
+    while ( tok2 != NULL ) {
+
+      printf("%s\n", tok2);
+
+      tok2 = strtok_r(NULL, " ", &ptr2);
+      
+    }
+    
+    tok1 = strtok_r(NULL, "\n", &ptr1);
+    
+  }
+  
 }
 
 /* 
