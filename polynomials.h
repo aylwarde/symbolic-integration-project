@@ -24,12 +24,15 @@ bool zero_p();
 bool equals_p();
 
 poly *initialize_p();
-poly *from_file_p(); //To Do ~ Joe
+poly *initialize_from_array_p();
 poly *copy_p();
 poly *negative_p();
 poly *add_p();
 poly *subtract_p();
 poly *multiply_p();
+
+poly **from_file_p(); //To Do ~ Joe
+void to_file_p();
 poly **divide_p();
 /* End of function defs */
 
@@ -51,6 +54,16 @@ poly *initialize_p(int degree)
 	result->coefficients = coefficients;
 	return result;
 	}
+
+//allocate a polynomial of given degree with coefficients from a list
+poly *initialize_from_array_p(int degree, frac **coefficients) {
+
+  poly *result = (poly *)calloc(1,sizeof(poly));
+
+  result->deg = degree;
+  result->coefficients = coefficients;
+  return result;
+}
 
 //assign values to coefficients of polynomial, in decreasing degree (include zero coefficients)
 void assign_coeffs_p(poly *polynomial)
@@ -250,10 +263,31 @@ poly **divide_p(poly *polynomial1, poly *polynomial2)
 	return result;
 }
 
-/*returns true if poly_a and poly_b are exactly equal in all coefficients; 
-  NOTE: will return false for poly_a, poly_b  equal up to a constant factor*/
-bool equals_p(polynomial *poly_a, polynomial * poly_b) {
+/* 
+   returns true if poly_a and poly_b are exactly equal in all coefficients; 
+   NOTE: will return false for poly_a, poly_b  equal up to a constant factor
+*/
+bool equals_p(poly *poly_a, poly * poly_b) {
 
   return zero_p(subtract_p(poly_a, poly_b));
   
 }
+
+/* 
+   Takes an input stream of a format to be specified containing a number of polynomials specified 
+   by rational coefficients and returns a pointer to a list of poninters to polynomial objects
+   representing those polynomials, as well as setting outlen to the number of polynomials outputted. 
+   Will return null if file is missing a number corresponding to the number of polynomials stored in 
+   the file, and will return a null pointer if the degree of any polynomial stored is invalid (i.e. 
+   not a positive int)
+*/
+poly **from_file_p(FILE *src, int *outlen) {
+  // read the file src containing some polynomials and output an array containing those polynomials
+}
+
+/* 
+   Writes polynomial data to a datastream
+*/
+void to_file_p(FILE *trgt, poly **polys, int polyslength) {
+  
+} 
