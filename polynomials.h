@@ -34,6 +34,7 @@ poly *subtract_p();
 poly *multiply_p();
 poly **divide_p();
 poly *derivative_p();
+poly *gcd_p();
 
 frac *content_p();
 
@@ -269,12 +270,6 @@ poly **divide_p(poly *polynomial1, poly *polynomial2)
 	return result;
 }
 
-//return content of polynomial
-frac *content_p(poly *polynomial) {
-
-	return gcd_array_f(polynomial->deg, polynomial->coefficients);
-}
-
 //derivative of polynomial
 poly *derivative_p(poly *polynomial) {
 	int i;
@@ -288,6 +283,26 @@ poly *derivative_p(poly *polynomial) {
 	return polynomial;
 }
 
+poly *gcd_p(poly *polynomial1, poly *polynomial2) {
+
+        poly *q, *r;
+
+        while(!zero_p(polynomial2))
+        {
+                q = divide_p(polynomial1, polynomial2)[0];
+                r = divide_p(polynomial1, polynomial2)[1];
+                polynomial1 = copy_p(polynomial2);
+                polynomial2 = copy_p(r);
+        }
+
+        return polynomial1;
+}
+
+//return content of polynomial
+frac *content_p(poly *polynomial) {
+
+	return gcd_array_f(polynomial->deg, polynomial->coefficients);
+}
 /* 
    returns true if poly_a and poly_b are exactly equal in all coefficients; 
    NOTE: will return false for poly_a, poly_b  equal up to a constant factor
