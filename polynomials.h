@@ -26,12 +26,14 @@ bool zero_p();
 bool equals_p();
 
 poly *initialize_p();
+poly **initialize_array_p();
 poly *initialize_from_array_p();
 poly *copy_p();
 poly *negative_p();
 poly *add_p();
 poly *subtract_p();
 poly *multiply_p();
+poly *pow_p();
 poly **divide_p();
 poly *derivative_p();
 poly *gcd_p();
@@ -61,6 +63,20 @@ poly *initialize_p(int degree)
 	result->coefficients = coefficients;
 	return result;
 	}
+
+//initialize an array of a prescribed length of polynomial structures
+poly **initialize_array_p(int len) {
+
+	poly **array_p = (poly **)calloc(len,sizeof(poly *));
+	int i;
+
+	for(i=0; i<len; ++i)
+	{
+		array_p[i] = (poly *)calloc(1, sizeof(poly));
+	}
+	
+	return array_p;
+}
 
 //allocate a polynomial of given degree with coefficients from a list
 poly *initialize_from_array_p(int degree, frac **coefficients) {
@@ -219,29 +235,43 @@ poly *multiply_p(poly *polynomial1, poly *polynomial2)
 
 	result = initialize_p(polynomial1->deg+polynomial2->deg);
 	
-	for(i=0;i<polynomial1->deg+1;++i)
+	for(i=0; i<=polynomial1->deg; ++i)
 	{
-		for(j=0;j<polynomial2->deg+1;++j)
+		for(j=0; j<=polynomial2->deg; ++j)
 		{
 			result->coefficients[i+j]=add_f(result->coefficients[i+j], multiply_f(polynomial1->coefficients[i], polynomial2->coefficients[j]));
 		}
 	}
 	strip_p(result);
 	return result;
-
 }
-//polynomial division (in Z only !!!) returns 'list' containing pointers to quotient and remainder
+
+//raise a polynomial to a power
+poly *pow_p(int exponent, poly *poly) {
+
+	if(exponent==1)
+	{ 
+		return poly;
+	}
+
+	else
+	{
+		return multiply_p(pow_p(exponent-1, poly), poly);
+	}	
+}
+
+
+//polynomial division returns 'list' containing pointers to quotient and remainder
 
 poly **divide_p(poly *polynomial1, poly *polynomial2)
 {
 	int d=0;
 	frac *t;
 	poly *division, *quotient, *remainder;
-
-	poly **result = (poly **)calloc(2,sizeof(poly *));
-	result[0] = (poly *)calloc(1, sizeof(poly));
-	result[1] = (poly *)calloc(1, sizeof(poly));
+	poly **result;
 	
+	result = initialize_array_p(2);
+
 	if(zero_p(polynomial2))
 	{
 		printf("Error: division by zero polynomial");
