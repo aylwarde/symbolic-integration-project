@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-#include "polynomials.h"
+#include "../polynomials.h"
 
 int main()
 {

@@ -32,10 +32,14 @@ poly *negative_p();
 poly *add_p();
 poly *subtract_p();
 poly *multiply_p();
+poly **divide_p();
+poly *derivative_p();
+
+frac *content_p();
 
 poly **from_file_p(); //To Do ~ Joe
 void to_file_p();
-poly **divide_p();
+
 /* End of function defs */
 
 
@@ -263,6 +267,25 @@ poly **divide_p(poly *polynomial1, poly *polynomial2)
 	result[1] = remainder;
 	}
 	return result;
+}
+
+//return content of polynomial
+frac *content_p(poly *polynomial) {
+
+	return gcd_array_f(polynomial->deg, polynomial->coefficients);
+}
+
+//derivative of polynomial
+poly *derivative_p(poly *polynomial) {
+	int i;
+	long d = (long)polynomial->deg;
+
+	for(i=0; i<(int)d; ++i)
+	{
+		polynomial->coefficients[i] = multiply_f(init_f(d-i,1), polynomial->coefficients[i]);
+	}
+	polynomial->deg = (int)d-1;
+	return polynomial;
 }
 
 /* 

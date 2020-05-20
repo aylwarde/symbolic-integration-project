@@ -27,6 +27,10 @@ frac *reciprocal_f();
 frac *pow_f();
 frac *divide_f();
 frac *subtract_f();
+frac *gcd_f();
+frac *lcm_f();
+frac *gcd_array_f();
+frac *lcm_array_f();
 
 frac **copy_array_f();
 
@@ -204,3 +208,46 @@ frac **copy_array_f(frac **src, int len) {
   return result;
   
 }
+
+//gcd of two fractions
+frac *gcd_f(frac *frac_a, frac *frac_b) {
+
+	return init_f(gcd_z(frac_a->num, frac_b->num), lcm_z(frac_a->denom, frac_b->denom));
+}
+
+//lcm of two fractions
+frac *lcm_f(frac *frac_a, frac *frac_b) {
+	
+	return init_f(lcm_z(frac_a->num, frac_b->num), gcd_z(frac_a->denom, frac_b->denom));
+}
+
+//gcd of an array of fractions
+frac *gcd_array_f(int i, frac **frac_array) {
+
+  frac *gcd_array;
+  if(i==1)
+    {
+     gcd_array = gcd_f(frac_array[1], frac_array[0]);
+     return gcd_array;
+    }
+  else
+    {
+     return gcd_f(gcd_array_f(i-1, frac_array), frac_array[i]);
+    }
+}
+
+//gcd of an array of fractions
+frac *lcm_array_f(int i, frac **frac_array) {
+
+  frac *lcm_array;
+  if(i==1)
+    {
+     lcm_array = lcm_f(frac_array[1], frac_array[0]);
+     return lcm_array;
+    }
+  else
+    {
+     return lcm_f(lcm_array_f(i-1, frac_array), frac_array[i]);
+    }
+}
+
