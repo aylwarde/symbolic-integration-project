@@ -30,6 +30,7 @@ poly **initialize_array_p();
 poly *initialize_from_array_p();
 poly *copy_p();
 poly *negative_p();
+poly *scale_p();
 poly *add_p();
 poly *subtract_p();
 poly *multiply_p();
@@ -187,6 +188,19 @@ poly *negative_p(poly *polynomial)
 		neg_polynomial->coefficients[i] = negative_f(polynomial->coefficients[i]);
 	}
 	return neg_polynomial;
+}
+
+//multiply polynomial by a constant
+poly *scale_p(frac *frac, poly *polynomial)
+{
+	int i;
+	poly *scaled_polynomial;
+	scaled_polynomial = initialize_p(polynomial->deg);
+	for(i=0; i<=scaled_polynomial->deg; ++i)
+	{ 
+		scaled_polynomial->coefficients[i] = multiply_f(frac, polynomial->coefficients[i]);
+	}
+	return scaled_polynomial;
 }
 
 //add two polynomials
