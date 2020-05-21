@@ -425,3 +425,29 @@ poly **from_file_p(FILE *src, int *outlen) {
 void to_file_p(FILE *trgt, poly **polys, int polyslength) {
   
 } 
+
+//print latex to comand line
+void latex_p(poly *polynomial)
+{
+  printf("$$");
+  int i;
+  for(i=0;i<polynomial->deg;--i)
+    {
+      if(polynomial->coefficients[i]->denom=1)
+	{
+	  printf(" %ld x^%d",polynomial->coefficients[i]->num,polynomial->deg-i);
+	}
+      else
+	{
+          printf(" \frac{%ld}{%ld} x^%d +",polynomial->coefficients[i]->num,polynomial->coefficients[i]->denom,polynomial->deg-i);
+	}
+    }
+  if(polynomial->coefficients[polynomial->deg]->denom=1)
+    {
+      printf(" %ld $$ \n",polynomial->coefficients[polynomial->deg]->num);
+    }
+  else
+    {
+     printf(" \frac{%ld}{%ld} $$ \n",polynomial->coefficients[polynomial->deg]->num,polynomial->coefficients[polynomial->deg]->denom);
+    }
+}
