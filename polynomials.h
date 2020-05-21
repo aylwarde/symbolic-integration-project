@@ -37,6 +37,7 @@ poly *pow_p();
 poly **divide_p();
 poly *derivative_p();
 poly *gcd_p();
+poly *conmultiply_p();
 
 frac *content_p();
 
@@ -450,4 +451,12 @@ void latex_p(poly *polynomial)
     {
      printf(" \frac{%ld}{%ld} $$ \n",polynomial->coefficients[polynomial->deg]->num,polynomial->coefficients[polynomial->deg]->denom);
     }
+}
+
+poly *conmultiply_p(frac *c,poly *polynomial)
+{
+  poly *q;
+  q=initialize_p(0);
+  q->coefficients[0]=c;
+  return multiply_p(q,polynomial);
 }
