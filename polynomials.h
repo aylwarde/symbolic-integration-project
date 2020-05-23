@@ -38,6 +38,9 @@ poly **divide_p();
 poly *derivative_p();
 poly *gcd_p();
 poly *conmultiply_p();
+poly **pseudodiv_p();
+poly *pseudogcd_p();
+poly *pseudogcdinternal_p();
 
 frac *content_p();
 
@@ -460,3 +463,74 @@ poly *conmultiply_p(frac *c,poly *polynomial)
   q->coefficients[0]=c;
   return multiply_p(q,polynomial);
 }
+
+// does pseudo division and reutrns result in same form as standard division
+poly **pseudodiv_p(poly *poly1 , poly *poly2)
+{
+  frac *c,*f;
+  poly *cpoly;
+  poly **result;
+  c=gcd_f(content_p(poly1),content_p(poly2));
+  if(poly1->deg>=poly2->deg)
+    {
+      cpoly=initialize_p(poly1->deg);
+      f=pow_f(c,poly1->deg - poly2->deg +1);
+      cpoly=conmultiply_p(f,poly1);
+      return divide_p(cpoly,poly2);
+    }
+  else
+    {
+      result=initialize_array_p(2);
+      result[0]=poly2;
+      result[1]=poly1;
+      return result;
+    }
+}
+
+
+//takes two polynomails and returns the gcd using the Pseudo eucledian algorthem
+
+poly *pseudogcd_p(poly* polynomial1,poly* polynomial2)
+{
+  frac *c,*cont;
+  poly *fk;
+  if(zero_p(polynomial1))
+    {
+      printf("function requires non zero polynomials error");
+      return NULL;
+    }
+  if(zero_p(polynomial2))
+    {
+      printf("function requires non zero polynomials error");
+      return NULL;
+    }
+  else
+    {
+      c=gcd_f(content_p(polynomial1),content_p(polynomial2));
+      fk=pseudogcdinternal_p( polynomial1, polynomial2);
+      cont=content_p(fk);
+      cont=reciprocal_f(cont);
+      fk=conmultiply_p(cont,fk);
+      return conmultiply_p(c,fk);
+    }
+    
+    
+}
+
+
+    //needs to return fk-1
+
+  poly *pseudogcdinternal_p(poly* polynomial1,poly* polynomial2)
+  {
+    poly *prem;
+    
+    if(!zero_p(polynomial2))
+      {
+    	prem=pseudodiv_p(polynomial1,polynomial2)[1];
+    	return pseudogcdinternal_p(polynomial2,prem);
+      }
+     else
+         {
+	 return polynomial1;
+	 }
+  }
