@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "../polynomials.h"
+#include "../frac.h"
 
 int main() {
   
@@ -24,5 +25,8 @@ int main() {
   }
 
   fclose(polyfile);
+
+  print_f(content_p(polyarray[2]));
+  printf("\n");
   
 }
