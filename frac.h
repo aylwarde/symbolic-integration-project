@@ -1,3 +1,6 @@
+#ifndef FRAC_H
+#define FRAC_H
+
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
@@ -46,7 +49,6 @@ void print_f(frac *frac_a) {
   if (frac_a->denom != 1 ) {
     printf("/%ld", frac_a->denom);
   }
-
   //printf("\n");
   
 }
@@ -225,7 +227,11 @@ frac *lcm_f(frac *frac_a, frac *frac_b) {
 frac *gcd_array_f(int i, frac **frac_array) {
 
   frac *gcd_array;
-  if(i==1)
+  if(i==0)
+    {
+      return frac_array[0];
+    }
+  else if(i==1)
     {
      gcd_array = gcd_f(frac_array[1], frac_array[0]);
      return gcd_array;
@@ -240,7 +246,11 @@ frac *gcd_array_f(int i, frac **frac_array) {
 frac *lcm_array_f(int i, frac **frac_array) {
 
   frac *lcm_array;
-  if(i==1)
+  if(i==0)
+    {
+      return frac_array[0];
+    }
+  else if(i==1)
     {
      lcm_array = lcm_f(frac_array[1], frac_array[0]);
      return lcm_array;
@@ -251,3 +261,4 @@ frac *lcm_array_f(int i, frac **frac_array) {
     }
 }
 
+#endif /* FRAC_H */
