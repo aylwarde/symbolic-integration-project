@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#include "psedodivision.h"
+#include "../polynomials.h"
 
 int main() {
 
@@ -23,8 +23,10 @@ int main() {
   for ( i=0; i<polys; ++i) {
     display_p(polyarray[i]);
   }
-  gcd= pseudogcd_p(polyarray[0],polyarray[1]);
+  
+  gcd = pseudogcd_p(polyarray[0],polyarray[1]);
   display_p(gcd);
+  
   fclose(polyfile);
   
 }
