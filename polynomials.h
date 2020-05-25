@@ -8,6 +8,9 @@
 #include "file_utils.h"
 #include "frac.h"
 
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
+
 /*defining a polynomial structure over integers and some basic polynomial operations */
 
 typedef struct poly {
@@ -39,6 +42,9 @@ poly **divide_p();
 poly *derivative_p();
 poly *gcd_p();
 poly *conmultiply_p();
+poly **pseudodiv_p();
+poly *pseudogcd_p();
+poly *pseudogcdinternal_p();
 
 frac *content_p();
 
@@ -294,20 +300,20 @@ poly **divide_p(poly *polynomial1, poly *polynomial2)
 	}
 	else 
 	{
-		quotient = initialize_p(polynomial1->deg-polynomial2->deg);
-		remainder = copy_p(polynomial1);
+	  quotient = initialize_p(MAX(polynomial1->deg-polynomial2->deg,0));
+	  remainder = copy_p(polynomial1);
 
-		while(!zero_p(remainder) && (remainder->deg-polynomial2->deg)>=0)
-		{	
-			d = remainder->deg-polynomial2->deg;
-			t = divide_f(remainder->coefficients[0], polynomial2->coefficients[0]);
+	  while(!zero_p(remainder) && (remainder->deg-polynomial2->deg)>=0)
+	    {	
+	      d = remainder->deg-polynomial2->deg;
+	      t = divide_f(remainder->coefficients[0], polynomial2->coefficients[0]);
 			
-			division = initialize_p(d);
-			division->coefficients[0] = t;
+	      division = initialize_p(d);
+	      division->coefficients[0] = t;
 
-			quotient = add_p(quotient, division);
-			remainder = subtract_p(remainder, multiply_p(polynomial2, division));
-		}
+	      quotient = add_p(quotient, division);
+	      remainder = subtract_p(remainder, multiply_p(polynomial2, division));
+	    }
 	
 	result[0] = quotient;
 	result[1] = remainder;
@@ -474,3 +480,64 @@ poly *conmultiply_p(frac *c,poly *polynomial)
   q->coefficients[0]=c;
   return multiply_p(q,polynomial);
 }
+
+// does pseudo division and reutrns result in same form as standard division
+poly **pseudodiv_p(poly *poly1 , poly *poly2)
+{
+  frac *c;
+  poly *cpoly;
+  
+  c = gcd_f(content_p(poly1),content_p(poly2));
+  cpoly = conmultiply_p(pow_f(c,MAX(poly1->deg - poly2->deg +1,0)), poly1);
+  
+  return divide_p(cpoly,poly2);
+}
+
+
+//takes two polynomails and returns the gcd using the Pseudo eucledian algorthem
+
+poly *pseudogcd_p(poly* polynomial1,poly* polynomial2)
+{
+  frac *c,*cont;
+  poly *fk;
+  if(zero_p(polynomial1) || zero_p(polynomial2))
+    {
+      printf("function requires non zero polynomials error");
+      return NULL;
+    }
+  else
+    {
+      c=gcd_f(content_p(polynomial1),content_p(polynomial2));
+      
+      fk=pseudogcdinternal_p(polynomial1, polynomial2);
+      cont=content_p(fk);
+      cont=reciprocal_f(cont);
+      fk=conmultiply_p(cont,fk);
+      return conmultiply_p(c,fk);
+    }
+    
+    
+}
+
+
+    //needs to return fk-1
+
+  poly *pseudogcdinternal_p(poly* poly1,poly* poly2)
+  {
+    poly *prem;
+    
+    if(!zero_p(poly2))
+      {
+    	prem = pseudodiv_p(poly1,poly2)[1];
+
+	display_p(poly2);
+	display_p(prem);
+    	return pseudogcdinternal_p(poly2,prem);
+      }
+     else
+         {
+	   
+	 return poly1;
+	 
+	 }
+  }
