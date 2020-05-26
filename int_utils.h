@@ -99,24 +99,15 @@ void lcm_z(mpz_t lcm, mpz_t a, mpz_t b) {
 }
 
 void pow_z(mpz_t pow, mpz_t b, int exp) {
-
-	mpz_t result; mpz_init(result);
   	
 	if (exp==0) {
 
 		mpz_set_ui(pow, 1);
  	 } 
 	
-	else if (exp%2!=0) {
-
-		pow_z(pow, b, exp-1);
-		mpz_mul(pow, b, pow);
- 
- 	 } 
-	
 	else {	
-		pow_z(pow, b, exp/2);
-		mpz_mul(pow, pow, pow);
+		pow_z(pow, b, exp-1);
+		mpz_mul(pow, pow, b);
 
 	}
 }
