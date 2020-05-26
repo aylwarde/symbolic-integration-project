@@ -5,14 +5,15 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <gmp.h>
 
 #include "int_utils.h"
 
 /*defining frac struct*/
 
 typedef struct frac {
-  long num;
-  long denom;
+  mpz_t num;
+  mpz_t denom;
 } frac;
 
 
@@ -38,45 +39,51 @@ frac *lcm_array_f();
 frac **copy_array_f();
 
 bool zero_f();
-bool equal_f();
+bool equals_f();
 /* End of function defs*/
 
 
 void print_f(frac *frac_a) {
 
-  printf("%ld", frac_a->num);
+ 	 char *string;
+	 string = (char *)malloc(sizeof(frac));
+	 mpz_get_str(string, 10, frac_a->num);
+	 printf("%s", string);
 
-  if (frac_a->denom != 1 ) {
-    printf("/%ld", frac_a->denom);
-  }
-  //printf("\n");
-  
+  if (mpz_cmp_si(frac_a->denom, 1) != 0 && mpz_cmp_si(frac_a->num,0)!=0) {
+    		
+	  mpz_get_str(string, 10, frac_a->denom);
+	  printf("/%s", string);
+  }  
+  free(string); 
 }
 
 
 //free a frac
 void free_f(frac *frac_a) {
-
-  free(frac_a);
-  
+	
+	//mpz_clears(frac_a->num, frac_a->denom);	
+  	free(frac_a);
 }
 
 
-//constructor for fractions; takes arguments for numerator & denominator and returns a polonger to a rational.
-frac  *init_f(long num, long denom) {
+//constructor for fractions; takes arguments for numerator & denominator and returns a pointer to a rational.
+frac  *init_f(mpz_t num, mpz_t denom) {
 
-  if( denom == 0 ){
+  if( mpz_cmp_si(denom, 0) == 0 ){
 
-    printf("Error:\n");
-    return NULL;
+	printf("Error:\n");
+    	return NULL;
 
-  } else {
+  } 
   
-    frac *frac_a = (frac *)calloc(1,sizeof(frac));
-    frac_a->num = num;
-    frac_a->denom = denom;
-    return frac_a;
-
+  else {
+  
+    	frac *frac_a = (frac *)calloc(1,sizeof(frac));
+	mpz_init_set(frac_a->num, num);
+	mpz_init_set(frac_a->denom, denom);
+    	
+	return frac_a;
   }
   
 }
@@ -84,24 +91,36 @@ frac  *init_f(long num, long denom) {
 
 //fully reduces a fraction; i.e. returns an equal fraction such that numerator and denomenator are coprime.
 frac *reduce_f(frac *frac_a){
-  long div = gcd_z( frac_a->num , frac_a->denom );
+  	
+	mpz_t div; mpz_init(div);
+	gcd_z(div, frac_a->num , frac_a->denom );
   
-  long newnum = frac_a->num / div;
-  long newdenom = frac_a->denom / div;
+	mpz_t newnum, newdenom;
+	mpz_init(newnum);
+	mpz_init(newdenom);
 
-  return init_f(newnum, newdenom);
+	mpz_cdiv_q(newnum, frac_a->num, div);
+  	mpz_cdiv_q(newdenom, frac_a->denom, div);
+
+  	return init_f(newnum, newdenom);
+	mpz_clear(newnum);
+	mpz_clear(newdenom);
 }
 
 
 //adds two fractions
 frac *add_f(frac *frac_a, frac *frac_b) {
 
-  long newnum, newdenom;
+	mpz_t newnum, newdenom;
+	mpz_init(newnum);
+	mpz_init(newdenom);
 
-  newnum = ( frac_a->num * frac_b->denom ) + ( frac_a->denom * frac_b->num);
-  newdenom = frac_a->denom * frac_b->denom;
+  	mpz_mul(newnum, frac_a->num, frac_b->denom);
+       	mpz_addmul(newnum, frac_a->denom, frac_b->num); 	
+
+  	mpz_mul(newdenom, frac_a->denom, frac_b->denom);
   
-  return init_f(newnum, newdenom);
+  	return init_f(newnum, newdenom);
   
 }
 
@@ -109,19 +128,25 @@ frac *add_f(frac *frac_a, frac *frac_b) {
 //multiplies two fractions
 frac *multiply_f(frac *frac_a, frac *frac_b) {
 
-  long newnum, newdenom;
+  	mpz_t newnum, newdenom;
+	mpz_init(newnum);
+	mpz_init(newdenom);
 
-  newnum = frac_a->num * frac_b->num;
-  newdenom = frac_a->denom * frac_b->denom;
+  	mpz_mul(newnum, frac_a->num, frac_b->num);
+  	mpz_mul(newdenom,frac_a->denom, frac_b->denom);
 
-  return init_f(newnum, newdenom);
+  	return init_f(newnum, newdenom);
+
 }
 
 
 //negates a fraction
 frac *negative_f(frac *frac_a) {
+	
+	mpz_t neg; mpz_init(neg);
+	mpz_neg(neg, frac_a->num);
 
-  return init_f(-frac_a->num, frac_a->denom);
+  	return init_f(neg, frac_a->denom);
   
 }
 
@@ -130,28 +155,41 @@ frac *negative_f(frac *frac_a) {
 //provide a zero input and it will break any subsequent code
 frac *reciprocal_f(frac *frac_a) {
 
-  return init_f(frac_a->denom, frac_a->num);
+  	return init_f(frac_a->denom, frac_a->num);
     
 }
 
 
 
 //exponentiates a fraction to ***INTEGER*** powers
-frac *pow_f(frac *frac_a, long exp) {
+frac *pow_f(frac *frac_a, int exp) {
 
-  if ( exp == 0) {
+  	if (exp == 0) {
+    		
+		mpz_t one;
+		mpz_init_set_ui(one, 1);
+    		return init_f(one, one);
+		mpz_clear(one);
     
-    return init_f(1,1);
-    
-  } else if ( exp > 0 ) {
+ 	} 
+	
+	else {
+		mpz_t pow_num, pow_denom;
+		mpz_init(pow_num);
+		mpz_init(pow_denom);
 
-    return init_f(pow_z(frac_a->num,exp),pow_z(frac_a->denom,exp));
-    
-  } else {
+	       	if (exp>0) {
+			pow_z(pow_num, frac_a->num, exp);
+			pow_z(pow_denom, frac_a->denom, exp);
+    			
+			return init_f(pow_num, pow_denom);
+    		} 
+	
+		else {
 
-    return reciprocal_f(init_f(pow_z(frac_a->num,-exp),pow_z(frac_a->denom,-exp)));
-  }
-  
+    			return reciprocal_f(pow_f(frac_a, -exp));
+		}
+ 	}
 }
 
 
@@ -159,7 +197,7 @@ frac *pow_f(frac *frac_a, long exp) {
 //subtract frac_b from frac_a
 frac *subtract_f(frac *frac_a, frac *frac_b) {
 
-  return  add_f(frac_a, negative_f(frac_b));
+  	return  add_f(frac_a, negative_f(frac_b));
   
 }
 
@@ -167,7 +205,7 @@ frac *subtract_f(frac *frac_a, frac *frac_b) {
 //divide frac_a by frac_b
 frac *divide_f(frac *frac_a, frac *frac_b) {
 
-  return multiply_f(frac_a, reciprocal_f(frac_b));
+  	return multiply_f(frac_a, reciprocal_f(frac_b));
   
 }
 
@@ -177,7 +215,7 @@ bool zero_f(frac *frac_a)
 {
 	bool result = false;
 
-	if(frac_a->num==0)
+	if(mpz_cmp_si(frac_a->num, 0)==0)
 	{
 		result = true;
 	}
@@ -189,7 +227,7 @@ bool zero_f(frac *frac_a)
 //returns true if two rationals are equal, false otw.
 bool equals_f(frac *frac_a, frac *frac_b) {
 
-  return zero_f(subtract_f(frac_a, frac_b));
+  	return zero_f(subtract_f(frac_a, frac_b));
     
 }
 
@@ -198,66 +236,86 @@ bool equals_f(frac *frac_a, frac *frac_b) {
 //copy array of fractions
 frac **copy_array_f(frac **src, int len) {
   
-  frac **result = (frac **)malloc(len*sizeof(frac));
-  int i;
+  	frac **result = (frac **)malloc(len*sizeof(frac *));
+  	int i;
   
-  for (i=0;i<len;++i) {
+  	for (i=0 ; i<len; ++i) {
     
-    result[i]=src[i];
+    		result[i]=src[i];
     
-  }
+ 	 }
   
-  return result;
+  	return result;
   
 }
 
 //gcd of two fractions
 frac *gcd_f(frac *frac_a, frac *frac_b) {
 
-	return init_f(gcd_z(frac_a->num, frac_b->num), lcm_z(frac_a->denom, frac_b->denom));
+	mpz_t gcd_num, lcm_denom;
+	mpz_init(gcd_num);
+	mpz_init(lcm_denom);
+
+	gcd_z(gcd_num, reduce_f(frac_a)->num, reduce_f(frac_b)->num);
+	lcm_z(lcm_denom, reduce_f(frac_a)->denom, reduce_f(frac_b)->denom);
+
+	return init_f(gcd_num, lcm_denom);
+	mpz_clear(gcd_num);
+	mpz_clear(lcm_denom);
 }
 
 //lcm of two fractions
 frac *lcm_f(frac *frac_a, frac *frac_b) {
 	
-	return init_f(lcm_z(frac_a->num, frac_b->num), gcd_z(frac_a->denom, frac_b->denom));
+	mpz_t lcm_num, gcd_denom;
+	mpz_init(lcm_num);
+	mpz_init(gcd_denom);
+
+	lcm_z(lcm_num, reduce_f(frac_a)->num, reduce_f(frac_b)->num);
+	gcd_z(gcd_denom, reduce_f(frac_a)->denom, reduce_f(frac_b)->denom);
+
+	return init_f(lcm_num, gcd_denom);
 }
 
-//gcd of an array of fractions
+//gcd of an array of fractions, with i index of last entry
 frac *gcd_array_f(int i, frac **frac_array) {
 
-  frac *gcd_array;
-  if(i==0)
-    {
-      return frac_array[0];
-    }
-  else if(i==1)
-    {
-     gcd_array = gcd_f(frac_array[1], frac_array[0]);
-     return gcd_array;
-    }
-  else
-    {
-     return gcd_f(gcd_array_f(i-1, frac_array), frac_array[i]);
-    }
+  	frac *gcd_array;
+  	
+	if(i==0) {
+      		
+		return frac_array[0];
+    	}
+  	
+	else if(i==1) {
+     		
+		gcd_array = gcd_f(frac_array[1], frac_array[0]);
+     		return gcd_array;
+    	}
+
+  	else {
+     		return gcd_f(gcd_array_f(i-1, frac_array), frac_array[i]);
+    	}
 }
 
 //gcd of an array of fractions
 frac *lcm_array_f(int i, frac **frac_array) {
 
-  frac *lcm_array;
-  if(i==0)
-    {
-      return frac_array[0];
-    }
-  else if(i==1)
-    {
-     lcm_array = lcm_f(frac_array[1], frac_array[0]);
-     return lcm_array;
-    }
-  else
-    {
-     return lcm_f(lcm_array_f(i-1, frac_array), frac_array[i]);
+  	frac *lcm_array;
+  	
+	if(i==0) {
+     
+		return frac_array[0];
+    	}
+  	
+	else if(i==1) {
+     
+		lcm_array = lcm_f(frac_array[1], frac_array[0]);
+     		return lcm_array;
+    	}
+  	
+	else {
+     		return lcm_f(lcm_array_f(i-1, frac_array), frac_array[i]);
     }
 }
 
