@@ -15,11 +15,13 @@ int main() {
 	mpz_init(gcd);	
 	gcd_z(gcd, a, b);
 	
+	gcd_string = (char *)malloc(sizeof(mpz_t));
 	mpz_get_str(gcd_string, 10, gcd);
 	printf("%s\n", gcd_string);
 	
 	mpz_clear(a);
 	mpz_clear(b);
+	free(gcd_string);
 
 return 0;
 }
