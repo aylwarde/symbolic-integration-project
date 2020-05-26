@@ -98,31 +98,24 @@ void lcm_z(mpz_t lcm, mpz_t a, mpz_t b) {
 
 }
 
-void pow_z(mpz_t pow, mpz_t b, mpz_t exp) {
+void pow_z(mpz_t pow, mpz_t b, int exp) {
 
 	mpz_t result; mpz_init(result);
   	
-	if (mpz_cmp_si(exp,0) == 0) {
+	if (exp==0) {
 
 		mpz_set_ui(pow, 1);
  	 } 
 	
-	else if ( mpz_cdiv_ui(exp,2)!=0) {
+	else if (exp%2!=0) {
 
-		mpz_sub_ui(exp, exp, 1);
-		pow_z(pow, b, exp);
+		pow_z(pow, b, exp-1);
 		mpz_mul(pow, b, pow);
  
  	 } 
 	
-	else {
-		mpz_t quot; mpz_init(quot);
-		mpz_t two; mpz_init(two);
-
-		mpz_set_ui(two, 2);
-		mpz_cdiv_q(quot, exp, two);
-		
-		pow_z(pow, b, quot);
+	else {	
+		pow_z(pow, b, exp/2);
 		mpz_mul(pow, pow, pow);
 
 	}
