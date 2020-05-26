@@ -40,7 +40,7 @@ int main() {
 
 	//test zero_f
 	if(zero_f(add_f(frac_a, negative_f(frac_a)))) {
-		printf("oh she zero\n");
+		printf("zero polynomial\n");
 	}
 
 	//test reciprocal_f
