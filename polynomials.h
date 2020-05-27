@@ -501,7 +501,7 @@ poly **from_file_p(FILE *src, int *outlen) {
    Writes polynomial data to a datastream
 */
 
-/*
+
 void to_file_p(FILE *trgt, poly **polys, int polyslength) {
   
 } 
@@ -511,25 +511,36 @@ void latex_p(poly *polynomial)
 {
   printf("$$");
   int i;
-  for(i=0;i<polynomial->deg;--i)
+  char *string,*string2;
+  for(i=0;i<polynomial->deg;++i)
     {
-      if(polynomial->coefficients[i]->denom=1)
+      //if denominator is 1 prints numerator 
+      if(mpz_cmp_si(polynomial->coefficients[i]->denom,1)==0)
 	{
-	  printf(" %ld x^%d",polynomial->coefficients[i]->num,polynomial->deg-i);
+	  string =(char *)malloc(sizeof(frac));
+	  mpz_get_str(string,10,polynomial->coefficients[i]->num);
+	  printf("%s",string);
+	  printf("x^%d+",polynomial->deg-i);
 	}
+
+      //skips x^n term if coefficient is 0/m
+      else if(mpz_cmp_si(polynomial->coefficients[i]->denom,0)==0)
+	{
+	  //do nothing
+	}
+      
       else
 	{
-          printf(" \frac{%ld}{%ld} x^%d +",polynomial->coefficients[i]->num,polynomial->coefficients[i]->denom,polynomial->deg-i);
+	  string =(char *)malloc(sizeof(frac));
+	  mpz_get_str(string,10,polynomial->coefficients[i]->num);
+	  printf("\\frac{%s}{",string);
+	  mpz_get_str(string,10,polynomial->coefficients[i]->denom);
+	  printf("%s}+",string);
 	}
     }
-  if(polynomial->coefficients[polynomial->deg]->denom=1)
-    {
-      printf(" %ld $$ \n",polynomial->coefficients[polynomial->deg]->num);
-    }
-  else
-    {
-     printf(" \frac{%ld}{%ld} $$ \n",polynomial->coefficients[polynomial->deg]->num,polynomial->coefficients[polynomial->deg]->denom);
-    }
+  print_f(polynomial->coefficients[polynomial->deg]);
+  printf("$$\n");
+  free(string);
 }
 
 poly *conmultiply_p(frac *c,poly *polynomial)
@@ -601,4 +612,3 @@ poly *pseudogcd_p(poly* polynomial1,poly* polynomial2)
 	 }
   }
 
-*/
