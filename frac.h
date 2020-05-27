@@ -23,7 +23,8 @@ frac *init_f();
 void print_f();
 void free_f();
 
-frac *reduce_f();
+int reduce_f();
+
 frac *add_f();
 frac *multiply_f();
 frac *negative_f();
@@ -82,7 +83,9 @@ frac  *init_f(mpz_t num, mpz_t denom) {
     	frac *frac_a = (frac *)calloc(1,sizeof(frac));
 	mpz_init_set(frac_a->num, num);
 	mpz_init_set(frac_a->denom, denom);
-    	
+
+	reduce_f(frac_a);
+	
 	return frac_a;
   }
   
@@ -90,7 +93,7 @@ frac  *init_f(mpz_t num, mpz_t denom) {
 
 
 //fully reduces a fraction; i.e. returns an equal fraction such that numerator and denomenator are coprime.
-frac *reduce_f(frac *frac_a){
+int reduce_f(frac *frac_a){
   	
 	mpz_t div; mpz_init(div);
 	gcd_z(div, frac_a->num , frac_a->denom );
@@ -102,9 +105,15 @@ frac *reduce_f(frac *frac_a){
 	mpz_cdiv_q(newnum, frac_a->num, div);
   	mpz_cdiv_q(newdenom, frac_a->denom, div);
 
-  	return init_f(newnum, newdenom);
+	mpz_set(frac_a->num, newnum);
+	mpz_set(frac_a->denom, newdenom);
+	
+  	/* return init_f(newnum, newdenom); */
+	
 	mpz_clear(newnum);
 	mpz_clear(newdenom);
+
+	return 0;
 }
 
 
@@ -256,8 +265,8 @@ frac *gcd_f(frac *frac_a, frac *frac_b) {
 	mpz_init(gcd_num);
 	mpz_init(lcm_denom);
 
-	gcd_z(gcd_num, reduce_f(frac_a)->num, reduce_f(frac_b)->num);
-	lcm_z(lcm_denom, reduce_f(frac_a)->denom, reduce_f(frac_b)->denom);
+	gcd_z(gcd_num, frac_a->num, frac_b->num);
+	lcm_z(lcm_denom, frac_a->denom, frac_b->denom);
 
 	return init_f(gcd_num, lcm_denom);
 	mpz_clear(gcd_num);
@@ -271,8 +280,8 @@ frac *lcm_f(frac *frac_a, frac *frac_b) {
 	mpz_init(lcm_num);
 	mpz_init(gcd_denom);
 
-	lcm_z(lcm_num, reduce_f(frac_a)->num, reduce_f(frac_b)->num);
-	gcd_z(gcd_denom, reduce_f(frac_a)->denom, reduce_f(frac_b)->denom);
+	lcm_z(lcm_num, frac_a->num, frac_b->num);
+	gcd_z(gcd_denom, frac_a->denom, frac_b->denom);
 
 	return init_f(lcm_num, gcd_denom);
 }
