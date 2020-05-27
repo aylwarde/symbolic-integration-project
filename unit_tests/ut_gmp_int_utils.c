@@ -10,7 +10,10 @@ int main() {
 	char *a_string = "-3728245", *b_string = "2225", *gcd_string;
 
 	mpz_init_set_str(a, a_string, 10);
-       	mpz_init_set_str(b, b_string, 10); 
+       	mpz_init_set_str(b, b_string, 10);
+
+	a_string =NULL;
+	b_string = NULL;	
 	
 	mpz_init(gcd);	
 	gcd_z(gcd, a, b);
@@ -22,6 +25,7 @@ int main() {
 	mpz_clear(a);
 	mpz_clear(b);
 	free(gcd_string);
+	mpz_clear(gcd);
 
 return 0;
 }

@@ -60,6 +60,8 @@ void gcd_z(mpz_t gcd, mpz_t a, mpz_t b) {
 			max_z(max, a_abs, b_abs);
 
       			mpz_set(gcd, max);
+
+			mpz_clear(max);
       
    		 } 
 		
@@ -74,11 +76,12 @@ void gcd_z(mpz_t gcd, mpz_t a, mpz_t b) {
 			mpz_cdiv_r(r, max, min);
 
 			gcd_z(gcd, min, r); 
+
+			mpz_clears(r, max, min, NULL);
 			
     		}
   	}
-
-
+	mpz_clears(a_abs, b_abs, NULL);
 }
 
 void lcm_z(mpz_t lcm, mpz_t a, mpz_t b) {
@@ -95,6 +98,8 @@ void lcm_z(mpz_t lcm, mpz_t a, mpz_t b) {
 	mpz_mul(mult, a_abs, b_abs);
 	gcd_z(gcd, a, b);
 	mpz_cdiv_q(lcm, mult, gcd);
+
+	mpz_clears(a_abs, b_abs, mult, gcd, NULL);
 
 }
 

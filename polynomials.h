@@ -109,8 +109,8 @@ void assign_coeffs_p(poly *polynomial)
 	long int *denom_store;
 	mpz_t num, denom;
 
-	num_store = (long int *)calloc(polynomial->deg, sizeof(long int));
-	denom_store = (long int *)calloc(polynomial->deg, sizeof(long int));
+	num_store = (long int *)calloc(polynomial->deg+1, sizeof(long int));
+	denom_store = (long int *)calloc(polynomial->deg+1, sizeof(long int));
 
 	for(i=0; i<=polynomial->deg; ++i)
 	{
