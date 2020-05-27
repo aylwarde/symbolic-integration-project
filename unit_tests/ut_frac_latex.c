@@ -14,7 +14,7 @@ int main() {
   frac *frac_a = init_f(ten, two);
   frac *frac_b = init_f(eleven, two);
 
-  puts(latex_f(frac_a, true));
-  puts(latex_f(frac_b, false));
+  puts(latex_f(frac_a, "$$", "$$"));
+  puts(latex_f(frac_b, "{", "}"));
   
 }

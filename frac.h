@@ -43,7 +43,7 @@ frac **copy_array_f();
 bool zero_f();
 bool equals_f();
 
-char *latex_f( frac *, bool );
+char *latex_f( frac *, const char *, const char * );
 /* End of function defs*/
 
 
@@ -375,20 +375,17 @@ frac *lcm_array_f(int i, frac **frac_array) {
 }
 
 /* 
-   takes a frac pointer and a bool as arguments; returns a char * with the fraction formatted in LaTeX code.
-   set bool nline true to wrap output in $$...$$ i.e. to format as a new line in LaTeX
+   takes a frac pointer and two const strs  as arguments; returns a char * with the fraction formatted 
+   in LaTeX code. Pass to leftwrap and rightwrap the formatters you want to wrap the output in - these can be
+   empty.
 */
-char *latex_f(frac *frac_a, bool nline) {
+char *latex_f(frac *frac_a, const char * leftwrap, const char * rightwrap) {
 
   char *result, *numstr;
   size_t result_size = 64;
   result = (char *)calloc(result_size, sizeof(char));
 
-  if ( nline ) {
-
-    strcat(result, "$$");
-    
-  }
+  strcat(result, leftwrap);
 
   
   if ( mpz_cmp_ui(frac_a->denom, 1) != 0 ) {
@@ -439,13 +436,8 @@ char *latex_f(frac *frac_a, bool nline) {
     
   }
 
-  if ( nline ) {
+  strcat(result, rightwrap);
 
-    strcat(result, "$$");
-    
-  }
-
-  
   return result;
   
 }
