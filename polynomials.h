@@ -512,33 +512,52 @@ void latex_p(poly *polynomial)
   printf("$$");
   int i;
   char *string;
+  string =(char *)malloc(sizeof(frac));
   for(i=0;i<polynomial->deg;++i)
     {
       //if denominator is 1 prints numerator 
       if(mpz_cmp_si(polynomial->coefficients[i]->denom,1)==0)
 	{
-	  string =(char *)malloc(sizeof(frac));
 	  mpz_get_str(string,10,polynomial->coefficients[i]->num);
 	  printf("%s",string);
 	  printf("x^%d+",polynomial->deg-i);
 	}
 
       //skips x^n term if coefficient is 0/m
-      else if(mpz_cmp_si(polynomial->coefficients[i]->denom,0)==0)
+      else if(mpz_cmp_si(polynomial->coefficients[i]->num,0)==0)
 	{
 	  //do nothing
 	}
       
       else
 	{
-	  string =(char *)malloc(sizeof(frac));
 	  mpz_get_str(string,10,polynomial->coefficients[i]->num);
 	  printf("\\frac{%s}{",string);
 	  mpz_get_str(string,10,polynomial->coefficients[i]->denom);
-	  printf("%s}+",string);
+	  printf("%s}x^%d+",string,polynomial->deg-i);
 	}
     }
-  print_f(polynomial->coefficients[polynomial->deg]);
+
+  //if denominator is 1 prints numerator 
+  if(mpz_cmp_si(polynomial->coefficients[polynomial->deg]->denom,1)==0)
+    {
+      mpz_get_str(string,10,polynomial->coefficients[polynomial->deg]->num);
+      printf("%s",string);
+    }
+
+  //skips deg^th term if coefficient is 0/m
+  else if(mpz_cmp_si(polynomial->coefficients[polynomial->deg]->num,0)==0)
+    {
+      //do nothing
+    }
+      
+  else
+    {
+      mpz_get_str(string,10,polynomial->coefficients[polynomial->deg]->num);
+      printf("\\frac{%s}{",string);
+      mpz_get_str(string,10,polynomial->coefficients[polynomial->deg]->denom);
+      printf("%s}",string);
+    }
   printf("$$\n");
   free(string);
 }

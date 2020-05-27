@@ -10,6 +10,9 @@ int main()
 	
 	//test display_p	
 	display_p(poly_a);
+
+	//test printlatex_p
+	latex_p(poly_a);
 	
 	//test strip_p
 	strip_p(poly_a);
@@ -64,9 +67,17 @@ int main()
 	//test content_p
 	print_f(content_p(poly_a));
 
+	//test pseudo division
+	display_p(pseudodiv_p(pow_p(2,poly_a),poly_a)[0]);
+	display_p(pseudodiv_p(pow_p(2,poly_a),poly_a)[1]);
+
+	//test pseudogcd
+	display_p(pseudogcd_p(poly_a,pow_p(2,poly_a)));
+
 	//test equals_p
 	if(equals_p(poly_a, poly_a)) {
 		printf("\ntest passed\n");
+
 	}
 
 
