@@ -26,7 +26,7 @@ int main() {
 
   fclose(polyfile);
 
-  print_f(content_p(polyarray[2]));
+  print_f(content_p(polyarray[1]));
   printf("\n");
   
 }

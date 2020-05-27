@@ -419,18 +419,18 @@ bool equals_p(poly *poly_a, poly * poly_b) {
    not a positive int)
 */
 
-/*
+
 poly **from_file_p(FILE *src, int *outlen) {
   // read the file src containing some polynomials and output an array containing those polynomials
   char *data = file_to_str(src);
   poly **result = (poly **)calloc(1, sizeof(poly *));
-  char *tok1, *tok2;
+  char *tok1, *tok2, *tok3, *tok4;
   char *line;
 
   // placeholder pointer
   char *ptr1 = data;
   int i=0, j=0, deg;
-  long num, denom;
+  mpz_t num, denom;
   frac **coeffs;
 
   int k;
@@ -449,15 +449,24 @@ poly **from_file_p(FILE *src, int *outlen) {
     while ( tok2 != NULL ) {
       
       if (j != 0) {
+
+	char *ptr3 = tok2;
 	
-	if ( sscanf(tok2, "%ld/%ld", &num, &denom) != 2){
-	    
-	  printf("ERROR: Invalid format\n");
+	tok3 = strtok_r(tok2, "/", &ptr3);
+	tok4 = strtok_r(NULL, "/", &ptr3);
+	
+	if ( mpz_init_set_str(num, tok3, 10) == -1 || mpz_init_set_str(denom, tok4, 10) == -1 ) {
+
+	  printf("Error");
 	  return NULL;
-	  
+	    
 	}
+	
 
 	coeffs[j-1] = init_f(num, denom);
+
+	mpz_clear(num);
+	mpz_clear(denom);
 	  
       }
 
@@ -487,7 +496,6 @@ poly **from_file_p(FILE *src, int *outlen) {
   return result;
   
 }
-*/
 
 /* 
    Writes polynomial data to a datastream
