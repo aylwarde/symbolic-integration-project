@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <gmp.h>
+#include <string.h>
 
 #include "int_utils.h"
 
@@ -41,6 +42,8 @@ frac **copy_array_f();
 
 bool zero_f();
 bool equals_f();
+
+char *latex_f( frac *, bool );
 /* End of function defs*/
 
 
@@ -328,4 +331,79 @@ frac *lcm_array_f(int i, frac **frac_array) {
     }
 }
 
+/* 
+   takes a frac pointer and a bool as arguments; returns a char * with the fraction formatted in LaTeX code.
+   set bool nline true to wrap output in $$...$$ i.e. to format as a new line in LaTeX
+*/
+char *latex_f(frac *frac_a, bool nline) {
+
+  char *result, *numstr;
+  size_t result_size = 64;
+  result = (char *)calloc(result_size, sizeof(char));
+
+  if ( nline ) {
+
+    strcat(result, "$$");
+    
+  }
+
+  
+  if ( mpz_cmp_ui(frac_a->denom, 1) != 0 ) {
+    
+    strcat(result, "\\frac{");
+    
+  }
+
+  size_t result_free = result_size - strlen(result);
+
+  numstr = (char *)mpz_get_str(NULL, 10, frac_a->num);
+  
+  while ( strlen(numstr) >= result_free ) {
+    
+    result_size *= 2;
+    if ( realloc(result, result_size*sizeof(char)) == NULL) {
+
+  	printf("Error");
+  	return NULL;
+	
+      }
+    
+  }
+  
+  strcat(result, numstr);
+  
+  result_free = result_size - strlen(result);
+
+  if ( mpz_cmp_ui(frac_a->denom, 1) != 0 ) {
+    
+    char *denomstr = (char *)mpz_get_str(NULL, 10, frac_a->denom);
+
+    while ( strlen(denomstr) >= result_free ) {
+    
+      result_size *= 2;
+      if ( realloc(result, result_size*sizeof(char)) == NULL) {
+
+    	printf("Error");
+    	return NULL;
+	
+      }
+    
+    }
+    
+    strcat(result, "}{");
+    strcat(result, denomstr);
+    strcat(result, "}");
+    
+  }
+
+  if ( nline ) {
+
+    strcat(result, "$$");
+    
+  }
+
+  
+  return result;
+  
+}
 #endif /* FRAC_H */
