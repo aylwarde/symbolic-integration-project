@@ -511,7 +511,7 @@ void latex_p(poly *polynomial)
 {
   printf("$$");
   int i;
-  char *string,*string2;
+  char *string;
   for(i=0;i<polynomial->deg;++i)
     {
       //if denominator is 1 prints numerator 
