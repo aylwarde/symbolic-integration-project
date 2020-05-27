@@ -57,13 +57,15 @@ void print_f(frac *frac_a) {
 	  printf("/%s", string);
   }  
   free(string); 
+  string =NULL;
+
 }
 
 
 //free a frac
 void free_f(frac *frac_a) {
 	
-	//mpz_clears(frac_a->num, frac_a->denom);	
+	mpz_clears(frac_a->num, frac_a->denom, NULL);	
   	free(frac_a);
 }
 
@@ -81,8 +83,11 @@ frac  *init_f(mpz_t num, mpz_t denom) {
   else {
   
     	frac *frac_a = (frac *)calloc(1,sizeof(frac));
-	mpz_init_set(frac_a->num, num);
-	mpz_init_set(frac_a->denom, denom);
+	mpz_init(frac_a->num);
+	mpz_init(frac_a->denom);
+
+	mpz_set(frac_a->num, num);
+	mpz_set(frac_a->denom, denom);
 
 	reduce_f(frac_a);
 	
@@ -110,8 +115,7 @@ int reduce_f(frac *frac_a){
 	
   	/* return init_f(newnum, newdenom); */
 	
-	mpz_clear(newnum);
-	mpz_clear(newdenom);
+	mpz_clears(newnum, newdenom, div, NULL);
 
 	return 0;
 }
@@ -120,6 +124,7 @@ int reduce_f(frac *frac_a){
 //adds two fractions
 frac *add_f(frac *frac_a, frac *frac_b) {
 
+	frac *frac_add;
 	mpz_t newnum, newdenom;
 	mpz_init(newnum);
 	mpz_init(newdenom);
@@ -129,7 +134,9 @@ frac *add_f(frac *frac_a, frac *frac_b) {
 
   	mpz_mul(newdenom, frac_a->denom, frac_b->denom);
   
-  	return init_f(newnum, newdenom);
+	frac_add = init_f(newnum, newdenom);
+	mpz_clears(newnum, newdenom, NULL);
+  	return frac_add;
   
 }
 
@@ -137,14 +144,17 @@ frac *add_f(frac *frac_a, frac *frac_b) {
 //multiplies two fractions
 frac *multiply_f(frac *frac_a, frac *frac_b) {
 
-  	mpz_t newnum, newdenom;
+  	frac *frac_mult;
+	mpz_t newnum, newdenom;
 	mpz_init(newnum);
 	mpz_init(newdenom);
 
   	mpz_mul(newnum, frac_a->num, frac_b->num);
   	mpz_mul(newdenom,frac_a->denom, frac_b->denom);
 
-  	return init_f(newnum, newdenom);
+  	frac_mult = init_f(newnum, newdenom);
+	mpz_clears(newnum, newdenom, NULL);
+	return frac_mult;
 
 }
 
@@ -152,10 +162,13 @@ frac *multiply_f(frac *frac_a, frac *frac_b) {
 //negates a fraction
 frac *negative_f(frac *frac_a) {
 	
+	frac *frac_neg;
 	mpz_t neg; mpz_init(neg);
 	mpz_neg(neg, frac_a->num);
 
-  	return init_f(neg, frac_a->denom);
+	frac_neg = init_f(neg, frac_a->denom);
+	mpz_clear(neg);
+  	return frac_neg;
   
 }
 
@@ -173,30 +186,38 @@ frac *reciprocal_f(frac *frac_a) {
 //exponentiates a fraction to ***INTEGER*** powers
 frac *pow_f(frac *frac_a, int exp) {
 
+	frac *frac_pow, *frac_recip; 
+
   	if (exp == 0) {
     		
 		mpz_t one;
 		mpz_init_set_ui(one, 1);
-    		return init_f(one, one);
+		frac_pow = init_f(one, one);
 		mpz_clear(one);
-    
+    		return frac_pow;
  	} 
 	
 	else {
-		mpz_t pow_num, pow_denom;
-		mpz_init(pow_num);
-		mpz_init(pow_denom);
 
 	       	if (exp>0) {
+	
+			mpz_t pow_num, pow_denom;
+			mpz_init(pow_num);
+			mpz_init(pow_denom);
+
 			pow_z(pow_num, frac_a->num, exp);
 			pow_z(pow_denom, frac_a->denom, exp);
     			
-			return init_f(pow_num, pow_denom);
+			frac_pow = init_f(pow_num, pow_denom);
+			mpz_clears(pow_num, pow_denom, NULL);
+			return frac_pow;
     		} 
 	
 		else {
-
-    			return reciprocal_f(pow_f(frac_a, -exp));
+			frac_recip = pow_f(frac_a, -exp);
+			frac_pow = reciprocal_f(frac_recip);
+			free_f(frac_recip);
+    			return frac_pow;
 		}
  	}
 }
@@ -206,7 +227,13 @@ frac *pow_f(frac *frac_a, int exp) {
 //subtract frac_b from frac_a
 frac *subtract_f(frac *frac_a, frac *frac_b) {
 
-  	return  add_f(frac_a, negative_f(frac_b));
+	frac *frac_subtract, *frac_neg;
+	
+	frac_neg = negative_f(frac_b);
+	frac_subtract = add_f(frac_a, frac_neg);
+	free_f(frac_neg);
+
+  	return  frac_subtract;
   
 }
 
@@ -214,7 +241,13 @@ frac *subtract_f(frac *frac_a, frac *frac_b) {
 //divide frac_a by frac_b
 frac *divide_f(frac *frac_a, frac *frac_b) {
 
-  	return multiply_f(frac_a, reciprocal_f(frac_b));
+	frac *frac_recip, *frac_divide;
+
+	frac_recip = reciprocal_f(frac_b);
+	frac_divide = multiply_f(frac_a, frac_recip);
+	free_f(frac_recip);
+
+  	return frac_divide;
   
 }
 
@@ -236,7 +269,13 @@ bool zero_f(frac *frac_a)
 //returns true if two rationals are equal, false otw.
 bool equals_f(frac *frac_a, frac *frac_b) {
 
-  	return zero_f(subtract_f(frac_a, frac_b));
+  	bool result; 
+	frac *frac_subtract;
+
+	frac_subtract = subtract_f(frac_a, frac_b);
+	result = zero_f(frac_subtract);
+	free_f(frac_subtract);
+	return result;
     
 }
 
@@ -261,6 +300,7 @@ frac **copy_array_f(frac **src, int len) {
 //gcd of two fractions
 frac *gcd_f(frac *frac_a, frac *frac_b) {
 
+	frac *frac_gcd;
 	mpz_t gcd_num, lcm_denom;
 	mpz_init(gcd_num);
 	mpz_init(lcm_denom);
@@ -268,14 +308,15 @@ frac *gcd_f(frac *frac_a, frac *frac_b) {
 	gcd_z(gcd_num, frac_a->num, frac_b->num);
 	lcm_z(lcm_denom, frac_a->denom, frac_b->denom);
 
-	return init_f(gcd_num, lcm_denom);
-	mpz_clear(gcd_num);
-	mpz_clear(lcm_denom);
+	frac_gcd = init_f(gcd_num, lcm_denom);
+	mpz_clears(gcd_num, lcm_denom, NULL);
+	return frac_gcd;
 }
 
 //lcm of two fractions
 frac *lcm_f(frac *frac_a, frac *frac_b) {
 	
+	frac *frac_lcm;
 	mpz_t lcm_num, gcd_denom;
 	mpz_init(lcm_num);
 	mpz_init(gcd_denom);
@@ -283,7 +324,9 @@ frac *lcm_f(frac *frac_a, frac *frac_b) {
 	lcm_z(lcm_num, frac_a->num, frac_b->num);
 	gcd_z(gcd_denom, frac_a->denom, frac_b->denom);
 
-	return init_f(lcm_num, gcd_denom);
+	frac_lcm = init_f(lcm_num, gcd_denom);
+	mpz_clears(lcm_num, gcd_denom, NULL);
+	return frac_lcm;
 }
 
 //gcd of an array of fractions, with i index of last entry
