@@ -49,20 +49,33 @@ char *latex_f( frac *, const char *, const char * );
 
 void print_f(frac *frac_a) {
 
- 	 char *string;
-	 string = (char *)malloc(sizeof(frac));
-	 mpz_get_str(string, 10, frac_a->num);
-	 printf("%s", string);
+         char *string;
+         string = (char *)malloc(sizeof(frac));
 
-  if (mpz_cmp_si(frac_a->denom, 1) != 0 && mpz_cmp_si(frac_a->num,0)!=0) {
-    		
-	  mpz_get_str(string, 10, frac_a->denom);
-	  printf("/%s", string);
-  }  
-  free(string); 
+
+        mpz_get_str(string, 10, frac_a->num);
+
+        if(mpz_cmp_si(frac_a->denom, -1)==0) {
+                mpz_get_str(string, 10, negative_f(frac_a)->num);
+                printf("%s", string);
+
+        }
+
+        else {
+                mpz_get_str(string, 10, frac_a->num);
+                printf("%s", string);
+
+                if (mpz_cmp_si(frac_a->denom, 1) != 0 && mpz_cmp_si(frac_a->num,0)!=0) {
+                                mpz_get_str(string, 10, frac_a->denom);
+                                printf("/%s", string);
+                        }
+        }
+
+  free(string);
   string =NULL;
 
 }
+
 
 
 //free a frac
