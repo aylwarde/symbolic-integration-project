@@ -138,9 +138,10 @@ void display_p(poly *polynomial)
 	int i;
 	for(i=0; i<polynomial->deg;++i)
 	{
-		print_f(polynomial->coefficients[i]);
-		printf("x^%d+",polynomial->deg-i);
-
+		if(!zero_f(polynomial->coefficients[i])) {
+			print_f(polynomial->coefficients[i]);
+			printf("x^%d+",polynomial->deg-i);
+		}
 	}
 	print_f(polynomial->coefficients[polynomial->deg]);
 	printf("\n");
