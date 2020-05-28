@@ -32,6 +32,12 @@ int main()
 	display_p(result[0]);
 	display_p(result[1]);
 	
+	free(result);
+	free_p(poly1);
+	free_p(poly2);
+	free_p(c);
+
+	
 return 0;	
 }
 
