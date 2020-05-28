@@ -43,7 +43,6 @@ void free_r(rational *rfa) {
 // Denominator MUST NOT be identically zero.
 rational *init_r(poly *num, poly *denom) {
 
-  
   if ( zero_p(denom) ) {
 
     printf("Error\n");
@@ -88,6 +87,8 @@ void print_r(rational *rfa) {
   
 }
 
+
+// you know the drill by now
 rational *add_r(rational *rfa, rational *rfb) {
   
   rational *result;
@@ -99,6 +100,30 @@ rational *add_r(rational *rfa, rational *rfb) {
   return result;
 }
 
+rational *multiply_r(rational *rfa, rational *rfb) {
 
+  rational *result;
+
+  poly *newnum = multiply_p( rfa->num, rfb->num );
+  poly *newdenom = multiply_p( rfa->denom, rfb->denom );
+
+  result = init_r( newnum, newdenom );
+  return result;
+}
+
+rational *negative_r(rational *rfa) {
+
+  rational *result;
+  poly *newnum = negative_p( rfa->num );
+
+  result = init_r( newnum, rfa->denom );
+  return result;
+}
+
+rational *reciprocal_r(rational *rfa) {
+
+  rational *result = init_r( rfa->denom, rfa->num );
+  return result;
+}
 
 #endif /* RATIONALFNS_H */
