@@ -9,7 +9,7 @@ int main()
 	rational *input;
 	rational **result;
 
-	polyfile = fopen("book_examples/hermite_reduce.txt", "r");
+	polyfile = fopen("hermite_reduce.txt", "r");
 	
 	if(polyfile == NULL) {
 		
