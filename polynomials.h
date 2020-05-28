@@ -1,3 +1,6 @@
+#ifndef POLYNOMIALS_H
+#define POLYNOMIALS_H
+
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
@@ -631,3 +634,4 @@ poly *pseudogcd_p(poly* polynomial1,poly* polynomial2)
 	 }
   }
 
+#endif /* POLYNOMIALS_H */

@@ -1,3 +1,6 @@
+#ifndef FILE_UTILS_H
+#define FILE_UTILS_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -42,3 +45,5 @@ char *file_to_str(FILE *src) {
   return result;
   
 }
+
+#endif /* FILE_UTILS_H */
