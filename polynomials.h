@@ -60,11 +60,15 @@ poly *initialize_p(int degree)
 	int i;
 
 	poly *result= (poly *)calloc(1,sizeof(poly));
-	frac **coefficients=(frac **)calloc(degree+1,sizeof(frac));
+	frac **coefficients=(frac **)calloc(degree+1,sizeof(frac *));
+	
+	mpz_t zero; mpz_init(zero);
+	mpz_t one; mpz_init_set_ui(one, 1);
 
 	for(i=0; i<=degree; ++i)
 	{
-		coefficients[i] = init_f(0,1);
+		
+		coefficients[i] = init_f(zero,one);
 	}
 
 	result->deg = degree;
@@ -96,17 +100,36 @@ poly *initialize_from_array_p(int degree, frac **coefficients) {
   return result;
 }
 
-//assign values to coefficients of polynomial, in decreasing degree (include zero coefficients)
+//assign  integer values to coefficients of polynomial, in decreasing degree (include zero coefficients)
+//this function is a bit useless though, file input preferable...  
 void assign_coeffs_p(poly *polynomial)
 {
 	int i;
+	long int *num_store;
+	long int *denom_store;
+	mpz_t num, denom;
+
+	num_store = (long int *)calloc(polynomial->deg+1, sizeof(long int));
+	denom_store = (long int *)calloc(polynomial->deg+1, sizeof(long int));
+
 	for(i=0; i<=polynomial->deg; ++i)
 	{
 		printf("Enter coefficient of x^%d:\n", (polynomial->deg-i));
-		scanf("%ld", &polynomial->coefficients[i]->num);
+		scanf("%ld", &num_store[i]);
 		printf("/");
-		scanf("%ld", &polynomial->coefficients[i]->denom);
+		scanf("%ld", &denom_store[i]);
 	}
+
+	for(i=0; i<=polynomial->deg; ++i)
+	{
+		mpz_init_set_si(num, num_store[i]);
+		mpz_init_set_si(denom, denom_store[i]);
+		mpz_set(polynomial->coefficients[i]->num, num);
+		mpz_set(polynomial->coefficients[i]->denom, denom);
+		mpz_clear(num);
+		mpz_clear(denom);
+	}
+
 }
 
 //display a polynomial
@@ -130,6 +153,7 @@ void free_p(poly *polynomial)
 	free(polynomial->coefficients);
 	free(polynomial);
 }
+
 
 //check if polynomial is zero (return boolean value)
 bool zero_p(poly *polynomial)
@@ -248,6 +272,7 @@ poly *subtract_p(poly *polynomial1, poly *polynomial2)
 	return result;
 }
 
+
 //polynomial multiplication
 poly *multiply_p(poly *polynomial1, poly *polynomial2)
 {
@@ -267,7 +292,7 @@ poly *multiply_p(poly *polynomial1, poly *polynomial2)
 	return result;
 }
 
-//raise a polynomial to a power
+//raise a polynomial to a positive power
 poly *pow_p(int exponent, poly *poly) {
 
 	if(exponent==1)
@@ -286,61 +311,78 @@ poly *pow_p(int exponent, poly *poly) {
 
 poly **divide_p(poly *polynomial1, poly *polynomial2)
 {
-	int d=0;
-	frac *t;
-	poly *division, *quotient, *remainder;
-	poly **result;
-	
-	result = initialize_array_p(2);
-
 	if(zero_p(polynomial2))
 	{
 		printf("Error: division by zero polynomial");
 		exit(0);
 	}
-	else 
-	{
-	  quotient = initialize_p(MAX(polynomial1->deg-polynomial2->deg,0));
-	  remainder = copy_p(polynomial1);
 
-	  while(!zero_p(remainder) && (remainder->deg-polynomial2->deg)>=0)
-	    {	
-	      d = remainder->deg-polynomial2->deg;
-	      t = divide_f(remainder->coefficients[0], polynomial2->coefficients[0]);
-			
-	      division = initialize_p(d);
-	      division->coefficients[0] = t;
-
-	      quotient = add_p(quotient, division);
-	      remainder = subtract_p(remainder, multiply_p(polynomial2, division));
-	    }
+	else {
+		int d=0;
+		frac *t;
+		poly *division, *quotient, *remainder;
+		poly **result;
 	
-	result[0] = quotient;
-	result[1] = remainder;
+		result = initialize_array_p(2);
+
+		if(zero_p(polynomial2))
+		{
+			printf("Error: division by zero polynomial");
+			exit(0);
+		}
+		else 
+		{
+	  		quotient = initialize_p(MAX(polynomial1->deg-polynomial2->deg,0));
+	  		remainder = copy_p(polynomial1);
+
+	  	while(!zero_p(remainder) && (remainder->deg-polynomial2->deg)>=0)
+	    	{	
+	      		d = remainder->deg-polynomial2->deg;
+	      		t = divide_f(remainder->coefficients[0], polynomial2->coefficients[0]);
+			
+	      		division = initialize_p(d);
+	      		division->coefficients[0] = t;
+
+	      		quotient = add_p(quotient, division);
+	      		remainder = subtract_p(remainder, multiply_p(polynomial2, division));
+	    	}
+	
+		result[0] = quotient;
+		result[1] = remainder;
 	}
+
 	return result;
+	}
 }
 
 //derivative of polynomial
 poly *derivative_p(poly *polynomial) {
-	int i;
-	long d = (long)polynomial->deg;
+	int i=0;
 
-	for(i=0; i<(int)d; ++i)
+	poly *derivative;
+	derivative = initialize_p(polynomial->deg-1);
+
+	mpz_t d; 
+	mpz_init_set_si(d, (long)polynomial->deg);
+	mpz_t one; mpz_init_set_ui(one,1);
+
+	while(i<polynomial->deg)
 	{
-		polynomial->coefficients[i] = multiply_f(init_f(d-i,1), polynomial->coefficients[i]);
+		derivative->coefficients[i] = multiply_f(init_f(d,one), polynomial->coefficients[i]);
+		mpz_sub_ui(d, d, 1);
+		++i;
 	}
-	polynomial->deg = (int)d-1;
-	return polynomial;
+	return derivative;
 }
 
+//euclidean algorithm
 poly *gcd_p(poly *polynomial1, poly *polynomial2) {
 
         poly *q, *r;
 
         while(!zero_p(polynomial2))
         {
-                q = divide_p(polynomial1, polynomial2)[0];
+                //q = divide_p(polynomial1, polynomial2)[0];
                 r = divide_p(polynomial1, polynomial2)[1];
                 polynomial1 = copy_p(polynomial2);
                 polynomial2 = copy_p(r);
@@ -354,10 +396,14 @@ frac *content_p(poly *polynomial) {
 
 	return gcd_array_f(polynomial->deg, polynomial->coefficients);
 }
+
+
 /* 
    returns true if poly_a and poly_b are exactly equal in all coefficients; 
    NOTE: will return false for poly_a, poly_b  equal up to a constant factor
 */
+
+
 bool equals_p(poly *poly_a, poly * poly_b) {
 
   return zero_p(subtract_p(poly_a, poly_b));
@@ -372,17 +418,19 @@ bool equals_p(poly *poly_a, poly * poly_b) {
    the file, and will return a null pointer if the degree of any polynomial stored is invalid (i.e. 
    not a positive int)
 */
+
+
 poly **from_file_p(FILE *src, int *outlen) {
   // read the file src containing some polynomials and output an array containing those polynomials
   char *data = file_to_str(src);
   poly **result = (poly **)calloc(1, sizeof(poly *));
-  char *tok1, *tok2;
+  char *tok1, *tok2, *tok3, *tok4;
   char *line;
 
   // placeholder pointer
   char *ptr1 = data;
   int i=0, j=0, deg;
-  long num, denom;
+  mpz_t num, denom;
   frac **coeffs;
 
   int k;
@@ -401,15 +449,24 @@ poly **from_file_p(FILE *src, int *outlen) {
     while ( tok2 != NULL ) {
       
       if (j != 0) {
+
+	char *ptr3 = tok2;
 	
-	if ( sscanf(tok2, "%ld/%ld", &num, &denom) != 2){
-	    
-	  printf("ERROR: Invalid format\n");
+	tok3 = strtok_r(tok2, "/", &ptr3);
+	tok4 = strtok_r(NULL, "/", &ptr3);
+	
+	if ( mpz_init_set_str(num, tok3, 10) == -1 || mpz_init_set_str(denom, tok4, 10) == -1 ) {
+
+	  printf("Error");
 	  return NULL;
-	  
+	    
 	}
+	
 
 	coeffs[j-1] = init_f(num, denom);
+
+	mpz_clear(num);
+	mpz_clear(denom);
 	  
       }
 
@@ -443,6 +500,8 @@ poly **from_file_p(FILE *src, int *outlen) {
 /* 
    Writes polynomial data to a datastream
 */
+
+
 void to_file_p(FILE *trgt, poly **polys, int polyslength) {
   
 } 
@@ -452,25 +511,55 @@ void latex_p(poly *polynomial)
 {
   printf("$$");
   int i;
-  for(i=0;i<polynomial->deg;--i)
+  char *string;
+  string =(char *)malloc(sizeof(frac));
+  for(i=0;i<polynomial->deg;++i)
     {
-      if(polynomial->coefficients[i]->denom=1)
+      //if denominator is 1 prints numerator 
+      if(mpz_cmp_si(polynomial->coefficients[i]->denom,1)==0)
 	{
-	  printf(" %ld x^%d",polynomial->coefficients[i]->num,polynomial->deg-i);
+	  mpz_get_str(string,10,polynomial->coefficients[i]->num);
+	  printf("%s",string);
+	  printf("x^%d+",polynomial->deg-i);
 	}
+
+      //skips x^n term if coefficient is 0/m
+      else if(mpz_cmp_si(polynomial->coefficients[i]->num,0)==0)
+	{
+	  //do nothing
+	}
+      
       else
 	{
-          printf(" \frac{%ld}{%ld} x^%d +",polynomial->coefficients[i]->num,polynomial->coefficients[i]->denom,polynomial->deg-i);
+	  mpz_get_str(string,10,polynomial->coefficients[i]->num);
+	  printf("\\frac{%s}{",string);
+	  mpz_get_str(string,10,polynomial->coefficients[i]->denom);
+	  printf("%s}x^%d+",string,polynomial->deg-i);
 	}
     }
-  if(polynomial->coefficients[polynomial->deg]->denom=1)
+
+  //if denominator is 1 prints numerator 
+  if(mpz_cmp_si(polynomial->coefficients[polynomial->deg]->denom,1)==0)
     {
-      printf(" %ld $$ \n",polynomial->coefficients[polynomial->deg]->num);
+      mpz_get_str(string,10,polynomial->coefficients[polynomial->deg]->num);
+      printf("%s",string);
     }
+
+  //skips deg^th term if coefficient is 0/m
+  else if(mpz_cmp_si(polynomial->coefficients[polynomial->deg]->num,0)==0)
+    {
+      //do nothing
+    }
+      
   else
     {
-     printf(" \frac{%ld}{%ld} $$ \n",polynomial->coefficients[polynomial->deg]->num,polynomial->coefficients[polynomial->deg]->denom);
+      mpz_get_str(string,10,polynomial->coefficients[polynomial->deg]->num);
+      printf("\\frac{%s}{",string);
+      mpz_get_str(string,10,polynomial->coefficients[polynomial->deg]->denom);
+      printf("%s}",string);
     }
+  printf("$$\n");
+  free(string);
 }
 
 poly *conmultiply_p(frac *c,poly *polynomial)
@@ -541,3 +630,4 @@ poly *pseudogcd_p(poly* polynomial1,poly* polynomial2)
 	 
 	 }
   }
+
