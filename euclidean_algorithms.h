@@ -1,3 +1,6 @@
+#ifndef EUCLIDEAN_ALGORITHMS_H
+#define EUCLIDEAN_ALGORITHMS_H
+
 #include "polynomials.h"
 
 /*half, full extended euclidean algorithm, regular and diophantine version*/
@@ -114,4 +117,4 @@ poly **extended_euclidean_diophantine(poly *a, poly *b, poly *c) {
 	return result;
 }
 
-
+#endif /* EUCLIDEAN_ALGORITHMS_H */
