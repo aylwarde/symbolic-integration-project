@@ -475,14 +475,17 @@ poly **from_file_p(FILE *src, int *outlen) {
       tok2 = strtok_r(NULL, " ", &ptr2);
       
     }
+
+    poly **tmp;
     
-    if ( realloc(result, (i+1)*sizeof(poly*)) == NULL ) {
+    if ( (tmp = realloc(result, (i+1)*sizeof(poly*))) == NULL ) {
 	
 	printf("ERROR: Unable to reallocate memory\n");
 	return NULL;
 	
     }
 
+    result = tmp;
     result[i] = initialize_from_array_p(deg, copy_array_f(coeffs, j-1));
     
     free(coeffs);
