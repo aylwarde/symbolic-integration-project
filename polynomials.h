@@ -387,7 +387,7 @@ poly *gcd_p(poly *polynomial1, poly *polynomial2) {
                 polynomial1 = copy_p(polynomial2);
                 polynomial2 = copy_p(r);
         }
-
+	polynomial1 = scale_p(reciprocal_f(content_p(polynomial1)), polynomial1);
         return polynomial1;
 }
 
