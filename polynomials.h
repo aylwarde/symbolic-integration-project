@@ -141,9 +141,10 @@ void display_p(poly *polynomial)
 	int i;
 	for(i=0; i<polynomial->deg;++i)
 	{
-		print_f(polynomial->coefficients[i]);
-		printf("x^%d+",polynomial->deg-i);
-
+		if(!zero_f(polynomial->coefficients[i])) {
+			print_f(polynomial->coefficients[i]);
+			printf("x^%d+",polynomial->deg-i);
+		}
 	}
 	print_f(polynomial->coefficients[polynomial->deg]);
 	printf("\n");
@@ -390,7 +391,7 @@ poly *gcd_p(poly *polynomial1, poly *polynomial2) {
                 polynomial1 = copy_p(polynomial2);
                 polynomial2 = copy_p(r);
         }
-
+	polynomial1 = scale_p(reciprocal_f(content_p(polynomial1)), polynomial1);
         return polynomial1;
 }
 
@@ -477,13 +478,17 @@ poly **from_file_p(FILE *src, int *outlen) {
       tok2 = strtok_r(NULL, " ", &ptr2);
       
     }
+
+    poly **tmp;
     
-    if ( realloc(result, (i+1)*sizeof(poly*)) == NULL ) {
+    if ( (tmp=realloc(result, (i+1)*sizeof(poly*))) == NULL ) {
 	
 	printf("ERROR: Unable to reallocate memory\n");
 	return NULL;
 	
     }
+
+    result=tmp;
 
     result[i] = initialize_from_array_p(deg, copy_array_f(coeffs, j-1));
     

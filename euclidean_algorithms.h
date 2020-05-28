@@ -1,3 +1,6 @@
+#ifndef EUCLIDEAN_ALGORITHMS_H
+#define EUCLIDEAN_ALGORITHMS_H
+
 #include "polynomials.h"
 
 /*half, full extended euclidean algorithm, regular and diophantine version*/
@@ -23,17 +26,27 @@ poly **half_extended_euclidean(poly *poly1, poly *poly2) {
 		q = divide_p(poly1, poly2)[0];
 		r = divide_p(poly1, poly2)[1];
 
-		poly1 = copy_p(poly2);
-		poly2 = copy_p(r);
+		poly1 = poly2;
+		poly2 = r;
 		
 		r_1 = subtract_p(a_1, multiply_p(q, b_1));
-		a_1 = copy_p(b_1);
-		b_1 = copy_p(r_1);
+
+		a_1 = b_1;
+		b_1 = r_1;
+
+		free_p(q);
+		//free_p(r);
+		//free_p(r_1);
 	}
 
 	result = initialize_array_p(2);
 	result[0] = a_1;
 	result[1] = poly1;
+
+	mpz_clear(one);
+	
+	free_p(b_1);
+	//free_p(a_1);
 
 	return result;
 }
@@ -53,6 +66,8 @@ poly **extended_euclidean(poly *poly1, poly *poly2) {
 	result[0] = s;
 	result[1] = t;
 	result[2] = g;	
+
+	free_p(r);
 
 	return result;
 }
@@ -80,6 +95,8 @@ poly *half_extended_euclidean_diophantine(poly *a, poly *b, poly *c) {
 		r = divide_p(s,b)[1];
 		s = r;
 	}
+	//free_p(g);
+	//free_p(q);
 
 	return s;
 }
@@ -100,4 +117,4 @@ poly **extended_euclidean_diophantine(poly *a, poly *b, poly *c) {
 	return result;
 }
 
-
+#endif /* EUCLIDEAN_ALGORITHMS_H */

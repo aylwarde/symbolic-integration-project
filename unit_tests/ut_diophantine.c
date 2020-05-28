@@ -5,32 +5,34 @@
 
 int main()
 {
-	int deg1, deg2, degc;
-	poly *poly1, *poly2, *c;
+	FILE *polyfile;
 	poly **result;
 
-	printf("Enter degree of polynomial 1\n");
-	scanf("%d", &deg1);
-	poly1 = initialize_p(deg1);
-	printf("Enter coefficients of polynomial in descending degree,including zero coefficients\n");
-	assign_coeffs_p(poly1);
+	polyfile = fopen("book_examples/euclid_algorithms.txt", "r");
 	
-	printf("Enter degree of polynomial 2\n");
-	scanf("%d", &deg2);
-	poly2 = initialize_p(deg2);
-	printf("Enter coefficients of polynomial in descending degree,including zero coefficients\n");
-	assign_coeffs_p(poly2);
+	if(polyfile == NULL) {
+		
+			printf("Invalid File Path\n");
+			exit(1);
+	}
 	
-	printf("Enter degree of polynomial c\n");
-	scanf("%d", &degc);
-	c = initialize_p(degc);
-	printf("Enter coefficients of polynomial in descending degree,including zero coefficients\n");
-	assign_coeffs_p(c);
+	int polys;
+	
+	poly **polyarray = from_file_p(polyfile, &polys);
+	fclose(polyfile);
 
-
-	result = extended_euclidean_diophantine(poly1, poly2,c);
+	result = extended_euclidean_diophantine(polyarray[0], polyarray[1], polyarray[2]);
 	display_p(result[0]);
 	display_p(result[1]);
+	
+	free_p(result[0]);
+	free_p(result[1]);
+	free(result);
+	free_p(polyarray[0]);
+	free_p(polyarray[1]);
+	free_p(polyarray[2]);
+	free(polyarray);
+
 	
 return 0;	
 }

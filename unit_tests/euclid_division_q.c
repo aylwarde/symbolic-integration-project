@@ -6,27 +6,32 @@
 
 int main()
 {
-	int deg1, deg2;
-	poly *poly1, *poly2;
+	FILE *polyfile;
 	poly **division;
-
-	printf("Enter degree of polynomial 1\n");
-	scanf("%d", &deg1);
-	poly1 = initialize_p(deg1);
-	printf("Enter coefficients of polynomial in descending degree,including zero coefficients\n");
-	assign_coeffs_p(poly1);
 	
-	printf("Enter degree of polynomial 2\n");
-	scanf("%d", &deg2);
-	poly2 = initialize_p(deg2);
-	printf("Enter coefficients of polynomial in descending degree,including zero coefficients\n");
-	assign_coeffs_p(poly2);
+	polyfile = fopen("book_examples/euclid_division.txt", "r");
+	
+	if(polyfile == NULL) {
+	
+		printf("Invalid File Path\n");
+		exit(1);
+	}
+	
+	int polys;
+	
+	poly **polyarray = from_file_p(polyfile, &polys);
+	fclose(polyfile);
 
-
-	division = divide_p(poly1, poly2);
+	division = divide_p(polyarray[0], polyarray[1]);
 	display_p(division[0]);
 	display_p(division[1]);
 
+	free_p(polyarray[0]);
+	free_p(polyarray[1]);
+	free_p(division[0]);
+	free_p(division[1]);
+	free(division);
+	free(polyarray);
 
 return 0;	
 }
