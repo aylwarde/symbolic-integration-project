@@ -297,17 +297,25 @@ poly *multiply_p(poly *polynomial1, poly *polynomial2)
 }
 
 //raise a polynomial to a positive power
-poly *pow_p(int exponent, poly *poly) {
+poly *pow_p(int exponent, poly *poly_a) {
 
-	if(exponent==1)
-	{ 
-		return poly;
-	}
+  if (exponent == 0)
+    {
+      poly *onep = initialize_p(0);
+      mpz_t one;
+      mpz_init_set_si(one, 1);
+      onep->coefficients[0] = init_f(one, one);
+      return onep;
+    }
+  else if(exponent==1)
+    { 
+      return poly_a;
+    }
 
-	else
-	{
-		return multiply_p(pow_p(exponent-1, poly), poly);
-	}	
+  else
+    {
+      return multiply_p(pow_p(exponent-1, poly_a), poly_a);
+    }	
 }
 
 

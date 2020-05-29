@@ -21,22 +21,25 @@ int main () {
   
   polyarray = from_file_p(testfile, &polys);
 
-  /* int i; */
+  int i;
   
-  /* for ( i=0; i<polys; ++i) { */
-  /*   display_p(polyarray[i]); */
-  /* } */
+  for ( i=0; i<polys; ++i) {
+    display_p(polyarray[i]);
+  }
 
   rational *rfa = init_r(polyarray[0], polyarray[1]);
   rational *rfb = init_r(polyarray[2], polyarray[1]);
-  /* printf("%d", polyarray[3]->deg); */
-  /* rational *rfc = init_r(polyarray[1], polyarray[3]); */
   print_r(rfa);
   print_r(rfb);
   print_r(add_r(rfa,rfb));
   print_r(multiply_r(rfa, rfb));
   print_r(negative_r(rfb));
   print_r(reciprocal_r(rfb));
+
+  print_r(pow_r(2,rfb));
+  print_r(pow_r(0,rfb));
+  print_r(pow_r(-2,rfb));
+  print_r(subtract_r(rfa, rfb));
   
   fclose(testfile);
 }

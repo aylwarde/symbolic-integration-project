@@ -51,6 +51,7 @@ int main()
 	//test pow_p
 	display_p(pow_p(2, poly_a));
 	display_p(pow_p(4, poly_a));
+	display_p(pow_p(0, poly_a));
 
 	//test divide_p
 	display_p(divide_p(pow_p(2, poly_a), poly_a)[0]);

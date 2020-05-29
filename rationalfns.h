@@ -126,4 +126,30 @@ rational *reciprocal_r(rational *rfa) {
   return result;
 }
 
+rational *pow_r(int exp, rational *rfa) {
+  if (exp < 0) {
+
+    return pow_r(-exp, reciprocal_r(rfa));
+    
+  }
+
+  return init_r(pow_p(exp, rfa->num), pow_p(exp, rfa->denom));
+}
+
+rational *subtract_r(rational *rfa, rational *rfb) {
+  
+  rational *neg = negative_r(rfb);
+  rational *result = add_r(rfa, neg);
+  free_r(neg);
+  return result;
+}
+
+rational *divide_r(rational *rfa, rational *rfb) {
+
+  rational *recip = reciprocal_r(rfb);
+  rational * result = multiply_r(rfa, recip);
+  free_r(recip);
+  return result;
+}
+
 #endif /* RATIONALFNS_H */
