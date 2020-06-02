@@ -20,9 +20,9 @@ int main() {
 
   poly **polyarray = from_file_p(polyfile, &polys);
   
-  for ( i=0; i<polys; ++i) {
-    display_p(polyarray[i]);
-  }
+  /* for ( i=0; i<polys; ++i) { */
+  /*   display_p(polyarray[i]); */
+  /* } */
   
   gcd = pseudogcd_p(polyarray[0],polyarray[1]);
   display_p(gcd);
