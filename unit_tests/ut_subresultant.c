@@ -13,8 +13,7 @@ int main() {
   if( polyfile == NULL ) {
 
     printf("Invalid File Path\n");
-    exit(1);
-    
+    exit(1);    
   }
   
   int polys, i, subprsout;
