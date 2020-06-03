@@ -9,7 +9,8 @@ poly **squarefree_p();
 
 /*returns **a such that poly1= (a[0])^0(a[1])^1(a[2])^2... etc*/
 //as such, we set a[0] = 1 for all non-zero poly1
-poly **squarefree_p(poly *poly1) {
+//outlen is the position of the last non-zero factor in our array
+poly **squarefree_p(poly *poly1, int *outlen) {
       	
         poly *s, *d, *e, *y, *z, *b, *onepoly;
         poly **a;
@@ -56,6 +57,7 @@ poly **squarefree_p(poly *poly1) {
         
         a[k] = e;
         a[1] = scale_p(c, a[1]);
+	*outlen = k;
 
 	//free subsequent polynomials in array not used
         for(i=k+1; i<poly1->deg; ++i)
