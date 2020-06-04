@@ -25,7 +25,7 @@ bpoly *scale_bp();
 bpoly *add_bp();
 bpoly *subtract_bp();
 bpoly *multiply_bp();
-//bpoly *pow_bp();
+bpoly *pow_bp();
 bpoly **pseudo_divide_bp();
 
 bool zero_bp();
@@ -259,11 +259,33 @@ bpoly **pseudo_divide_bp(bpoly *b_poly1, bpoly *b_poly2) {
 
 	return result;
 }
+//raises a bivariate polynomial to the power of an int
+bpoly *pow_bp(bpoly *poly1,int exp)
+{
+  if(exp==0)
+    {
+      bpoly *onebp;
+      poly *onep;
+      mpz_t one;
 
 
+      mpz_init_set_si(one,1);
+      onep = initialize_p(0);
+      onebp = initialize_bp(0);
+      onep->coefficients[0]= init_f(one,one);
+      onebp->pcoefficients[0] = onep;
 
-	
-
+      return onebp ;
+    }
+  else if(exp==1)
+    {
+      return poly1;
+    }
+  else
+    {
+      return multiply_bp(pow_bp(poly1,exp-1),poly1);
+    }
+}
 
 
 
