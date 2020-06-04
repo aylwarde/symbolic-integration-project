@@ -18,7 +18,7 @@ int main() {
 	poly **polyarray = from_file_p(polyfile, &polys);
 	fclose(polyfile);
 
-	bpoly *b_poly1, *b_poly2, *b_poly3;
+	bpoly *b_poly1, *b_poly2, *b_poly3,b_poly4,b_poly5;
 	bpoly **result;
 
 	//intializing two polynomials
@@ -49,6 +49,10 @@ int main() {
 	result = pseudo_divide_bp(b_poly1, b_poly2);
 	display_bp(result[1]);
 
+	//test for pow_bp
+	display_bp(pow_bp(b_poly1,3));
+
+	
 	//test for variable change
 	b_poly3 = variable_change(result[1]);
 	display_bp(b_poly3);
