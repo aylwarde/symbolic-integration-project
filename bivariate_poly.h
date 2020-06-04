@@ -289,7 +289,7 @@ bpoly *pow_bp(bpoly *poly1,int exp)
     }
 }
 
-poly *content_bp(poly *poly)
+poly *content_bp(bpoly *poly)
 {
   return gcd_array_p(poly->deg,poly->pcoefficients);
 }
