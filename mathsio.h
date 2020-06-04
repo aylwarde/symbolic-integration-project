@@ -57,38 +57,81 @@ char *string_p(poly *poly1) {
   char **term_str = (char **)calloc(poly1->deg + 1, sizeof(char *));
   long outlen = 0;
 
-  int i;
+  const char fstrs[5][16] =
+    {
+     "",
+     "-(%s)",
+     "+(%s)",
+     "-(%s)x^%d",
+     "+(%s)x^%d"
+    };
+
+    int i, j;
 
   for (i=0; i<=poly1->deg; ++i) {
+    
+    if (i == poly1->deg) {
+      
+      switch (mpz_sgn(poly1->coefficients[i]->num)) {
 
-    char *coeff = string_f(poly1->coefficients[i], false);
+      case -1:
 
-    term_len[i] = snprintf(NULL, 0, "(%s)x^%d", coeff, i);
+        j = 1;
+	break;
+	
+      case 0:
+
+        j = 0;
+	break;
+
+      case 1:
+
+        j = 2;
+	break;
+	
+      }
+    } else {
+      
+      switch (mpz_sgn(poly1->coefficients[i]->num)){
+
+      case -1:
+
+        j = 3;
+	break;
+	
+      case 0:
+
+        j = 0;
+	break;
+
+      case 1:
+
+        j = 4;
+	break;
+      
+      }
+    }
+
+    frac *acoeff = abs_f(poly1->coefficients[i]);
+
+    char *coeff = string_f(acoeff, false);
+
+    free_f(acoeff);
+
+    term_len[i] = snprintf(NULL, 0, fstrs[j], coeff, poly1->deg - i);
     outlen += term_len[i];
     
     term_str[i] = (char *)calloc(term_len[i] + 1, sizeof(char));
     
-    snprintf(term_str[i], term_len[i] + 1, "(%s)x^%d", coeff, poly1->deg - i);
+    snprintf(term_str[i], term_len[i] + 1, fstrs[j], coeff, poly1->deg - i);
 
     free(coeff);
   }
 
-  char *coeff = string_f(poly1->coefficients[i], false);
-
-  term_len[poly1->deg] = snprintf(NULL, 0, "(%s)", coeff);
-  outlen += term_len[poly1->deg];
-    
-  term_str[poly1->deg] = (char *)calloc(term_len[i] + 1, sizeof(char));
-    
-  snprintf(term_str[poly1->deg], term_len[poly1->deg] + 1, "(%s)", coeff);
-
-  free(coeff);
-
-  char *result = (char *)calloc(outlen + poly1->deg, sizeof(char));
+  char *result = (char *)calloc(outlen, sizeof(char));
 
   for (i=0; i<poly1->deg; ++i) {
     strcat(result, term_str[i]);
-    strcat(result, "+");
   }
 
   strcat(result, term_str[poly1->deg]);
