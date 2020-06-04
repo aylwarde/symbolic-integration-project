@@ -28,6 +28,8 @@ bpoly *multiply_bp();
 bpoly *pow_bp();
 bpoly **pseudo_divide_bp();
 
+poly *content_bp();
+
 bool zero_bp();
 
 
@@ -287,7 +289,10 @@ bpoly *pow_bp(bpoly *poly1,int exp)
     }
 }
 
-
+poly *content_bp(poly *poly)
+{
+  return gcd_array_p(poly->deg,poly->pcoefficients);
+}
 
 
 
