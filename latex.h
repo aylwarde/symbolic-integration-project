@@ -21,12 +21,13 @@ STRING *latex_rational();
 STRING *integrate_string();
 STRING *integrate_poly();
 STRING *integrate_rational();
-//STRING *sum_over_poly_sol();
-//STRING *latex_bivariate_poly();
-//STRING *log_string();
-//STRING *log_poly();
-//STRING *log_bivariate_poly();
-//add fn to write string to file
+STRING *sum_over_poly_sol();
+STRING *latex_bivariate_poly();
+STRING *log_string();
+STRING *log_poly();
+STRING *log_rational();
+STRING *log_bivariate_poly();
+int write_to_file();
 
 //End of Fn Defs
 
@@ -145,8 +146,8 @@ STRING *latex_poly(poly *poly1, char *var, char *leftbinder, char *rightbinder) 
 			}
 			
 			//add frac and monomial
-			//dont print frac if one
-			if(!equals_f(abs_f(poly1->coefficients[i]), onefrac)) {
+			//dont print frac if one...unless the constant term is one
+			if(!equals_f(abs_f(poly1->coefficients[i]), onefrac) || i==poly1->deg) {
 				append_to_string(output, 
 						latex_f(abs_f(poly1->coefficients[i]), "", ""));
 			}
@@ -210,7 +211,7 @@ STRING *integrate_string(STRING *str, char *var, char *leftbinder, char *rightbi
 	append_to_string(output, leftbinder);
 	append_to_string(output, "\\int");
 	append_to_string(output, str->string);
-	append_to_string(output, "d");
+	append_to_string(output, "\\ d");
 	append_to_string(output, var);
 	append_to_string(output, rightbinder);
 
@@ -245,7 +246,117 @@ STRING *integrate_rational(rational *rat_poly, char *var, char *leftbinder, char
 	return output;
 }
 
+//return latex string for sum over sols of polynomial
+STRING *sum_over_poly_sol(poly *poly1, char *var, char *leftbinder, char *rightbinder) {
 
+	STRING *output;
+	output = make_string();
+
+	append_to_string(output, leftbinder);
+	append_to_string(output, "\\sum_{");
+	append_to_string(output, var);
+	append_to_string(output, "|");
+	append_to_string(output, (latex_poly(poly1, var, "", ""))->string);
+	append_to_string(output, "=0}");
+	append_to_string(output, rightbinder);
+	
+	return output;
+}
+
+//print a bivariate poly in Q(var1)(var2) ...so var2 is the dominant variable, so to say
+STRING *latex_bivariate_poly(bpoly *b_poly, char *var1, char *var2, char *leftbinder, char *rightbinder) {
+	STRING *output;
+	output = make_string();
+	
+	append_to_string(output, leftbinder); 
+	
+	int i=0;
+	while(i<=b_poly->deg && !zero_p(b_poly->pcoefficients[i])) {
+			if(i!=0) {
+				append_to_string(output, "+");
+			}
+			append_to_string(output, "(");
+			append_to_string(output,
+				(latex_poly(b_poly->pcoefficients[i], var1, "",""))->string);
+		       	append_to_string(output, ")");	
+			append_to_string(output, print_monomial(var2, b_poly->deg-i));
+			++i;
+	}
+
+	append_to_string(output, rightbinder);
+	return output;
+}
+
+//wrap a log argument around string ( i wont set any conditions on the argument for now....)
+STRING *log_string(STRING *str, char *leftbinder, char *rightbinder ) {
+
+	STRING *output;
+	output = make_string();
+
+	append_to_string(output, leftbinder);
+	append_to_string(output, "\\log[");
+	append_to_string(output, str->string);
+	append_to_string(output, "]");
+	append_to_string(output, rightbinder);
+
+	return output;
+}
+
+//return latex string of log of poly over particular variable, w/ left/right bindings
+STRING *log_poly(poly *poly1, char *var, char *leftbinder, char *rightbinder) { 
+
+	STRING *output;
+	output = make_string();
+	
+	append_to_string(output, leftbinder);
+	append_to_string(output, 
+			(log_string(latex_poly(poly1, var, "", ""), "","")->string));
+	append_to_string(output, rightbinder);
+	
+	return output;
+}
+
+//return latex string of log of poly rational particular variable, w/ left/right bindings
+STRING *log_rational(rational *rat_poly, char *var, char *leftbinder, char *rightbinder) { 
+
+	STRING *output;
+	output = make_string();
+	
+	append_to_string(output, leftbinder);
+	append_to_string(output, (log_string(
+				latex_rational(rat_poly, var, "", ""), "","")->string));
+	append_to_string(output, rightbinder);
+	
+	return output;
+}
+
+
+//return latex string of log of bivariate poly in Q(var1)(var2), w/ left/right bindings
+STRING *log_bivariate_poly(bpoly *b_poly, char *var1, char *var2, char *leftbinder, char *rightbinder) { 
+
+	STRING *output;
+	output = make_string();
+	
+	append_to_string(output, leftbinder);
+	append_to_string(output, (log_string(
+			latex_bivariate_poly(b_poly, var1, var2, "", ""), "","")->string));
+	append_to_string(output, rightbinder);
+	
+	return output;
+}
+
+
+//write a given string to a file, returns 1
+int write_to_file(char *filename, STRING *str) { 
+	
+	FILE *file;
+	//opens in same directory 
+	file = fopen(filename, "w");
+	fprintf(file, "%s", str->string); 
+	fclose(file);
+
+	return 1;
+}
 
 
 
