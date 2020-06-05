@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "../bivariate_poly.h"
+#include "../latex.h"
 
 int main() {
 
@@ -54,9 +55,12 @@ int main() {
 	display_bp(b_poly3);
 
 	//test for free_bp
-	free_bp(b_poly1);
-	display_bp(b_poly1); //should return segmentation fault
+	//free_bp(b_poly1);
+	//display_bp(b_poly1); //should return segmentation fault
 
+	//test for latex_bivariate_poly in latex.h
+	printf("%s\n", (log_bivariate_poly(result[1], "t", "x", "$$", "$$"))->string);
+	printf("%s\n", (log_bivariate_poly(b_poly3, "x", "t", "$$", "$$"))->string);
 
 return 0;
 }
