@@ -53,5 +53,8 @@ int main() {
 
   printf("%s\n", string_p(polyarray[0]));
   printf("%s\n", string_p(polyarray[1]));
-      
+
+  rational *rfa = init_r(polyarray[0], polyarray[1]);
+
+  printf("\n%s\n", string_r(rfa));
 }

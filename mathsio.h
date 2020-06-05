@@ -12,10 +12,14 @@
 #include "rationalfns.h"
 #include "bivariate_poly.h"
 
+#define MAX(x, y) (((x) > (y)) ? (x) : (y))
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
+
 /* Fn Defs */
 
 char *string_f(frac *, bool);
 char *string_p(poly *);
+char *string_r(rational *);
 
 /* End Fn Defs */
 
@@ -51,6 +55,10 @@ char *string_f(frac *frac1, bool retaindenoms) {
 }
 
 
+/* 
+   Takes poly * argument and returns a string formatted +/-(a_n)x^n as long as a_n is non-zero; the term of 
+   degree n is ommitted if its coefficient is zero.
+*/  
 char *string_p(poly *poly1) {
   
   long *term_len = (long *)calloc(poly1->deg + 1, sizeof(long));
@@ -146,6 +154,34 @@ char *string_p(poly *poly1) {
 
   return result;
   
+}
+
+
+char *string_r(rational *rf1) {
+
+  char *numstr = string_p(rf1->num);
+  char *denomstr = string_p(rf1->denom);
+
+  long maxstrlen = MAX(strlen(numstr), strlen(denomstr));
+
+  char *midbar = (char *)calloc(maxstrlen, sizeof(char));
+  int i;
+  
+  for (i=0; i<maxstrlen; ++i) {
+
+    midbar[i] = '-';
+    
+  }
+
+  char *result_str = (char *)calloc( 3*(maxstrlen + 1), sizeof(char));
+
+  strcat(result_str, numstr);
+  strcat(result_str, "\n");
+  strcat(result_str, midbar);
+  strcat(result_str, "\n");
+  strcat(result_str, denomstr);
+  
+  return result_str;
 }
 
 
