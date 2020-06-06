@@ -124,15 +124,22 @@ bool zero_bp(bpoly *b_poly) {
 void strip_bp(bpoly *b_poly) {
 	int i, leading_zeroes=0, degree;
 
-	while(zero_p(b_poly->pcoefficients[leading_zeroes])) {
-			++leading_zeroes;
+	if(zero_bp(b_poly)) {
+		b_poly = initialize_bp(0);
 	}
 
-	for(i=0; i<=b_poly->deg-leading_zeroes; ++i) {
-		b_poly->pcoefficients[i] = copy_p(b_poly->pcoefficients[i+leading_zeroes]);
+	else {
+
+		while(zero_p(b_poly->pcoefficients[leading_zeroes])) {
+			++leading_zeroes;
+		}
+
+		for(i=0; i<=b_poly->deg-leading_zeroes; ++i) {
+			b_poly->pcoefficients[i] = copy_p(b_poly->pcoefficients[i+leading_zeroes]);
+		}
+		degree = b_poly->deg-leading_zeroes;
+		b_poly->deg = degree;
 	}
-	degree = b_poly->deg-leading_zeroes;
-	b_poly->deg = degree;
 }
 
 //copy a bivariate polynomial strucute
@@ -288,12 +295,12 @@ bpoly *pow_bp(bpoly *poly1,int exp)
       return multiply_bp(pow_bp(poly1,exp-1),poly1);
     }
 }
-
+/*
 poly *content_bp(bpoly *poly)
 {
   return gcd_array_p(poly->deg,poly->pcoefficients);
 }
-
+*/
 
 
 
