@@ -51,7 +51,7 @@ poly **subresultant(poly * polya, poly *polyb, int *outlen) {
   delta[0] = polya->deg - polyb->deg;
   beta[0] = pow_f(gamma, delta[0]+1);
 
-  r[0] = content_p(result[1]);
+  r[0] =result[1]->coefficients[0];
 
   /* end initialisation */
 
@@ -62,7 +62,7 @@ poly **subresultant(poly * polya, poly *polyb, int *outlen) {
   */
   while ( !(zero_p(result[k])) ) {
     
-    r[k-1] = content_p( result[k] );
+    r[k-1] = result[k]->coefficients[0] ;
     div = pseudodiv_p(result[k-1], result[k]);
     
     result[k+1] = scale_p(reciprocal_f(beta[k-2]), div[1]);
