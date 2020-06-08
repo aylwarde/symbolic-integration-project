@@ -74,7 +74,7 @@ bpoly **bsubresultant( bpoly * polya, bpoly *polyb, int *outlen) {
       result[k+1]->pcoefficients[l] = divide_p(div[1]->pcoefficients[l], beta[k-2])[0];
     }
 
-    gamma = multiply_p( pow_p(delta[k-2], negative_p(r[k-2])), pow_p( 1-delta[k-2], gamma ));
+    gamma = multiply_p( pow_p(delta[k-2], negative_p(r[k-1])), pow_p( 1-delta[k-2], gamma ));
     delta[k-1] = result[k]->deg - result[k+1]->deg;
     beta[k-1] = multiply_p( negative_p(r[k-1]), pow_p(delta[k-1], gamma));
     ++k;
