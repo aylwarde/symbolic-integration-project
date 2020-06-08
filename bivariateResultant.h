@@ -66,15 +66,6 @@ bpoly **bsubresultant( bpoly * polya, bpoly *polyb, int *outlen) {
 
     r[k-1] = result[k]->pcoefficients[0];
 
-    /* printf("\n----------------------\ni: %d\n", k-1); */
-    /* display_bp(result[k]); */
-    /* printf("\ngamma: "); */
-    /* display_p(gamma); */
-    /* printf("\ndelta: %d", delta[k-2]); */
-    /* printf("\nbeta: "); */
-    /* display_p(beta[k-2]); */
-    /* printf("\nr: "); */
-    /* display_p(r[k-1]); */
     
     div = pseudo_divide_bp(result[k-1], result[k]);
 
