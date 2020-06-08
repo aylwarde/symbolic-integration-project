@@ -50,11 +50,9 @@ int main()
 
     printf("this is the subresultant of A&B\n");
 
-    /* display_bp(bsubresultant(polya,polyb,&strlen)[0]); */
-    /* display_bp(bsubresultant(polya,polyb,&strlen)[1]); */
-    /* display_bp(bsubresultant(polya,polyb,&strlen)[2]); */
-    /* display_bp(bsubresultant(polya,polyb,&strlen)[3]); */
-    display_bp(bsubresultant(polya,polyb,&strlen)[4]);
+    display_bp(bsubresultant(polya,polyb,&strlen)[0]);
+    
+  
     
 
     return 0;
