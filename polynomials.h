@@ -48,7 +48,8 @@ poly *conmultiply_p();
 poly **pseudodiv_p();
 poly *pseudogcd_p();
 poly *pseudogcdinternal_p();
-
+poly *primativePRSinternal_p();
+poly *primativePRS_p();
 frac *content_p();
 
 poly **from_file_p(); //To Do ~ Joe
@@ -648,5 +649,58 @@ poly *pseudogcd_p(poly* polynomial1,poly* polynomial2)
 	 
     }
   }
+
+poly *primativePRS_p(poly* polynomial1,poly* polynomial2)
+{
+  {
+    frac *c,*cont;
+    poly *fk, *result;
+    if(zero_p(polynomial1) || zero_p(polynomial2))
+      {
+	printf("function requires non zero polynomials error");
+	return NULL;
+      }
+    else
+      {
+	c=gcd_f(content_p(polynomial1),content_p(polynomial2));
+      
+	fk=primativePRSinternal_p(polynomial1, polynomial2);
+      
+	cont=content_p(fk);
+	cont=reciprocal_f(cont);
+      
+	fk=conmultiply_p(cont,fk);
+	result = scale_p(c,fk);
+      
+	return result;
+      }
+  }
+}
+
+poly *primativePRSinternal_p(poly* poly1,poly* poly2)
+{
+  poly* prem;
+  frac* cont;
+  prem = pseudodiv_p(poly1,poly2)[1];
+  if(!zero_p(prem))
+    {
+   
+      cont =content_p(prem);
+      
+      cont=reciprocal_f(cont);
+      
+      prem=conmultiply_p(cont,prem);
+     
+
+      return primativePRSinternal_p(poly2,prem);
+    }
+  else
+    {
+      return poly2;
+    }
+	 
+}
+
+
 
 #endif /* POLYNOMIALS_H */
