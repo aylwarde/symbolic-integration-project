@@ -4,7 +4,7 @@
 
 int main() {
 
-  poly *gcd ;
+  poly *gcd,*gcd2 ;
   FILE *polyfile;
 
   polyfile = fopen("polytest.txt","r");
@@ -20,11 +20,18 @@ int main() {
 
   poly **polyarray = from_file_p(polyfile, &polys);
   
-  for ( i=0; i<polys; ++i) {
-    display_p(polyarray[i]);
-  }
-  
-  gcd = pseudogcd_p(polyarray[0],polyarray[1]);
+  /* for ( i=0; i<polys; ++i) { */
+  /*   display_p(polyarray[i]); */
+  /* } */
+
+
+
+
+
+
+  gcd2 = pseudogcd_p(polyarray[0],polyarray[1]);
+  display_p(gcd2);
+  gcd = primativePRS_p(polyarray[0],polyarray[1]);
   display_p(gcd);
   
   fclose(polyfile);

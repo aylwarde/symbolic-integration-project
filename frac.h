@@ -117,6 +117,7 @@ frac  *init_f(mpz_t num, mpz_t denom) {
 int reduce_f(frac *frac_a){
   	
 	mpz_t div; mpz_init(div);
+	
 	gcd_z(div, frac_a->num , frac_a->denom );
   
 	mpz_t newnum, newdenom;
@@ -124,8 +125,13 @@ int reduce_f(frac *frac_a){
 	mpz_init(newdenom);
 
 	mpz_cdiv_q(newnum, frac_a->num, div);
-  	mpz_cdiv_q(newdenom, frac_a->denom, div);
+  	mpz_cdiv_q(newdenom, frac_a->denom, div);     
 
+	if ( mpz_sgn(newdenom) == -1 ) {
+	  mpz_neg(newnum, newnum);
+	  mpz_neg(newdenom, newdenom);
+	}
+	
 	mpz_set(frac_a->num, newnum);
 	mpz_set(frac_a->denom, newdenom);
 	
