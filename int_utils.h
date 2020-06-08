@@ -66,6 +66,7 @@ void gcd_z(mpz_t gcd, mpz_t a, mpz_t b) {
    		 } 
 		
 		else {
+		  
 			mpz_t r; mpz_init(r);
       			mpz_t max; mpz_init(max);
 			mpz_t min; mpz_init(min);
@@ -73,7 +74,7 @@ void gcd_z(mpz_t gcd, mpz_t a, mpz_t b) {
 			max_z(max, a_abs, b_abs);
 			min_z(min, a_abs, b_abs);
 
-			mpz_cdiv_r(r, max, min);
+			mpz_tdiv_r(r, max, min);
 
 			gcd_z(gcd, min, r); 
 

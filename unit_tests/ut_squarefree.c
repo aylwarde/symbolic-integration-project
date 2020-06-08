@@ -13,25 +13,21 @@ int main()
 		exit(1);
 	}
 	
-	int polys, i=0;	
+	int polys, i, len;	
 	poly **squarefree;
 	
 	poly **input = from_file_p(polyfile, &polys);
 	fclose(polyfile);
 	
 
-	squarefree = squarefree_p(input[0]);
+	squarefree = squarefree_p(input[0], &len);
 
-	while(squarefree[i] != NULL) {
+	for(i=0; i<=len; ++i) {
 		display_p(squarefree[i]);
-		++i;
-	}
+	}	
 
-	i=0; 
-
-	while(squarefree[i] != NULL) {
+	for(i=0; i<=len; ++i) {
 		free_p(squarefree[i]);
-		++i;
 	}
 
 	free(squarefree);

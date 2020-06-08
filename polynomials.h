@@ -649,6 +649,24 @@ poly *pseudogcd_p(poly* polynomial1,poly* polynomial2)
 	 
     }
   }
+// gcd of an array of polynomials with i as the last entries index
+poly* gcd_array_p( int i,  poly **poly_array)
+{
+  poly *gcd_array;
+  if(i==0)
+    {
+      return poly_array[0];
+    }
+  else if(i==1)
+    {
+      gcd_array= gcd_p(poly_array[1],poly_array[0]);
+      return gcd_array;
+    }
+  else
+    {
+      return gcd_p(gcd_array_p(i-1,poly_array),poly_array[i]);
+    }
+}
 
 poly *primativePRS_p(poly* polynomial1,poly* polynomial2)
 {
