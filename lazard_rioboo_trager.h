@@ -9,7 +9,7 @@
 
 //FNs:
 void evaluate();
-void make_monic();
+bpoly *make_monic();
 void int_rational_log_part();
 
 //evaluate a bivariate poly in K(t)(x) at t=a where a is st polya(a)=0 for polya in K(t)
@@ -19,18 +19,19 @@ void evaluate(bpoly *b_poly, poly *polya) {
 	for(i=0; i<=b_poly->deg; ++i) {
 		b_poly->pcoefficients[i] = divide_p(b_poly->pcoefficients[i], polya)[1];
 	}
-	display_bp(b_poly);
 }
 
 //for a bivariate poly in K(a)(x), with a in closure of K st polya(a)=0, make bivariate poly monic
-void make_monic(bpoly *b_poly, poly *polya) {
+bpoly *make_monic(bpoly *b_poly, poly *polya) {
 	int i;
+	bpoly *result = initialize_bp(b_poly->deg);
 	for(i=0; i<=b_poly->deg; ++i) {
-		//note this is always possible since leading coefficient and Q have trivial gcd
-		b_poly->pcoefficients[i] = extended_euclidean_diophantine(
-				b_poly->pcoefficients[i], b_poly->pcoefficients[0], polya)[0];
+		//note this is always possible since leading coefficient and polya have trivial gcd
+		result->pcoefficients[i] = extended_euclidean_diophantine(
+				b_poly->pcoefficients[0], polya, b_poly->pcoefficients[i])[0];
 	}
-
+	free_bp(b_poly);
+	return result;
 }
 
 //input: a rational polynomial A/D with deg(A)<deg(D) and D squarefree, an unitialized array of polys, an unitialized array of bpolys, outlen int address
@@ -71,12 +72,12 @@ void int_rational_log_part(rational *rat_poly, poly **squarefree_r, bpoly **S, i
 	
 	//S contains corresponding log arguments for the residues that are sols of our 
 	//squarefree factors of the resultant
-	S = initialize_array_bp(*outlen);
+	S = initialize_array_bp(*outlen+1);
 	
-	for(i=1; i<=*outlen; ++i) {
+	for(i=0; i<=*outlen; ++i) {
 		//if squarefree factor non constant
 		if(squarefree_r[i]->deg>0) {
-			if(i==D->deg) {
+			if(i==d->deg) {
 				S[i] = d;
 			}
 
@@ -106,7 +107,7 @@ void int_rational_log_part(rational *rat_poly, poly **squarefree_r, bpoly **S, i
 								coefficients[0]);
 						scale_bp(gcd, S[i]);			
 					}
-	
+					free_p(gcd);
 				}
 				
 			}
@@ -118,12 +119,24 @@ void int_rational_log_part(rational *rat_poly, poly **squarefree_r, bpoly **S, i
 	}
 
 	//evaluate log arguments at respective squarefree_r[i] and make monic, for nonzero S
-	for(i=1; i<=*outlen; ++i) {
+	for(i=0; i<=*outlen; ++i) {
 		if(!zero_bp(S[i])) {
 			evaluate(S[i], squarefree_r[i]);
-			make_monic(S[i], squarefree_r[i]);
+			S[i] = make_monic(S[i], squarefree_r[i]);
 		}
 	}
+
+	free_p(A);
+	free_p(D);
+	free(a);
+	free(d);
+	
+	//test
+	for(i=0; i<=*outlen; ++i) {
+		display_p(squarefree_r[i]);
+		display_bp(S[i]);
+	}
+
 }
 
 
