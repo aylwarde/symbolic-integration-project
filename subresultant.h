@@ -26,7 +26,7 @@ poly **subresultant(poly *, poly *, int *);
 
    See Bronstein pp.24 for pseudocode
 */
-poly **subresultant(poly * polya, poly *polyb, int *outlen) {
+poly **subresultant_p(poly * polya, poly *polyb, int *outlen) {
 
   /* initialising variables and arrays */
  
@@ -87,7 +87,7 @@ poly **subresultant(poly * polya, poly *polyb, int *outlen) {
     
   } else if ( result[i-1]->deg == 1 ) {
 
-    result[0] = copy_p(result[k]);
+    result[0] = copy_p(result[i]);
     return result;
     
   } else {
