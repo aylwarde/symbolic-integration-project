@@ -13,8 +13,7 @@ int main() {
   if( polyfile == NULL ) {
 
     printf("Invalid File Path\n");
-    exit(1);
-    
+    exit(1);    
   }
   
   int polys, i, subprsout;
@@ -27,10 +26,22 @@ int main() {
 
   fclose(polyfile);
 
-  poly **subresultantprs = subresultant(polyarray[0], polyarray[1], &subprsout);
-  display_p(subresultantprs[0]);
+  poly **subresultantprs = subresultant_p(polyarray[0], polyarray[1], &subprsout);
 
   for (i=0; i<subprsout; ++i) {
     display_p(subresultantprs[i]);
-  }  
+  }
+
+  subresultantprs = subresultant_p(polyarray[2], polyarray[1], &subprsout);
+
+  for (i=0; i<subprsout; ++i) {
+    display_p(subresultantprs[i]);
+  }
+
+  subresultantprs = subresultant_p(polyarray[3], polyarray[4], &subprsout);
+
+  for (i=0; i<subprsout; ++i) {
+    display_p(subresultantprs[i]);
+  }
+  
 }

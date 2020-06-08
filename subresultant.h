@@ -26,7 +26,7 @@ poly **subresultant(poly *, poly *, int *);
 
    See Bronstein pp.24 for pseudocode
 */
-poly **subresultant(poly * polya, poly *polyb, int *outlen) {
+poly **subresultant_p(poly * polya, poly *polyb, int *outlen) {
 
   /* initialising variables and arrays */
  
@@ -51,7 +51,7 @@ poly **subresultant(poly * polya, poly *polyb, int *outlen) {
   delta[0] = polya->deg - polyb->deg;
   beta[0] = pow_f(gamma, delta[0]+1);
 
-  r[0] = content_p(result[1]);
+  r[0] =result[1]->coefficients[0];
 
   /* end initialisation */
 
@@ -62,14 +62,14 @@ poly **subresultant(poly * polya, poly *polyb, int *outlen) {
   */
   while ( !(zero_p(result[k])) ) {
     
-    r[k-1] = content_p( result[k] );
+    r[k-1] = result[k]->coefficients[0] ;
     div = pseudodiv_p(result[k-1], result[k]);
     
     result[k+1] = scale_p(reciprocal_f(beta[k-2]), div[1]);
     
     gamma = multiply_f(pow_f(negative_f(r[k-2]), delta[k-2]), pow_f(gamma, 1 - delta[k-2]));
     delta[k-1] = result[k-1]->deg-result[k]->deg;
-    beta[k-1] = multiply_f(negative_f(r[k-2]), pow_f(gamma, delta[k-1]));
+    beta[k-1] = multiply_f(negative_f(r[k-1]), pow_f(gamma, delta[k-1]));
 
     ++k;
   }
@@ -87,7 +87,7 @@ poly **subresultant(poly * polya, poly *polyb, int *outlen) {
     
   } else if ( result[i-1]->deg == 1 ) {
 
-    result[0] = copy_p(result[k]);
+    result[0] = copy_p(result[i]);
     return result;
     
   } else {

@@ -4,7 +4,7 @@
 #include "polynomials.h"
 
 // we define a bivariate polynomial as an array of polynomial structures
-//eg k(t) a polynomial in t with coefficients q0(x), q1(x), etc 
+//eg k(t) a polynomial in t with coefficients q0(x), q1(x), etc ;
 //with order of coeffs from highest order term to lowest
 
 typedef struct bivariate_poly {
@@ -48,6 +48,7 @@ bpoly *initialize_bp(int degree) {
 
 	return bivariate_poly;
 }
+
 
 //polynomial over t with coefficients in Q(x) goes to polynomial over x with coeffs in Q(t) etc
 bpoly *variable_change(bpoly *b_poly) {
@@ -119,6 +120,7 @@ bool zero_bp(bpoly *b_poly) {
 	}
 	return result;
 }
+
 
 //strip bivariate poly of higher order terms with zero coeffs
 void strip_bp(bpoly *b_poly) {
@@ -239,12 +241,14 @@ bpoly *multiply_bp(bpoly *b_poly1, bpoly *b_poly2) {
 	return result;
 }
 
+
 //pseudo division, result[0]=pquo(bpoly1, bpoly2), result[1]=prem(bpoly1, bpoly2)
 bpoly **pseudo_divide_bp(bpoly *b_poly1, bpoly *b_poly2) {
 	poly *b;
 	int N, d;
 	bpoly *q, *r, *T;
 	bpoly **result;
+
 
 	result = initialize_array_bp(2);
 
@@ -268,6 +272,7 @@ bpoly **pseudo_divide_bp(bpoly *b_poly1, bpoly *b_poly2) {
 
 	return result;
 }
+
 //raises a bivariate polynomial to the power of an int
 bpoly *pow_bp(bpoly *poly1,int exp)
 {
@@ -301,7 +306,6 @@ poly *content_bp(bpoly *poly)
   return gcd_array_p(poly->deg,poly->pcoefficients);
 }
 */
-
 
 
 #endif /* BIVARIATE_POLY_H */
