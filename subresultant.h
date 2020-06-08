@@ -69,7 +69,7 @@ poly **subresultant_p(poly * polya, poly *polyb, int *outlen) {
     
     gamma = multiply_f(pow_f(negative_f(r[k-2]), delta[k-2]), pow_f(gamma, 1 - delta[k-2]));
     delta[k-1] = result[k-1]->deg-result[k]->deg;
-    beta[k-1] = multiply_f(negative_f(r[k-2]), pow_f(gamma, delta[k-1]));
+    beta[k-1] = multiply_f(negative_f(r[k-1]), pow_f(gamma, delta[k-1]));
 
     ++k;
   }
