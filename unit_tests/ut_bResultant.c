@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "../bivariate_poly.h"
-//#include "../bivariateResultant.h"
+#include "../bivariateResultant.h"
 
 //trying to repliacte the books example pg 38 bronstien
 int main()
@@ -8,6 +8,7 @@ int main()
   bpoly *polya, *polyb;
   poly *a,*b,*c,*d,*e;
   mpz_t one ,negfour ,negone,three,negnine;
+  int strlen;
   polya= initialize_bp(2);
   polyb= initialize_bp(2);
   mpz_init_set_ui(one,1);
@@ -48,6 +49,12 @@ int main()
     display_bp(polyb);
 
     printf("this is the subresultant of A&B\n");
+
+    /* display_bp(bsubresultant(polya,polyb,&strlen)[0]); */
+    /* display_bp(bsubresultant(polya,polyb,&strlen)[1]); */
+    /* display_bp(bsubresultant(polya,polyb,&strlen)[2]); */
+    display_bp(bsubresultant(polya,polyb,&strlen)[3]);
+    /* display_bp(bsubresultant(polya,polyb,&strlen)[4]); */
     
 
     return 0;
