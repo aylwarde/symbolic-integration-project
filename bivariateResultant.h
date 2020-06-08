@@ -102,7 +102,7 @@ bpoly **bsubresultant( bpoly * polya, bpoly *polyb, int *outlen) {
     
   } else if ( result[i-1]->deg == 1 ) {
 
-    result[0] = copy_bp(result[k]);
+    result[0] = copy_bp(result[i]);
     return result;
     
   } else {
