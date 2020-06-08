@@ -75,6 +75,10 @@ int main()
 	//test pseudogcd
 	display_p(pseudogcd_p(poly_a,pow_p(2,poly_a)));
 
+	//test integrate_p
+	printf("this is integral");
+	display_p(intergrate_p(poly_a));
+        
 	//test equals_p
 	if(equals_p(poly_a, poly_a)) {
 		printf("\ntest passed\n");
