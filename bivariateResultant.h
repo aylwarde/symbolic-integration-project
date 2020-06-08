@@ -35,7 +35,7 @@ bpoly **bsubresultant( bpoly * polya, bpoly *polyb, int *outlen) {
   bpoly **div;
   poly **r, **beta, *quo, *gamma, *temp;
   mpz_t one, negone;
-  int k = 2, delta[MAX(polya->deg, polyb->deg)+2],j;
+  int k = 2, delta[MAX(polya->deg, polyb->deg)+2],j, l;
   
 
   r = initialize_array_p(MAX(polya->deg, polyb->deg)+2);
@@ -63,71 +63,68 @@ bpoly **bsubresultant( bpoly * polya, bpoly *polyb, int *outlen) {
      subresultant PRS
   */
   while ( !(zero_bp(result[k])) ) {
-    r[k-1] =  result[k-1]->pcoefficients[0] ;
-   
+
+    r[k-1] = result[k]->pcoefficients[0];
+
+    /* printf("\n----------------------\ni: %d\n", k-1); */
+    /* display_bp(result[k]); */
+    /* printf("\ngamma: "); */
+    /* display_p(gamma); */
+    /* printf("\ndelta: %d", delta[k-2]); */
+    /* printf("\nbeta: "); */
+    /* display_p(beta[k-2]); */
+    /* printf("\nr: "); */
+    /* display_p(r[k-1]); */
+    
     div = pseudo_divide_bp(result[k-1], result[k]);
 
-    result[k+1]=initialize_bp(div[1]->deg);
-    /* display_p(r[k-1]); */
-    for(j=0;j<=div[1]->deg;++j)
-      {
-	
-	result[k+1]->pcoefficients[j]=divide_p(div[1]->pcoefficients[j],beta[k-2])[0];
- 
-      }
-   
-    
-	gamma = multiply_p(pow_p( delta[k-2],negative_p(r[k-2])), pow_p( 1 - delta[k-2],gamma));
-	delta[k-1] = result[k-1]->deg-result[k]->deg;
-	/* printf("this is loop %d\n",k-1); */
-	/* printf("r = "); */
-	/* display_p(r[k-2]); */
-	/* printf("delta"); */
-	/* printf("%d\n",delta[k-1]); */
-	
-	/* printf("gamma = "); */
-	/* display_p(gamma); */
-	beta[k-1] = multiply_p(negative_p(r[k-2]), pow_p( delta[k-1],gamma));
-        /* printf("beta ="); */
-	/* display_p(beta[k-1]); */
-	++k;
-      }
-	  int i = k-1;
-	*outlen = k+1;
+    result[k+1] = initialize_bp(div[1]->deg);
+    for (l=0; l<=div[1]->deg; ++l) {
+      result[k+1]->pcoefficients[l] = divide_p(div[1]->pcoefficients[l], beta[k-2])[0];
+    }
 
-	/* reconstructing the resultant from the PRS */
+    gamma = multiply_p( pow_p(delta[k-2], negative_p(r[k-2])), pow_p( 1-delta[k-2], gamma ));
+    delta[k-1] = result[k]->deg - result[k+1]->deg;
+    beta[k-1] = multiply_p( negative_p(r[k-1]), pow_p(delta[k-1], gamma));
+    ++k;
+    
+  }
+  int i = k-1;
+  *outlen = k+1;
+
+  /* reconstructing the resultant from the PRS */
   
-	if ( result[i]->deg > 0 ) {
+  if ( result[i]->deg > 0 ) {
 
-	  result[0] = initialize_bp(0);
+    result[0] = initialize_bp(0);
 
-	  return result;
+    return result;
     
-	} else if ( result[i-1]->deg == 1 ) {
+  } else if ( result[i-1]->deg == 1 ) {
 
-	  result[0] = copy_bp(result[k]);
-	  return result;
+    result[0] = copy_bp(result[k]);
+    return result;
     
-	} else {
+  } else {
 
-	  poly *s,*c;
-	  s = initialize_p(0);
-	  c = initialize_p(0);
-	  s->coefficients[0] = init_f(one, one);
-	  c->coefficients[0] = init_f(one,one);
+    poly *s,*c;
+    s = initialize_p(0);
+    c = initialize_p(0);
+    s->coefficients[0] = init_f(one, one);
+    c->coefficients[0] = init_f(one,one);
     
-	  int j;
+    int j;
 
-	  for (j=2; j<k; ++j) {
-	    if ( !((result[j-1]->deg % 2) || (result[j]->deg % 2)) ) {
-	      s = negative_p(s);
-	    }
-
-	    c = multiply_p( multiply_p( c, pow_p( result[j]->deg,divide_p( beta[j-2], pow_p( 1+delta[j-2],r[j-2]) )[0] ) ), pow_p( result[j-1]->deg - result[j+1]->deg,r[j-2] ) );
-      
-	  }
-	  result[0] = scale_bp( multiply_p(c, s), pow_bp( result[i], result[i-1]->deg ) );
-	  return result;
-	}
+    for (j=2; j<k; ++j) {
+      if ( !((result[j-1]->deg % 2) || (result[j]->deg % 2)) ) {
+	s = negative_p(s);
       }
+
+      c = multiply_p( multiply_p( c, pow_p( result[j]->deg,divide_p( beta[j-2], pow_p( 1+delta[j-2],r[j-2]) )[0] ) ), pow_p( result[j-1]->deg - result[j+1]->deg,r[j-2] ) );
+      
+    }
+    result[0] = scale_bp( multiply_p(c, s), pow_bp( result[i], result[i-1]->deg ) );
+    return result;
+  }
+}
 #endif /* BIVARIATERESULTANT_H */
