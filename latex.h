@@ -6,6 +6,7 @@
 #include "polynomials.h"
 #include "rationalfns.h"
 #include "bivariate_poly.h"
+#include "lazard_rioboo_trager.h"
 
 typedef struct STRING {
 	int capacity;
@@ -27,6 +28,7 @@ STRING *log_string();
 STRING *log_poly();
 STRING *log_rational();
 STRING *log_bivariate_poly();
+STRING *latex_Logs();
 int write_to_file();
 
 //End of Fn Defs
@@ -275,10 +277,8 @@ STRING *latex_bivariate_poly(bpoly *b_poly, char *var1, char *var2, char *leftbi
 			if(i!=0) {
 				append_to_string(output, "+");
 			}
-			append_to_string(output, "(");
 			append_to_string(output,
-				(latex_poly(b_poly->pcoefficients[i], var1, "",""))->string);
-		       	append_to_string(output, ")");	
+				(latex_poly(b_poly->pcoefficients[i], var1, "(",")"))->string);
 			append_to_string(output, print_monomial(var2, b_poly->deg-i));
 			++i;
 	}
@@ -345,13 +345,36 @@ STRING *log_bivariate_poly(bpoly *b_poly, char *var1, char *var2, char *leftbind
 	return output;
 }
 
+//takes a Log struct and returns string with required latex-formatted output
+//var 1 should be "a" in K (field) closure, var2 the indeterminate our polys are defined over eg x
+STRING *latex_Logs(Logs *input, char *var1, char *var2, char *leftbinder, char *rightbinder) {
+
+	int i;
+	STRING *output;
+	output = make_string();
+
+	append_to_string(output, leftbinder);
+	for(i=0; i<input->num; ++i) {
+		append_to_string(output, sum_over_poly_sol(input->roots[i], var1, "", "")->string);
+		append_to_string(output, var1);
+		append_to_string(output,
+				log_bivariate_poly(input->arguments[i], var1, var2, "", "")->string);
+		if(i != input->num-1) {
+			append_to_string(output, "+");
+		}
+	}
+	append_to_string(output, rightbinder);
+
+	return output;
+}
+	
 
 //write a given string to a file, returns 1
 int write_to_file(char *filename, STRING *str) { 
 	
 	FILE *file;
 	//opens in same directory 
-	file = fopen(filename, "w");
+	file = fopen(filename, "w"); 
 	fprintf(file, "%s", str->string); 
 	fclose(file);
 
