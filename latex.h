@@ -274,11 +274,29 @@ STRING *latex_bivariate_poly(bpoly *b_poly, char *var1, char *var2, char *leftbi
 	
 	int i=0;
 	while(i<=b_poly->deg && !zero_p(b_poly->pcoefficients[i])) {
-			if(i!=0) {
-				append_to_string(output, "+");
+
+			if(!monomial_p(b_poly->pcoefficients[i])) {
+		
+				if(i!=0) {
+					append_to_string(output, "+");
+				}
+
+				append_to_string(output,
+					(latex_poly
+					 (b_poly->pcoefficients[i], var1, "(",")"))->string);
 			}
-			append_to_string(output,
-				(latex_poly(b_poly->pcoefficients[i], var1, "(",")"))->string);
+			//no brackets for monomials
+			else {
+				
+				if(i!=0 && mpz_sgn(b_poly->
+							pcoefficients[i]->coefficients[0]->num)>0) {
+					append_to_string(output, "+");
+				}
+
+				append_to_string(output,
+					(latex_poly
+					 (b_poly->pcoefficients[i], var1, "",""))->string);
+			}
 			append_to_string(output, print_monomial(var2, b_poly->deg-i));
 			++i;
 	}
