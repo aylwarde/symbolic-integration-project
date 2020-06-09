@@ -150,7 +150,8 @@ Logs *int_rational_log_part(rational *rat_poly) {
 		if(!zero_bp(S[i])) {
 			evaluate(S[i], squarefree_r[i]);
 			S[i] = make_monic(S[i], squarefree_r[i]);
-			result->roots[j] = squarefree_r[i];
+			result->roots[j] = scale_p(reciprocal_f(content_p(squarefree_r[i])),
+					squarefree_r[i]);;
 			result->arguments[j] = S[i];
 			++j;
 		}
