@@ -44,7 +44,7 @@ frac **copy_array_f();
 bool zero_f();
 bool equals_f();
 
-char *latex_f( frac *, const char *, const char * );
+//char *latex_f( frac *, const char *, const char * );
 /* End of function defs*/
 
 
@@ -413,6 +413,7 @@ frac *lcm_array_f(int i, frac **frac_array) {
    in LaTeX code. Pass to leftwrap and rightwrap the formatters you want to wrap the output in - these can be
    empty.
 */
+/*
 char *latex_f(frac *frac_a, const char * leftwrap, const char * rightwrap) {
 
   char *result, *numstr;
@@ -475,4 +476,5 @@ char *latex_f(frac *frac_a, const char * leftwrap, const char * rightwrap) {
   return result;
   
 }
+*/
 #endif /* FRAC_H */
