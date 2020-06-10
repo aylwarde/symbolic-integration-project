@@ -29,6 +29,7 @@ void free_p();
 void strip_p();
 
 bool zero_p();
+bool monomial_p();
 bool equals_p();
 
 poly *initialize_p();
@@ -176,6 +177,20 @@ bool zero_p(poly *polynomial)
 	return result;
 }
 
+
+//check if polynomial is monomial (return boolean value)
+bool monomial_p(poly *polynomial)
+{	int i;
+	bool result = true;
+	for(i=1; i<polynomial->deg+1;++i)
+	{
+		if(!zero_f(polynomial->coefficients[i]))
+		{ 
+			result = false;
+		}
+	}
+	return result;
+}
 //strip a polynomial of higher order terms with zero coefficients
 void strip_p(poly *polynomial)
 {
