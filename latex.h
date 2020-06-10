@@ -150,7 +150,7 @@ STRING *latex_poly(poly *poly1, char *var, char *leftbinder, char *rightbinder) 
 		append_to_string(output, minus);
 	}
 	//dont print frac if it is one
-	if(!equals_f(abs_f(poly1->coefficients[0]), onefrac)) {
+	if(!equals_f(abs_f(poly1->coefficients[0]), onefrac) || poly1->deg==0) {
 		append_to_string(output, latex_f(abs_f(poly1->coefficients[0]), "", ""));
 	}
 	append_to_string(output, print_monomial(var, poly1->deg));
@@ -292,11 +292,16 @@ STRING *latex_bivariate_poly(bpoly *b_poly, char *var1, char *var2, char *leftbi
 	STRING *output;
 	output = make_string();
 	
+	//create one frac;
+	mpz_t one; mpz_init_set_ui(one, 1);
+	frac *onefrac;
+	onefrac = init_f(one, one);
 	append_to_string(output, leftbinder); 
 	
 	int i=0;
-	while(i<=b_poly->deg && !zero_p(b_poly->pcoefficients[i])) {
+	while(i<=b_poly->deg) {
 
+		if(!zero_p(b_poly->pcoefficients[i])) {
 			if(!monomial_p(b_poly->pcoefficients[i])) {
 		
 				if(i!=0) {
@@ -304,8 +309,8 @@ STRING *latex_bivariate_poly(bpoly *b_poly, char *var1, char *var2, char *leftbi
 				}
 
 				append_to_string(output,
-					(latex_poly
-					 (b_poly->pcoefficients[i], var1, "(",")"))->string);
+					(latex_poly(b_poly->
+						    pcoefficients[i], var1, "(",")"))->string);
 			}
 			//no brackets for monomials
 			else {
@@ -314,12 +319,18 @@ STRING *latex_bivariate_poly(bpoly *b_poly, char *var1, char *var2, char *leftbi
 							pcoefficients[i]->coefficients[0]->num)>0) {
 					append_to_string(output, "+");
 				}
-
+				//dont print monomial if its one
+				if(!equals_f(abs_f(
+					b_poly->pcoefficients[i]->coefficients[0]), onefrac) || 
+						i==b_poly->deg) {
 				append_to_string(output,
 					(latex_poly
 					 (b_poly->pcoefficients[i], var1, "",""))->string);
+				}
 			}
+
 			append_to_string(output, print_monomial(var2, b_poly->deg-i));
+		}
 			++i;
 	}
 
