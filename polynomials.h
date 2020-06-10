@@ -748,7 +748,7 @@ poly *intergrate_p(poly* polynomial)
 	mpz_init_set_si(degree, (long)polynomial->deg+1);
 	 mpz_init_set_ui(one,1);
 
-	for(i=0;i<polynomial->deg;++i)
+	for(i=0;i<=polynomial->deg;++i)
 	{
 	  intergral->coefficients[i] = multiply_f(init_f(one,degree), polynomial->coefficients[i]);
 		mpz_sub_ui(degree, degree, 1);
