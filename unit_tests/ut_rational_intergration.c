@@ -3,9 +3,9 @@
 
 int main()
 {
-  poly *polya ,*polyb , Q;
-  rational g,*temp;
-  Logs Rh;
+  poly *polya ,*polyb , *Q;
+  rational *g,*temp;
+  Logs *Rh;
   polya = initialize_p(3);
   assign_coeffs_p(polya);
 
