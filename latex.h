@@ -81,6 +81,26 @@ void append_to_string(STRING *str, char *words) {
 	}
 }
 
+char *latex_f(frac *frac_a, char *leftbinder, char *rightbinder) {
+
+	STRING *output;
+	output = make_string();
+	append_to_string(output, leftbinder);
+	if(mpz_cmp_ui(frac_a->denom, 1)!=0) {
+		append_to_string(output, "\\frac{");
+	}
+	append_to_string(output, (char *)mpz_get_str(NULL, 10, frac_a->num));
+	if(mpz_cmp_ui(frac_a->denom, 1)!=0) {
+		append_to_string(output, "}{");
+		append_to_string(output, (char *)mpz_get_str(NULL, 10, frac_a->denom));
+		append_to_string(output, "}");
+	}
+	append_to_string(output, rightbinder);
+
+	return output->string;
+}
+
+
 //returns character string: (var)^deg,
 char *print_monomial(char *var, int deg) {
 	
@@ -96,11 +116,13 @@ char *print_monomial(char *var, int deg) {
 
 		if(deg != 1) {
 			append_to_string(string_result, "^");
+			append_to_string(string_result, "{");
 			int length = snprintf(NULL, 0, "%d", deg);
 			char *str = (char *)calloc(1, length+1);
 			snprintf(str, length +1, "%d", deg);
 			append_to_string(string_result, str);
 			free(str);
+			append_to_string(string_result, "}");
 		}
 	}
 
