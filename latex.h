@@ -280,7 +280,12 @@ STRING *sum_over_poly_sol(poly *poly1, char *var, char *leftbinder, char *rightb
 	append_to_string(output, "\\sum_{");
 	append_to_string(output, var);
 	append_to_string(output, "|");
-	append_to_string(output, (latex_poly(poly1, var, "", ""))->string);
+	if(mpz_sgn(poly1->coefficients[0]->num)<0) {
+		append_to_string(output, (latex_poly(negative_p(poly1), var, "", ""))->string);
+	}
+	else {
+		append_to_string(output, (latex_poly(poly1, var, "", ""))->string);
+	}
 	append_to_string(output, "=0}");
 	append_to_string(output, rightbinder);
 	
@@ -292,10 +297,14 @@ STRING *latex_bivariate_poly(bpoly *b_poly, char *var1, char *var2, char *leftbi
 	STRING *output;
 	output = make_string();
 	
-	//create one frac;
+	//create (neg)/one frac;
 	mpz_t one; mpz_init_set_ui(one, 1);
-	frac *onefrac;
+	mpz_t negone; mpz_init(negone);
+	mpz_neg(negone, one);
+	frac *onefrac, *negonefrac;
 	onefrac = init_f(one, one);
+	negonefrac = init_f(negone, one);
+	
 	append_to_string(output, leftbinder); 
 	
 	int i=0;
@@ -314,11 +323,19 @@ STRING *latex_bivariate_poly(bpoly *b_poly, char *var1, char *var2, char *leftbi
 			}
 			//no brackets for monomials
 			else {
-				
+			
+				//add plus sign	
 				if(i!=0 && mpz_sgn(b_poly->
 							pcoefficients[i]->coefficients[0]->num)>0) {
 					append_to_string(output, "+");
 				}
+
+				//print minus sign if monomial is neg one (and not const term)
+				if(equals_f(b_poly->pcoefficients[i]->coefficients[0],
+							negonefrac) && i!=b_poly->deg) {
+					append_to_string(output, "-");
+				}
+
 				//dont print monomial if its one
 				if(!equals_f(abs_f(
 					b_poly->pcoefficients[i]->coefficients[0]), onefrac) || 
