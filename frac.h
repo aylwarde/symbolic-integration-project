@@ -37,6 +37,7 @@ frac *gcd_f();
 frac *lcm_f();
 frac *gcd_array_f();
 frac *lcm_array_f();
+frac *abs_f();
 
 frac **copy_array_f();
 
@@ -271,6 +272,20 @@ frac *divide_f(frac *frac_a, frac *frac_b) {
 
   	return frac_divide;
   
+}
+
+
+//return the absolute value of frac_a
+frac *abs_f(frac *frac_a) {
+
+  frac *result;
+  mpz_t newnum; mpz_init(newnum);
+
+  mpz_abs(newnum, frac_a->num);
+  result = init_f(newnum, frac_a->denom);
+
+  mpz_clear(newnum);
+  return result;
 }
 
 
