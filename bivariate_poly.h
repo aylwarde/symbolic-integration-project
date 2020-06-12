@@ -127,7 +127,7 @@ void strip_bp(bpoly *b_poly) {
 	int i, leading_zeroes=0, degree;
 
 	if(zero_bp(b_poly)) {
-		b_poly = initialize_bp(0);
+		b_poly->deg = 0;
 	}
 
 	else {

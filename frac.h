@@ -37,13 +37,14 @@ frac *gcd_f();
 frac *lcm_f();
 frac *gcd_array_f();
 frac *lcm_array_f();
+frac *abs_f();
 
 frac **copy_array_f();
 
 bool zero_f();
 bool equals_f();
 
-char *latex_f( frac *, const char *, const char * );
+//char *latex_f( frac *, const char *, const char * );
 /* End of function defs*/
 
 
@@ -274,6 +275,20 @@ frac *divide_f(frac *frac_a, frac *frac_b) {
 }
 
 
+//return the absolute value of frac_a
+frac *abs_f(frac *frac_a) {
+
+  frac *result;
+  mpz_t newnum; mpz_init(newnum);
+
+  mpz_abs(newnum, frac_a->num);
+  result = init_f(newnum, frac_a->denom);
+
+  mpz_clear(newnum);
+  return result;
+}
+
+
 //returns true if rational zero, false otherwise
 bool zero_f(frac *frac_a)
 {
@@ -398,6 +413,7 @@ frac *lcm_array_f(int i, frac **frac_array) {
    in LaTeX code. Pass to leftwrap and rightwrap the formatters you want to wrap the output in - these can be
    empty.
 */
+/*
 char *latex_f(frac *frac_a, const char * leftwrap, const char * rightwrap) {
 
   char *result, *numstr;
@@ -460,4 +476,5 @@ char *latex_f(frac *frac_a, const char * leftwrap, const char * rightwrap) {
   return result;
   
 }
+*/
 #endif /* FRAC_H */
