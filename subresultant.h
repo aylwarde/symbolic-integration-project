@@ -115,7 +115,7 @@ poly **subresultant_p(poly * polya, poly *polyb, int *outlen) {
       
     }
 
-    result[0] = scale_p( multiply_f(s, c), pow_p( result[i-1]->deg, result[i] ) );
+    result[0] = scale_p( multiply_f(s, c), pow_p( result[i],result[i-1]->deg ) );
     return result;
   }
 }

@@ -1,4 +1,4 @@
-#include "../frac.h"
+#include "../latex.h"
 #include <stdbool.h>
 
 
