@@ -415,7 +415,7 @@ STRING *log_bivariate_poly(bpoly *b_poly, char *var1, char *var2, char *leftbind
 
 //takes a Log struct and returns string with required latex-formatted output
 //var 1 should be "a" in K (field) closure, var2 the indeterminate our polys are defined over eg x
-STRING *latex_Logs(Logs *input, char *var1, char *var2, char *leftbinder, char *rightbinder) {
+STRING *latex_Logs(logpart *input, char *var1, char *var2, char *leftbinder, char *rightbinder) {
 
 	int i;
 	STRING *output;

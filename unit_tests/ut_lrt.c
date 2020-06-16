@@ -26,9 +26,9 @@ int main() {
 	result = int_rational_log_part(integrand);
 
 	for(i=0; i<result->num; ++i) {
-		display_p(result->roots[i]);
+		print_p(result->roots[i]);
 		printf("\n");
-		display_bp(result->arguments[i]);
+		print_bp(result->arguments[i]);
 	}
 	return 0;
 }

@@ -1,4 +1,4 @@
-#include "../Rintergration.h"
+#include "../Rintegration.h"
 #include <stdbool.h>
 
 int main()
@@ -20,19 +20,19 @@ int main()
   poly **polyarray = from_file_p(polyfile, &polys);
   
   for ( i=0; i<polys; ++i) {
-    display_p(polyarray[i]);
+    print_p(polyarray[i]);
   }
 
   fclose(polyfile);
   
   poly *polya ,*polyb , *Q;
   rational *g,*temp;
-  Logs *Rh;
+  logpart *Rh;
 
   temp = init_r(polyarray[0],polyarray[1]);
 
   intergrate_r(temp, &g ,&Q ,&Rh);
-  display_p(Q);
+  print_p(Q);
   print_r(g);
   fputs(Rh==NULL ? "true\n" : "false\n", stdout);
   return 0;

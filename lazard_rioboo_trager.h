@@ -7,21 +7,21 @@
 #include "bivariateResultant.h"
 #include "rationalfns.h"
 
-typedef struct Logs {
+typedef struct logpart {
 	int num;
 	poly **roots;
 	bpoly **arguments;
-} Logs;
+} logpart;
 
 
 //FNs:
-Logs *initialize_logs();
+logpart *initialize_logs();
 void evaluate();
 bpoly *make_monic();
-Logs *int_rational_log_part();
+logpart *int_rational_log_part();
 
-Logs *initialize_logs(int num) {
-	Logs *result = (Logs *)calloc(1, sizeof(Logs));
+logpart *initialize_logs(int num) {
+	logpart *result = (logpart *)calloc(1, sizeof(logpart));
 	result->num = num;
 	result->roots = initialize_array_p(num);
 	result->arguments = initialize_array_bp(num);
@@ -53,12 +53,12 @@ bpoly *make_monic(bpoly *b_poly, poly *polya) {
 
 //input: a rational polynomial A/D with deg(A)<deg(D) and D squarefree, an unitialized array of polys, an unitialized array of bpolys, outlen int address
 //squarefree_r will be the squarefree factorization of resultant(D, A-t(dD/dx)) (with outlen terms)
-Logs *int_rational_log_part(rational *rat_poly) {
+logpart *int_rational_log_part(rational *rat_poly) {
 	
 	poly *A, *D;
 	bpoly *d, *a;
 	bpoly **subresultant;
-	Logs *result;
+	logpart *result;
 
 	//copy numerator and denominator(univariate polys)
 	A = copy_p(rat_poly->num);
@@ -121,7 +121,7 @@ Logs *int_rational_log_part(rational *rat_poly) {
 				squarefree_a = squarefree_p(S[i]->pcoefficients[0], &terms);
 				
 				for(h=1; h<=terms; ++h) {
-					gcd = pow_p(h, gcd_p(squarefree_a[h], squarefree_r[i]));
+				  gcd = pow_p( gcd_p(squarefree_a[h], squarefree_r[i]),h);
 					
 					//gcd(lc(S[i], Q[i]) has trivial gcd, so so does gcd poly
 					if(gcd->deg==0) {

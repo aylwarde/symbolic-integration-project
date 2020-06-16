@@ -14,7 +14,7 @@ int main() {
 
 	//read in num and denom, initialize rational
 	int polys;
-	Logs *result;
+	logpart *result;
 	STRING *string_result;
 	rational *integrand;
 
