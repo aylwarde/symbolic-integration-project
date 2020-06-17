@@ -20,7 +20,7 @@ int main() {
 	input = from_file_p(polyfile, &polys);
 	integrand = init_r(input[0], input[1]);
 
-	Logs *result;
+	logpart *result;
 	int i;
 
 	result = int_rational_log_part(integrand);
