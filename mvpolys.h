@@ -19,15 +19,52 @@ typedef struct mvpoly {
   frac **coefficients;
 } mvpoly;
 
+char *string_mv(mvpoly *);
+
 /* Fn Defs */
+
+char *permute_arr_char(unsigned int, char *, unsigned int *);
+unsigned int *permute_arr_ui(unsigned int, unsigned int *, unsigned int *);
 
 unsigned int *addr_offset_to_degs(unsigned int, unsigned int, unsigned int *);
 unsigned int degs_to_addr_offset(unsigned int, unsigned int *, unsigned int *);
 
 mvpoly *init_mv(char *, unsigned int *);
-mvpoly *transpose(mvpoly *, unsigned int, unsigned int);
+mvpoly *permute_mv(mvpoly *, unsigned int *);
 
 /* End Fn Defs */
+
+char *permute_arr_char(unsigned int varnum, char *array, unsigned int *permutation) {
+  
+  printf("%d || %d\n", varnum, sizeof(char));
+  
+  char *result = (char *)calloc(varnum+1, sizeof(char));
+  unsigned int i;
+  
+  for (i=0; i<varnum; ++i) {
+    result[permutation[i]] = array[i];
+  }
+  
+  return result;
+}
+
+unsigned int *permute_arr_ui(unsigned int varnum, unsigned int *array, unsigned int *permutation){
+  
+  printf("%d || %d\n", varnum, sizeof(unsigned int));
+  
+  unsigned int *result = (unsigned int *)calloc(varnum, sizeof(unsigned int));
+  unsigned int i;
+    
+  for (i=0; i<varnum; ++i) {
+    printf("%d || %d\n", i, permutation[i]);
+    result[permutation[i]] = array[i];
+    printf("%d || %d\n", i, permutation[i]);
+    printf("%d\n", result[permutation[i]]);
+  }
+  
+  return result;
+}
+
 
 /*
   Convert an address offset of the coefficient list into an array of integers
@@ -56,12 +93,9 @@ unsigned int *addr_offset_to_degs(unsigned int varnum, unsigned int addr_offset,
 unsigned int degs_to_addr_offset(unsigned int varnum, unsigned int *coords, unsigned int *degrees) {
 
   unsigned int result = coords[0], i, q=1;
-  printf("%d\n", coords[0]);
   for (i=1; i<varnum; ++i) {
-    printf("%d\n", result);
     q *= degrees[i-1]+1;
     result += q*coords[i];
-    printf("%d\n", coords[i]);
   }
 
   return result;
@@ -91,7 +125,7 @@ mvpoly *init_mv(char * variables, unsigned int * degrees) {
 
   for(i=0; i<=result->size; ++i) {
 		
-      coefficients[i] = init_f(zero,one);
+    coefficients[i] = init_f(zero,one);
       
   }
 
@@ -100,5 +134,24 @@ mvpoly *init_mv(char * variables, unsigned int * degrees) {
   return result;
 }
 
+mvpoly *permute_mv(mvpoly *mvp1, unsigned int *permutation) {
+
+  char *new_vars = permute_arr_char(mvp1->varnum, mvp1->variables, permutation);
+  unsigned int *new_degs = permute_arr_ui(mvp1->varnum, mvp1->degrees, permutation);
+  mvpoly *result = init_mv(new_vars, new_degs);
+  unsigned int i, i_tilde;
+
+  for (i=0; i<mvp1->size; ++i) {
+
+    //i_tilde is the image of the index i under the permutation
+    i_tilde = degs_to_addr_offset(mvp1->varnum,
+				  permute_arr_ui(mvp1->varnum, addr_offset_to_degs(mvp1->varnum, i, mvp1->degrees),
+						 permutation), mvp1->degrees);
+    
+    result->coefficients[i_tilde] = mvp1->coefficients[i];
+  }
+
+  return result;
+}
 
 #endif /* MVPOLYS_H */
