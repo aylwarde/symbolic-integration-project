@@ -77,7 +77,7 @@ int main()
 
 	//test integrate_p
 	printf("this is integral");
-	display_p(integrate_p(poly_a));
+	print_p(integrate_p(poly_a));
         
 	//test equals_p
 	if(equals_p(poly_a, poly_a)) {
