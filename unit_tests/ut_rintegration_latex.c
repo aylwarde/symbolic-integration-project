@@ -1,5 +1,5 @@
 #include "../latex.h"
-#include "../Rintergration.h"
+#include "../Rintegration.h"
 
 int main() {
 

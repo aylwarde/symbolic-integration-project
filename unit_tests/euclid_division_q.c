@@ -23,8 +23,8 @@ int main()
 	fclose(polyfile);
 
 	division = divide_p(polyarray[0], polyarray[1]);
-	display_p(division[0]);
-	display_p(division[1]);
+	print_p(division[0]);
+	print_p(division[1]);
 
 	free_p(polyarray[0]);
 	free_p(polyarray[1]);

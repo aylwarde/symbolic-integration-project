@@ -18,6 +18,13 @@ int main()
 	mpz_init_set_str(u, string5, 10);
 	mpz_init_set_str(v, string6, 10);
 
+	//clear strings
+	string1 = NULL;
+	string2 = NULL;
+	string3 = NULL;
+	string4 = NULL;
+	string5 = NULL;
+	string6 = NULL;
 	
 	//create fraction array
 	fractions = (frac **)calloc(6, sizeof(frac *));
@@ -28,6 +35,9 @@ int main()
 	fractions[3] = init_f(y,v);
 	fractions[4] = init_f(z,x);
 	fractions[5] = init_f(w,z);
+
+	//clear mpz ints
+	mpz_clears(z, y, x, w, u, v, NULL);
 
 	for(i=0; i<6; ++i) {
 		print_f(fractions[i]);
@@ -53,6 +63,12 @@ int main()
 	print_f(lcm_array_f(5, fractions));
 	printf("\n");	
 
-			
+
+	for(i=0; i<6; ++i) {
+		free_f(result[i]);
+	}
+
+	free(fractions);	
+	free(result);
 	return 0;
 }

@@ -50,7 +50,7 @@ bpoly **bsubresultant( bpoly *polya, bpoly *polyb, int *outlen) {
   gamma=initialize_p(0);
   gamma->coefficients[0]=init_f(negone,one);
   delta[0] = polya->deg - polyb->deg;
-  beta[0] = pow_p( delta[0]+1,gamma);
+  beta[0] = pow_p( gamma,delta[0]+1);
 
   r[0] = result[1]->pcoefficients[0];
   /* end initialisation */
@@ -69,13 +69,13 @@ bpoly **bsubresultant( bpoly *polya, bpoly *polyb, int *outlen) {
       result[k+1]->pcoefficients[l] = divide_p(div[1]->pcoefficients[l], beta[k-2])[0];
     }
     if(delta[k-2]>1) {
-	    gamma = divide_p(pow_p(delta[k-2], negative_p(r[k-1])), pow_p(delta[k-2]-1, gamma))[0];
+      gamma = divide_p(pow_p( negative_p(r[k-1]),delta[k-2]), pow_p( gamma,delta[k-2]-1))[0];
     }
     else {
-    	gamma = multiply_p( pow_p(delta[k-2], negative_p(r[k-1])), pow_p( 1-delta[k-2], gamma ));
+      gamma = multiply_p( pow_p( negative_p(r[k-1]),delta[k-2]), pow_p( gamma, 1-delta[k-2] ));
     }
     delta[k-1] = result[k]->deg - result[k+1]->deg;
-    beta[k-1] = multiply_p( negative_p(r[k-1]), pow_p(delta[k-1], gamma));
+    beta[k-1] = multiply_p( negative_p(r[k-1]), pow_p( gamma ,delta[k-1]));
     ++k;
     
   }
@@ -110,10 +110,10 @@ bpoly **bsubresultant( bpoly *polya, bpoly *polyb, int *outlen) {
 	s = negative_p(s);
       }
 
-      c = multiply_p( multiply_p( c, pow_p( result[j]->deg,divide_p( beta[j-2], pow_p( 1+delta[j-2],r[j-2]) )[0] ) ), pow_p( result[j-1]->deg - result[j+1]->deg,r[j-2] ) );
+      c = multiply_p( multiply_p( c, pow_p(divide_p(beta[j-2], pow_p( r[j-2],1+delta[j-2]) )[0] ,result[j]->deg) ), pow_p( r[j-2], result[j-1]->deg - result[j+1]->deg ) );
       
     }
-    result[0] = scale_bp( multiply_p(c, s), pow_bp( result[i], result[i-1]->deg ) );
+    result[0] = scale_bp( multiply_p(c, s), pow_bp( result[i],result[i-1]->deg ) );
     return result;
   }
 }

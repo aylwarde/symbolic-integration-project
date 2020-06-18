@@ -30,9 +30,9 @@ int main() {
 
 
   gcd2 = pseudogcd_p(polyarray[0],polyarray[1]);
-  display_p(gcd2);
+  print_p(gcd2);
   gcd = primativePRS_p(polyarray[0],polyarray[1]);
-  display_p(gcd);
+  print_p(gcd);
   
   fclose(polyfile);
   

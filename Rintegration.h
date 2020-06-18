@@ -2,7 +2,7 @@
 #include "hermite_reduce.h"
 #include "latex.h"
 
-void intergrate_r(rational *rpoly1,rational **g,poly **Q,Logs **Rh)
+void integrate_r(rational *rpoly1,rational **g,poly **Q,logpart **Rh)
 {
   
   rational **hermite, *rat;
@@ -14,7 +14,7 @@ void intergrate_r(rational *rpoly1,rational **g,poly **Q,Logs **Rh)
   polydiv = divide_p(hermite[1]->num,hermite[1]->denom);
 
   *g = hermite[0];
-  *Q = intergrate_p(polydiv[0]);
+  *Q = integrate_p(polydiv[0]);
 
   if(zero_p(polydiv[1]))
     {
@@ -40,8 +40,8 @@ STRING *integral_string(rational *rat_poly, char *var1, char *var2, char *leftbi
 	//perform integration
 	rational *g;
 	poly *Q;
-	Logs *Rh;
-	intergrate_r(rat_poly, &g, &Q, &Rh);
+	logpart *Rh;
+	integrate_r(rat_poly, &g, &Q, &Rh);
 
 	STRING *output;
 	output = make_string();

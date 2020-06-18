@@ -24,7 +24,7 @@ typedef struct poly {
 
 /* Functions defined in this header */
 void assign_coeffs_p();
-void display_p();
+void print_p();
 void free_p();
 void strip_p();
 
@@ -140,7 +140,7 @@ void assign_coeffs_p(poly *polynomial)
 }
 
 //display a polynomial
-void display_p(poly *polynomial)
+void print_p(poly *polynomial)
 {
 	int i;
 	for(i=0; i<polynomial->deg;++i)
@@ -315,7 +315,7 @@ poly *multiply_p(poly *polynomial1, poly *polynomial2)
 }
 
 //raise a polynomial to a positive power
-poly *pow_p(int exponent, poly *poly_a) {
+poly *pow_p(poly *poly_a, int exponent) {
 
   if (exponent == 0)
     {
@@ -332,7 +332,7 @@ poly *pow_p(int exponent, poly *poly_a) {
 
   else
     {
-      return multiply_p(pow_p(exponent-1, poly_a), poly_a);
+      return multiply_p(pow_p( poly_a, exponent-1), poly_a);
     }	
 }
 
@@ -735,7 +735,7 @@ poly *primativePRSinternal_p(poly* poly1,poly* poly2)
     }
 	 
 }
-poly *intergrate_p(poly* polynomial)
+poly *integrate_p(poly* polynomial)
 {
   poly *intergral;
   int i;

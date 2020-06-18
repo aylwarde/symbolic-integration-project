@@ -43,14 +43,14 @@ int main()
   polyb->pcoefficients[0]=e;
 
   printf("this is poly a\n");
-  display_bp(polya);
+  print_bp(polya);
 
   printf("this is poly b\n");
-    display_bp(polyb);
+    print_bp(polyb);
 
     printf("this is the subresultant of A&B\n");
 
-    display_bp(bsubresultant(polya,polyb,&strlen)[0]);
+    print_bp(bsubresultant(polya,polyb,&strlen)[0]);
     
   
     

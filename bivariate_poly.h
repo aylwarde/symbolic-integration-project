@@ -12,7 +12,7 @@ typedef struct bivariate_poly {
 	poly **pcoefficients;
 } bpoly;
 
-void display_bp();
+void print_bp();
 void free_bp();
 void strip_bp();
 
@@ -89,16 +89,16 @@ bpoly **initialize_array_bp(int n) {
 }
 
 //displays poly(this isn't very pretty... at all)
-void display_bp(bpoly *b_poly) {
+void print_bp(bpoly *b_poly) {
 	int i;
 
 	for(i=0; i<b_poly->deg; ++i) {
 	       	if(!zero_p(b_poly->pcoefficients[i])) {
-			display_p(b_poly->pcoefficients[i]);
+			print_p(b_poly->pcoefficients[i]);
 			printf("*t^%d+\n", b_poly->deg-i);
 		}
 	}
-	display_p(b_poly->pcoefficients[b_poly->deg]);
+	print_p(b_poly->pcoefficients[b_poly->deg]);
 	printf("\n");
 }
 
@@ -267,8 +267,8 @@ bpoly **pseudo_divide_bp(bpoly *b_poly1, bpoly *b_poly2) {
 	       	result[1] = subtract_bp(scale_bp(b, result[1]), multiply_bp(T, b_poly2));
 	}
 
-	result[0] = scale_bp(pow_p(N, b), result[0]);
-	result[1] = scale_bp(pow_p(N, b), result[1]);
+	result[0] = scale_bp(pow_p( b, N), result[0]);
+	result[1] = scale_bp(pow_p( b, N), result[1]);
 
 	return result;
 }

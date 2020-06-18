@@ -20,15 +20,15 @@ int main() {
 	input = from_file_p(polyfile, &polys);
 	integrand = init_r(input[0], input[1]);
 
-	Logs *result;
+	logpart *result;
 	int i;
 
 	result = int_rational_log_part(integrand);
 
 	for(i=0; i<result->num; ++i) {
-		display_p(result->roots[i]);
+		print_p(result->roots[i]);
 		printf("\n");
-		display_bp(result->arguments[i]);
+		print_bp(result->arguments[i]);
 	}
 	return 0;
 }
