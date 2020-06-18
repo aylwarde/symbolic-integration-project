@@ -6,6 +6,7 @@
 #include "polynomials.h"
 #include "rationalfns.h"
 #include "bivariate_poly.h"
+#include "trivariate_poly.h"
 #include "lazard_rioboo_trager.h"
 
 typedef struct STRING {
@@ -24,6 +25,8 @@ STRING *integrate_poly();
 STRING *integrate_rational();
 STRING *sum_over_poly_sol();
 STRING *latex_bivariate_poly();
+STRING *latex_biv_rational();
+STRING *latex_trivariate_poly();
 STRING *log_string();
 STRING *log_poly();
 STRING *log_rational();
@@ -347,6 +350,63 @@ STRING *latex_bivariate_poly(bpoly *b_poly, char *var1, char *var2, char *leftbi
 			}
 
 			append_to_string(output, print_monomial(var2, b_poly->deg-i));
+		}
+			++i;
+	}
+
+	append_to_string(output, rightbinder);
+	return output;
+}
+
+//create a latex biv_rational polynomia (assume denom non zero)
+STRING *latex_biv_rational(biv_rational *brat, 
+		char *var1, char *var2, char *leftbinder, char *rightbinder) { 
+
+	STRING *output;
+	output = make_string();
+
+	//if denominator is onebpoly then do not print
+	bpoly *onebp = one_bp();
+	if(equals_bp(brat->denom, onebp)) {
+		append_to_string(output, latex_bivariate_poly(brat->num, 
+					var1, var2, leftbinder, rightbinder)->string);
+			}
+	else {
+		append_to_string(output, leftbinder);
+		append_to_string(output, "\\frac{");
+		//append numerator
+		append_to_string(output, 
+				(latex_bivariate_poly(brat->num, var1, var2, "", ""))->string);
+		append_to_string(output, "}{");
+		//append denominator
+		append_to_string(output, 
+				(latex_bivariate_poly(brat->denom, var1, var2, "", ""))->string);
+		append_to_string(output, "}");
+		append_to_string(output, rightbinder);
+		
+		}
+
+	return output;
+}
+//print a trivariate poly in Q[var1][var2][var3]
+STRING *latex_trivariate_poly(tpoly *t_poly, char *var1, char *var2, char *var3, char *leftbinder, char *rightbinder) {
+	STRING *output;
+	output = make_string();
+	
+	append_to_string(output, leftbinder); 
+	
+	int i=0;
+	while(i<=t_poly->deg) {
+
+		if(!zero_bp(t_poly->brcoefficients[i]->num)) {
+				if(i!=0) {
+					append_to_string(output, "+");
+				}
+				append_to_string(output,
+					(latex_biv_rational(t_poly->
+						    brcoefficients[i], var1, var2, "(",")"))->string);
+
+			append_to_string(output, print_monomial(var3, t_poly->deg-i));
 		}
 			++i;
 	}

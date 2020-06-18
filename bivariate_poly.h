@@ -31,6 +31,7 @@ bpoly **pseudo_divide_bp();
 poly *content_bp();
 
 bool zero_bp();
+bool equals_bp();
 
 
 //initialize all coefficients to zero
@@ -300,6 +301,26 @@ bpoly *pow_bp(bpoly *poly1,int exp)
       return multiply_bp(pow_bp(poly1,exp-1),poly1);
     }
 }
+
+bool equals_bp(bpoly *b_poly1, bpoly *b_poly2) {
+	
+	return zero_bp(subtract_bp(b_poly1, b_poly2));
+}
+
+//make one bpoly
+bpoly *one_bp() {
+	bpoly *onebp;
+	poly *onep;
+	mpz_t one; mpz_init_set_si(one,1);
+
+	onep = initialize_p(0);
+	onep->coefficients[0] = init_f(one,one);
+	onebp = initialize_bp(0);
+	onebp->pcoefficients[0] = onep;
+	return onebp;
+}
+
+
 /*
 poly *content_bp(bpoly *poly)
 {
