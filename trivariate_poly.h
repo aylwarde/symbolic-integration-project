@@ -142,7 +142,7 @@ tpoly *add_tp(tpoly *t_poly1, tpoly *t_poly2) {
 		result = initialize_tp(t_poly1->deg);
 
 		for(i=0; i<difference; ++i) {
-			result->brcoefficients[i] = t_poly1->brcoefficients[i];
+			result->brcoefficients[i] = copy_br(t_poly1->brcoefficients[i]);
 		}
 
 		for(i=difference; i<=result->deg; ++i) {
@@ -158,8 +158,7 @@ tpoly *add_tp(tpoly *t_poly1, tpoly *t_poly2) {
 //subtract two polys
 tpoly *subtract_tp(tpoly *t_poly1, tpoly *t_poly2) {
 	tpoly *result;
-	t_poly2 = negative_tp(t_poly2);
-	result = add_tp(t_poly1, t_poly2);
+	result = add_tp(t_poly1, negative_tp(t_poly2));
 	return result;
 }
 
@@ -203,6 +202,8 @@ tpoly *pow_tp(tpoly *t_poly1, int exp) {
 //remember importantly that we are working over something like K(a,b)[x]
 tpoly **divide_tp(tpoly *t_poly1, tpoly *t_poly2) {
 
+	tpoly **result = initialize_array_tp(2);
+	
 	if(zero_tp(t_poly2)) {
 		printf("Error: division by zero polynomial\n");
 		exit(0);
@@ -213,7 +214,6 @@ tpoly **divide_tp(tpoly *t_poly1, tpoly *t_poly2) {
 		biv_rational *t;
 		tpoly *division;
 
-		tpoly **result = initialize_array_tp(2);
 		tpoly *quotient = initialize_tp(MAX(t_poly1->deg - t_poly2->deg, 0));
 		tpoly *remainder = copy_tp(t_poly1);
 
@@ -221,18 +221,19 @@ tpoly **divide_tp(tpoly *t_poly1, tpoly *t_poly2) {
 
 			d = remainder->deg - t_poly2->deg;
 			t = divide_br(remainder->brcoefficients[0], t_poly2->brcoefficients[0]);
-
 			division = initialize_tp(d);
 			division->brcoefficients[0] = t;
 
 			quotient = add_tp(quotient, division);
 			remainder = subtract_tp(remainder, multiply_tp(t_poly2, division));
+			//free_br(t);
+			//free_tp(division);
 		}
 
 		result[0] = quotient;
 		result[1] = remainder;
-		return result;
 	}
+	return result;
 }
 
 	 
@@ -254,13 +255,13 @@ tpoly **half_ext_euclid_tp(tpoly *t_poly1, tpoly *t_poly2) {
 		q = divide_tp(t_poly1, t_poly2)[0];
 		r = divide_tp(t_poly1, t_poly2)[1];
 
-		t_poly1 = t_poly2;
-		t_poly2 = r;
+		t_poly1 = copy_tp(t_poly2);
+		t_poly2 = copy_tp(r);
 
 		r_1 = subtract_tp(a_1, multiply_tp(q, b_1));
 
-		a_1 = b_1;
-		b_1 = r_1;
+		a_1 = copy_tp(b_1);
+		b_1 = copy_tp(r_1);
 	}
 
 	result = initialize_array_tp(2);
