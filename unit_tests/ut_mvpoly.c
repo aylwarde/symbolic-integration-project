@@ -18,9 +18,7 @@ int main() {
 
   mvpoly *mvp = init_mv(vars, degs);
 
-  printf("%d\n", mvp->size);
-  printf("%s\n", string_mv(mvp));
-  printf("%d\n", mvp->size);
+  printf("%p\n", mvp);
   printf("%s\n", string_mv(mvp));
 
   char *vars3 = permute_arr_char(4, vars2, perm);

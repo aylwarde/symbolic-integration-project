@@ -36,13 +36,13 @@ mvpoly *permute_mv(mvpoly *, unsigned int *);
 
 char *permute_arr_char(unsigned int varnum, char *array, unsigned int *permutation) {
   
-  printf("%d || %d\n", varnum, sizeof(char));
-  
   char *result = (char *)calloc(varnum+1, sizeof(char));
   unsigned int i;
   
   for (i=0; i<varnum; ++i) {
+    
     result[permutation[i]] = array[i];
+    
   }
   
   return result;
@@ -50,16 +50,13 @@ char *permute_arr_char(unsigned int varnum, char *array, unsigned int *permutati
 
 unsigned int *permute_arr_ui(unsigned int varnum, unsigned int *array, unsigned int *permutation){
   
-  printf("%d || %d\n", varnum, sizeof(unsigned int));
-  
   unsigned int *result = (unsigned int *)calloc(varnum, sizeof(unsigned int));
   unsigned int i;
     
   for (i=0; i<varnum; ++i) {
-    printf("%d || %d\n", i, permutation[i]);
+    
     result[permutation[i]] = array[i];
-    printf("%d || %d\n", i, permutation[i]);
-    printf("%d\n", result[permutation[i]]);
+    
   }
   
   return result;

@@ -219,8 +219,7 @@ char *string_monomial(char * variables, unsigned int * degrees) {
 
 
 char *string_mv(mvpoly *mvp1) {
-
-  printf("%d\n", mvp1->size + 1);
+  
   long total_len = 0, *term_len = (long *)calloc(mvp1->size + 1, sizeof(long));
   char **term_str = (char **)calloc(mvp1->size + 1, sizeof(char *));
   long outlen = 0;
@@ -233,7 +232,7 @@ char *string_mv(mvpoly *mvp1) {
     char *coeff = string_f(mvp1->coefficients[i], false);
     char *monomial = string_monomial(mvp1->variables, coords);
 
-    term_len[i] = strlen(coeff) + strlen(monomial);
+    term_len[i] = strlen(coeff) + strlen(monomial) + 1;
     total_len += term_len[i];
     term_str[i] = (char *)calloc(term_len[i] + 1, sizeof(char));
 
