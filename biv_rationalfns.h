@@ -127,7 +127,6 @@ biv_rational *subtract_br(biv_rational *brat1, biv_rational *brat2) {
 
 	biv_rational *neg = negative_br(brat2); 
 	biv_rational *result = add_br(brat1, neg);
-	free_br(neg);
 	return result;
 }
 
@@ -136,7 +135,6 @@ biv_rational *divide_br(biv_rational *brat1, biv_rational *brat2) {
 
 	biv_rational *recip = reciprocal_br(brat2);
 	biv_rational *result = multiply_br(brat1, recip);
-	free_br(recip);
 	return result;
 }
 
