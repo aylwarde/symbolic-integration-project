@@ -70,7 +70,7 @@ arctan *log_to_arc(poly *A ,poly *B)
 	{
 	  //initializing the i^th term of the arctan part
 	  result->num = i;
-          result->coefficients = (arctan *)realloc(result,i);
+          result-> arguments = (arctan *)realloc(result,i);
 
       
 
@@ -81,7 +81,7 @@ arctan *log_to_arc(poly *A ,poly *B)
 	}
     }
   //initialize the i^th term of the arctan part
-  result = (arctan *)realloc(result,i);
+  result->arguments = (arctan *)realloc(result,i);
   result->num =i;
   result->arguments[i] = init_r(A,B);
 
