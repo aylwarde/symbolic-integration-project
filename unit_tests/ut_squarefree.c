@@ -23,7 +23,7 @@ int main()
 	squarefree = squarefree_p(input[0], &len);
 
 	for(i=0; i<=len; ++i) {
-		display_p(squarefree[i]);
+		print_p(squarefree[i]);
 	}	
 
 	for(i=0; i<=len; ++i) {

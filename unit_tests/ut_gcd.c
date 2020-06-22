@@ -23,7 +23,7 @@ int main()
 
 
 	gcd = gcd_p(poly1, poly2);
-	display_p(gcd);
+	print_p(gcd);
 
 
 return 0;	

@@ -22,8 +22,8 @@ int main()
 	fclose(polyfile);
 
 	result = extended_euclidean_diophantine(polyarray[0], polyarray[1], polyarray[2]);
-	display_p(result[0]);
-	display_p(result[1]);
+	print_p(result[0]);
+	print_p(result[1]);
 	
 	free_p(result[0]);
 	free_p(result[1]);

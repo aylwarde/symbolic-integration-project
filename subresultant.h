@@ -66,9 +66,17 @@ poly **subresultant_p(poly * polya, poly *polyb, int *outlen) {
     div = pseudodiv_p(result[k-1], result[k]);
     
     result[k+1] = scale_p(reciprocal_f(beta[k-2]), div[1]);
-    
-    gamma = multiply_f(pow_f(negative_f(r[k-2]), delta[k-2]), pow_f(gamma, 1 - delta[k-2]));
-    delta[k-1] = result[k-1]->deg-result[k]->deg;
+
+    if(delta[k-2]>1)
+      {
+	gamma = divide_f(pow_f(negative_f(r[k-1]),delta[k-2]),pow_f(gamma,delta[k-2]-1));
+      }
+    else
+      {
+       gamma = multiply_f(pow_f(negative_f(r[k-1]), delta[k-2]), pow_f(gamma, 1 - delta[k-2]));
+      }
+      
+    delta[k-1] = result[k]->deg-result[k+1]->deg;
     beta[k-1] = multiply_f(negative_f(r[k-1]), pow_f(gamma, delta[k-1]));
 
     ++k;
@@ -107,7 +115,7 @@ poly **subresultant_p(poly * polya, poly *polyb, int *outlen) {
       
     }
 
-    result[0] = scale_p( multiply_f(s, c), pow_p( result[i-1]->deg, result[i] ) );
+    result[0] = scale_p( multiply_f(s, c), pow_p( result[i],result[i-1]->deg ) );
     return result;
   }
 }

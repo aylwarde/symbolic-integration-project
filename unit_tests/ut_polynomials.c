@@ -21,7 +21,7 @@ int main() {
   poly **polyarray = from_file_p(polyfile, &polys);
   
   for ( i=0; i<polys; ++i) {
-    display_p(polyarray[i]);
+    print_p(polyarray[i]);
   }
 
   fclose(polyfile);

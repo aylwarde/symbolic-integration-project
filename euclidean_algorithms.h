@@ -40,8 +40,8 @@ poly **half_extended_euclidean(poly *poly1, poly *poly2) {
 	}
 
 	result = initialize_array_p(2);
-	result[0] = a_1;
-	result[1] = poly1;
+	result[0] = scale_p(reciprocal_f(content_p(poly1)), a_1);
+	result[1] = scale_p(reciprocal_f(content_p(poly1)), poly1);
 
 	mpz_clear(one);
 	

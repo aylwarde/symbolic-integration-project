@@ -12,7 +12,7 @@ typedef struct bivariate_poly {
 	poly **pcoefficients;
 } bpoly;
 
-void display_bp();
+void print_bp();
 void free_bp();
 void strip_bp();
 
@@ -31,6 +31,7 @@ bpoly **pseudo_divide_bp();
 poly *content_bp();
 
 bool zero_bp();
+bool equals_bp();
 
 
 //initialize all coefficients to zero
@@ -89,16 +90,16 @@ bpoly **initialize_array_bp(int n) {
 }
 
 //displays poly(this isn't very pretty... at all)
-void display_bp(bpoly *b_poly) {
+void print_bp(bpoly *b_poly) {
 	int i;
 
 	for(i=0; i<b_poly->deg; ++i) {
 	       	if(!zero_p(b_poly->pcoefficients[i])) {
-			display_p(b_poly->pcoefficients[i]);
+			print_p(b_poly->pcoefficients[i]);
 			printf("*t^%d+\n", b_poly->deg-i);
 		}
 	}
-	display_p(b_poly->pcoefficients[b_poly->deg]);
+	print_p(b_poly->pcoefficients[b_poly->deg]);
 	printf("\n");
 }
 
@@ -127,7 +128,7 @@ void strip_bp(bpoly *b_poly) {
 	int i, leading_zeroes=0, degree;
 
 	if(zero_bp(b_poly)) {
-		b_poly = initialize_bp(0);
+		b_poly->deg = 0;
 	}
 
 	else {
@@ -267,8 +268,8 @@ bpoly **pseudo_divide_bp(bpoly *b_poly1, bpoly *b_poly2) {
 	       	result[1] = subtract_bp(scale_bp(b, result[1]), multiply_bp(T, b_poly2));
 	}
 
-	result[0] = scale_bp(pow_p(N, b), result[0]);
-	result[1] = scale_bp(pow_p(N, b), result[1]);
+	result[0] = scale_bp(pow_p( b, N), result[0]);
+	result[1] = scale_bp(pow_p( b, N), result[1]);
 
 	return result;
 }
@@ -300,12 +301,32 @@ bpoly *pow_bp(bpoly *poly1,int exp)
       return multiply_bp(pow_bp(poly1,exp-1),poly1);
     }
 }
-/*
+
+bool equals_bp(bpoly *b_poly1, bpoly *b_poly2) {
+	
+	return zero_bp(subtract_bp(b_poly1, b_poly2));
+}
+
+//make one bpoly
+bpoly *one_bp() {
+	bpoly *onebp;
+	poly *onep;
+	mpz_t one; mpz_init_set_si(one,1);
+
+	onep = initialize_p(0);
+	onep->coefficients[0] = init_f(one,one);
+	onebp = initialize_bp(0);
+	onebp->pcoefficients[0] = onep;
+	return onebp;
+}
+
+
+
 poly *content_bp(bpoly *poly)
 {
   return gcd_array_p(poly->deg,poly->pcoefficients);
 }
-*/
+
 
 
 #endif /* BIVARIATE_POLY_H */

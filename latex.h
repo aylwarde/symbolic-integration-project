@@ -6,6 +6,8 @@
 #include "polynomials.h"
 #include "rationalfns.h"
 #include "bivariate_poly.h"
+#include "trivariate_poly.h"
+#include "lazard_rioboo_trager.h"
 
 typedef struct STRING {
 	int capacity;
@@ -23,10 +25,13 @@ STRING *integrate_poly();
 STRING *integrate_rational();
 STRING *sum_over_poly_sol();
 STRING *latex_bivariate_poly();
+STRING *latex_biv_rational();
+STRING *latex_trivariate_poly();
 STRING *log_string();
 STRING *log_poly();
 STRING *log_rational();
 STRING *log_bivariate_poly();
+STRING *latex_Logs();
 int write_to_file();
 
 //End of Fn Defs
@@ -79,6 +84,26 @@ void append_to_string(STRING *str, char *words) {
 	}
 }
 
+char *latex_f(frac *frac_a, char *leftbinder, char *rightbinder) {
+
+	STRING *output;
+	output = make_string();
+	append_to_string(output, leftbinder);
+	if(mpz_cmp_ui(frac_a->denom, 1)!=0) {
+		append_to_string(output, "\\frac{");
+	}
+	append_to_string(output, (char *)mpz_get_str(NULL, 10, frac_a->num));
+	if(mpz_cmp_ui(frac_a->denom, 1)!=0) {
+		append_to_string(output, "}{");
+		append_to_string(output, (char *)mpz_get_str(NULL, 10, frac_a->denom));
+		append_to_string(output, "}");
+	}
+	append_to_string(output, rightbinder);
+
+	return output->string;
+}
+
+
 //returns character string: (var)^deg,
 char *print_monomial(char *var, int deg) {
 	
@@ -94,11 +119,13 @@ char *print_monomial(char *var, int deg) {
 
 		if(deg != 1) {
 			append_to_string(string_result, "^");
+			append_to_string(string_result, "{");
 			int length = snprintf(NULL, 0, "%d", deg);
 			char *str = (char *)calloc(1, length+1);
 			snprintf(str, length +1, "%d", deg);
 			append_to_string(string_result, str);
 			free(str);
+			append_to_string(string_result, "}");
 		}
 	}
 
@@ -126,7 +153,7 @@ STRING *latex_poly(poly *poly1, char *var, char *leftbinder, char *rightbinder) 
 		append_to_string(output, minus);
 	}
 	//dont print frac if it is one
-	if(!equals_f(abs_f(poly1->coefficients[0]), onefrac)) {
+	if(!equals_f(abs_f(poly1->coefficients[0]), onefrac) || poly1->deg==0) {
 		append_to_string(output, latex_f(abs_f(poly1->coefficients[0]), "", ""));
 	}
 	append_to_string(output, print_monomial(var, poly1->deg));
@@ -256,7 +283,12 @@ STRING *sum_over_poly_sol(poly *poly1, char *var, char *leftbinder, char *rightb
 	append_to_string(output, "\\sum_{");
 	append_to_string(output, var);
 	append_to_string(output, "|");
-	append_to_string(output, (latex_poly(poly1, var, "", ""))->string);
+	if(mpz_sgn(poly1->coefficients[0]->num)<0) {
+		append_to_string(output, (latex_poly(negative_p(poly1), var, "", ""))->string);
+	}
+	else {
+		append_to_string(output, (latex_poly(poly1, var, "", ""))->string);
+	}
 	append_to_string(output, "=0}");
 	append_to_string(output, rightbinder);
 	
@@ -268,18 +300,114 @@ STRING *latex_bivariate_poly(bpoly *b_poly, char *var1, char *var2, char *leftbi
 	STRING *output;
 	output = make_string();
 	
+	//create (neg)/one frac;
+	mpz_t one; mpz_init_set_ui(one, 1);
+	mpz_t negone; mpz_init(negone);
+	mpz_neg(negone, one);
+	frac *onefrac, *negonefrac;
+	onefrac = init_f(one, one);
+	negonefrac = init_f(negone, one);
+	
 	append_to_string(output, leftbinder); 
 	
 	int i=0;
-	while(i<=b_poly->deg && !zero_p(b_poly->pcoefficients[i])) {
-			if(i!=0) {
-				append_to_string(output, "+");
+	while(i<=b_poly->deg) {
+
+		if(!zero_p(b_poly->pcoefficients[i])) {
+			if(!monomial_p(b_poly->pcoefficients[i])) {
+		
+				if(i!=0) {
+					append_to_string(output, "+");
+				}
+
+				append_to_string(output,
+					(latex_poly(b_poly->
+						    pcoefficients[i], var1, "(",")"))->string);
 			}
-			append_to_string(output, "(");
-			append_to_string(output,
-				(latex_poly(b_poly->pcoefficients[i], var1, "",""))->string);
-		       	append_to_string(output, ")");	
+			//no brackets for monomials
+			else {
+			
+				//add plus sign	
+				if(i!=0 && mpz_sgn(b_poly->
+							pcoefficients[i]->coefficients[0]->num)>0) {
+					append_to_string(output, "+");
+				}
+
+				//print minus sign if monomial is neg one (and not const term)
+				if(equals_f(b_poly->pcoefficients[i]->coefficients[0],
+							negonefrac) && i!=b_poly->deg) {
+					append_to_string(output, "-");
+				}
+
+				//dont print monomial if its one
+				if(!equals_f(abs_f(
+					b_poly->pcoefficients[i]->coefficients[0]), onefrac) || 
+						i==b_poly->deg) {
+				append_to_string(output,
+					(latex_poly
+					 (b_poly->pcoefficients[i], var1, "",""))->string);
+				}
+			}
+
 			append_to_string(output, print_monomial(var2, b_poly->deg-i));
+		}
+			++i;
+	}
+
+	append_to_string(output, rightbinder);
+	return output;
+}
+
+//create a latex biv_rational polynomia (assume denom non zero)
+STRING *latex_biv_rational(biv_rational *brat, 
+		char *var1, char *var2, char *leftbinder, char *rightbinder) { 
+
+	STRING *output;
+	output = make_string();
+
+	//if denominator is onebpoly then do not print
+	bpoly *onebp = one_bp();
+	if(equals_bp(brat->denom, onebp)) {
+		append_to_string(output, latex_bivariate_poly(brat->num, 
+					var1, var2, leftbinder, rightbinder)->string);
+			}
+	else {
+		append_to_string(output, leftbinder);
+		append_to_string(output, "\\frac{");
+		//append numerator
+		append_to_string(output, 
+				(latex_bivariate_poly(brat->num, var1, var2, "", ""))->string);
+		append_to_string(output, "}{");
+		//append denominator
+		append_to_string(output, 
+				(latex_bivariate_poly(brat->denom, var1, var2, "", ""))->string);
+		append_to_string(output, "}");
+		append_to_string(output, rightbinder);
+		
+		}
+
+	return output;
+}
+//print a trivariate poly in Q[var1][var2][var3]
+STRING *latex_trivariate_poly(tpoly *t_poly, char *var1, char *var2, char *var3, char *leftbinder, char *rightbinder) {
+	STRING *output;
+	output = make_string();
+	
+	append_to_string(output, leftbinder); 
+	
+	int i=0;
+	while(i<=t_poly->deg) {
+
+		if(!zero_bp(t_poly->brcoefficients[i]->num)) {
+				if(i!=0) {
+					append_to_string(output, "+");
+				}
+				append_to_string(output,
+					(latex_biv_rational(t_poly->
+						    brcoefficients[i], var1, var2, "(",")"))->string);
+
+			append_to_string(output, print_monomial(var3, t_poly->deg-i));
+		}
 			++i;
 	}
 
@@ -345,13 +473,36 @@ STRING *log_bivariate_poly(bpoly *b_poly, char *var1, char *var2, char *leftbind
 	return output;
 }
 
+//takes a Log struct and returns string with required latex-formatted output
+//var 1 should be "a" in K (field) closure, var2 the indeterminate our polys are defined over eg x
+STRING *latex_Logs(logpart *input, char *var1, char *var2, char *leftbinder, char *rightbinder) {
+
+	int i;
+	STRING *output;
+	output = make_string();
+
+	append_to_string(output, leftbinder);
+	for(i=0; i<input->num; ++i) {
+		append_to_string(output, sum_over_poly_sol(input->roots[i], var1, "", "")->string);
+		append_to_string(output, var1);
+		append_to_string(output,
+				log_bivariate_poly(input->arguments[i], var1, var2, "", "")->string);
+		if(i != input->num-1) {
+			append_to_string(output, "+");
+		}
+	}
+	append_to_string(output, rightbinder);
+
+	return output;
+}
+	
 
 //write a given string to a file, returns 1
 int write_to_file(char *filename, STRING *str) { 
 	
 	FILE *file;
 	//opens in same directory 
-	file = fopen(filename, "w");
+	file = fopen(filename, "w"); 
 	fprintf(file, "%s", str->string); 
 	fclose(file);
 

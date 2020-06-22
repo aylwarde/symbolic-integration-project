@@ -24,11 +24,12 @@ typedef struct poly {
 
 /* Functions defined in this header */
 void assign_coeffs_p();
-void display_p();
+void print_p();
 void free_p();
 void strip_p();
 
 bool zero_p();
+bool monomial_p();
 bool equals_p();
 
 poly *initialize_p();
@@ -50,6 +51,8 @@ poly *pseudogcd_p();
 poly *pseudogcdinternal_p();
 poly *primativePRSinternal_p();
 poly *primativePRS_p();
+poly *integrate_p();
+
 frac *content_p();
 
 poly **from_file_p(); //To Do ~ Joe
@@ -137,7 +140,7 @@ void assign_coeffs_p(poly *polynomial)
 }
 
 //display a polynomial
-void display_p(poly *polynomial)
+void print_p(poly *polynomial)
 {
 	int i;
 	for(i=0; i<polynomial->deg;++i)
@@ -174,6 +177,20 @@ bool zero_p(poly *polynomial)
 	return result;
 }
 
+
+//check if polynomial is monomial (return boolean value)
+bool monomial_p(poly *polynomial)
+{	int i;
+	bool result = true;
+	for(i=1; i<polynomial->deg+1;++i)
+	{
+		if(!zero_f(polynomial->coefficients[i]))
+		{ 
+			result = false;
+		}
+	}
+	return result;
+}
 //strip a polynomial of higher order terms with zero coefficients
 void strip_p(poly *polynomial)
 {
@@ -298,7 +315,7 @@ poly *multiply_p(poly *polynomial1, poly *polynomial2)
 }
 
 //raise a polynomial to a positive power
-poly *pow_p(int exponent, poly *poly_a) {
+poly *pow_p(poly *poly_a, int exponent) {
 
   if (exponent == 0)
     {
@@ -315,7 +332,7 @@ poly *pow_p(int exponent, poly *poly_a) {
 
   else
     {
-      return multiply_p(pow_p(exponent-1, poly_a), poly_a);
+      return multiply_p(pow_p( poly_a, exponent-1), poly_a);
     }	
 }
 
@@ -718,7 +735,27 @@ poly *primativePRSinternal_p(poly* poly1,poly* poly2)
     }
 	 
 }
+poly *integrate_p(poly* polynomial)
+{
+  poly *intergral;
+  int i;
+  mpz_t degree,one;
+  
 
+	
+	intergral = initialize_p(polynomial->deg+1);
+ 
+	mpz_init_set_si(degree, (long)polynomial->deg+1);
+	 mpz_init_set_ui(one,1);
+
+	for(i=0;i<=polynomial->deg;++i)
+	{
+	  intergral->coefficients[i] = multiply_f(init_f(one,degree), polynomial->coefficients[i]);
+		mpz_sub_ui(degree, degree, 1);
+	       
+	}
+	return intergral;
+}
 
 
 #endif /* POLYNOMIALS_H */

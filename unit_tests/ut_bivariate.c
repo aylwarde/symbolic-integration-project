@@ -38,25 +38,25 @@ int main() {
 	}
 
 	//test for display_bp
-	display_bp(b_poly1);
-	display_bp(b_poly2);
+	print_bp(b_poly1);
+	print_bp(b_poly2);
 
 	//test for copy_bp
 	b_poly3 = copy_bp(b_poly1);
-	display_bp(b_poly3);
+	print_bp(b_poly3);
 	free_bp(b_poly3);
 
 	//test for pseudo_divide_bp
 	result = pseudo_divide_bp(b_poly1, b_poly2);
-	display_bp(result[1]);
+	print_bp(result[1]);
 
 	//test for pow_bp
-	display_bp(pow_bp(b_poly1,3));
+	print_bp(pow_bp(b_poly1,3));
 
 	
 	//test for variable change
 	b_poly3 = variable_change(result[1]);
-	display_bp(b_poly3);
+	print_bp(b_poly3);
 
 	//test for free_bp
 	//free_bp(b_poly1);

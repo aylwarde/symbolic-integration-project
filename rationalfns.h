@@ -81,9 +81,9 @@ int reduce_r(rational *rfa) {
 
 void print_r(rational *rfa) {
   
-  display_p(rfa->num);
+  print_p(rfa->num);
   printf("---------------------\n");
-  display_p(rfa->denom);
+  print_p(rfa->denom);
   
 }
 
@@ -133,7 +133,7 @@ rational *pow_r(int exp, rational *rfa) {
     
   }
 
-  return init_r(pow_p(exp, rfa->num), pow_p(exp, rfa->denom));
+  return init_r(pow_p(rfa->num,exp), pow_p(rfa->denom,exp));
 }
 
 rational *subtract_r(rational *rfa, rational *rfb) {
