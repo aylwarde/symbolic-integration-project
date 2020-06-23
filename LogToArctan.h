@@ -26,7 +26,7 @@ void print_arc(arctan *tan)
 {
   int i;
   
-  for(i=0;i<tan->num;++i)
+  for(i=0;i<=tan->num;++i)
     {
   
   printf("   2 arctan(");
@@ -68,9 +68,9 @@ arctan *log_to_arc(poly *A ,poly *B)
   result = init_arc(10);
   while(!zero_p(divide_p(A,B)[1]))
     {
-      printf("this is a and b loop %d\n",i+1);
-      print_p(A);
-      print_p(B);
+      /* printf("this is a and b loop %d\n",i+1); */
+      /* print_p(A); */
+      /* print_p(B); */
       if(A->deg<B->deg)
 	{
 	  a1=A;
@@ -90,9 +90,9 @@ arctan *log_to_arc(poly *A ,poly *B)
 
 	  euclid = extended_euclidean(B,negative_p(A));
 	  result->arguments[i] =init_r( add_p(multiply_p(A,euclid[0]),multiply_p(B,euclid[1])), euclid[2]);
-          printf("this is C and D loop %d\n",i+1);
-	  print_p(euclid[0]);
-	  print_p(euclid[1]);
+          /* printf("this is C and D loop %d\n",i+1); */
+	  /* print_p(euclid[0]); */
+	  /* print_p(euclid[1]); */
 	  A=euclid[0];
 	  B=euclid[1];
 
@@ -100,14 +100,14 @@ arctan *log_to_arc(poly *A ,poly *B)
 	}
     }
   //initialize the i^th term of the arctan part,
-  printf("this is A and B loop %d\n", result->num+1);
-  print_p(A);
-  print_p(B);
+  /* printf("this is A and B loop %d\n", result->num+1); */
+  /* print_p(A); */
+  /* print_p(B); */
   result->num=i;
   /* result->arguments = (rational **)realloc(result,++result->num*sizeof(rational* ));*/
 
   result->arguments[i] = init_r(A,B);
-  print_r(result->arguments[i]);
+  /* print_r(result->arguments[i]); */
   return result;
 }
      
