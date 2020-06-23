@@ -321,12 +321,12 @@ bpoly *one_bp() {
 }
 
 
-/*
+
 poly *content_bp(bpoly *poly)
 {
   return gcd_array_p(poly->deg,poly->pcoefficients);
 }
-*/
+
 
 
 #endif /* BIVARIATE_POLY_H */

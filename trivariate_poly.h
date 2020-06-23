@@ -229,7 +229,6 @@ tpoly **divide_tp(tpoly *t_poly1, tpoly *t_poly2) {
 			//free_br(t);
 			//free_tp(division);
 		}
-
 		result[0] = quotient;
 		result[1] = remainder;
 	}
