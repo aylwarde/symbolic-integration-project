@@ -3,6 +3,9 @@
 
 #include "polynomials.h"
 #include "bivariate_poly.h"
+#include "bivariateResultant.h"
+
+
 
 typedef struct biv_rational {
 
@@ -47,6 +50,7 @@ biv_rational *init_br(bpoly *num, bpoly *denom) {
 	}
 
 	else {
+	
 		biv_rational *result = (biv_rational *)calloc(1, sizeof(biv_rational));
 		result->num = num;
 		result->denom = denom;
