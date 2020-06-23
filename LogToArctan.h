@@ -65,7 +65,7 @@ arctan *log_to_arc(poly *A ,poly *B)
 
   arctan *result; /* = (arctan *)calloc(1,sizeof(arctan)); */
 
-  result = init_arc(10);
+  result = init_arc(MAX(A->deg,B->deg)+2);
   while(!zero_p(divide_p(A,B)[1]))
     {
       /* printf("this is a and b loop %d\n",i+1); */
