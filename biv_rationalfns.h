@@ -83,6 +83,9 @@ int reduce_br(biv_rational *brat) {
 	field_extension *gcd = gcd_fe(brat->num, brat->denom);
 	field_extension *newnum = divide_fe(brat->num, gcd)[0]; //exact division
 	field_extension *newdenom = divide_fe(brat->denom, gcd)[0]; //exact division
+
+	newnum = scale_fe(reciprocal_r(content_fe(newdenom)), newnum); 
+	newdenom = scale_fe(reciprocal_r(content_fe(newdenom)), newdenom); 
 	
 	if(newdenom->deg==0) {
 		bpoly *onebp = one_bp();

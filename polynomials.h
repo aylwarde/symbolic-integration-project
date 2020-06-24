@@ -433,6 +433,13 @@ poly *gcd_p(poly *polynomial1, poly *polynomial2) {
         return polynomial1;
 }
 
+poly *lcm_p(poly *polynomial1, poly *polynomial2) {
+	
+	poly *lcm = divide_p(multiply_p(polynomial1, polynomial2), 
+			gcd_p(polynomial1, polynomial2))[0];
+	return lcm;
+}
+
 //return content of polynomial
 frac *content_p(poly *polynomial) {
 

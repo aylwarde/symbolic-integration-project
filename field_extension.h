@@ -255,6 +255,12 @@ field_extension *scale_fe(rational *scalar, field_extension *poly) {
 
 	return result;
 }
+
+rational *content_fe(field_extension *poly) {
+	
+	rational *gcd = gcd_array_r(poly->deg, poly->rcoefficients);
+	return gcd;
+}
 		
 	
 #endif /* FIELD_EXTENSION_H */

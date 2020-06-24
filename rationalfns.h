@@ -171,4 +171,32 @@ rational *divide_r(rational *rfa, rational *rfb) {
   return result;
 }
 
+rational *gcd_r(rational *rat1, rational *rat2) {
+	
+	rational *result;
+	poly *num = gcd_p(rat1->num, rat2->num);
+	poly *denom =lcm_p(rat1->denom, rat2->denom);
+	result = init_r(num, denom);
+	return result;
+}
+
+rational *gcd_array_r(int i, rational **rat_array) {
+
+	rational *gcd_array;
+
+	if(i==0) {
+		return rat_array[0];
+	}
+
+	else if(i==1) {
+		gcd_array = gcd_r(rat_array[1], rat_array[0]);
+		return gcd_array;
+	}
+
+	else {
+		return gcd_r(gcd_array_r(i-1, rat_array), rat_array[i]);
+	}
+}
+
+	
 #endif /* RATIONALFNS_H */
