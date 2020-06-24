@@ -32,15 +32,15 @@ int main() {
 	c_arg = bpoly_complexify(result->arguments[0]);
 	tpoly **gcd = ext_euclid_tp(c_arg[0], c_arg[1]);
 
-	tan_tri **answer;
+	atan_tri **answer;
 	int len;
 	answer = logtoatantri(c_arg[0], c_arg[1], &len);
 
 
 	STRING *output; 
 	output = make_string();
-//	output = latex_trivariate_poly(c_arg[0], "u", "v", "x", "$$", "$$");
-/*	append_to_string(output, 
+	output = latex_trivariate_poly(c_arg[0], "u", "v", "x", "$$", "$$");
+	append_to_string(output, 
 			latex_trivariate_poly(c_arg[1], "u", "v", "x", "$$", "$$")->string);	
 	append_to_string(output, latex_trivariate_poly
 			(multiply_tp(c_arg[0], c_arg[1]), "u", "v", "x", "$$", "$$")->string);	
@@ -50,14 +50,13 @@ int main() {
 			latex_trivariate_poly(gcd[1], "u", "v", "x", "$$", "$$")->string);	
 	append_to_string(output, 
 			latex_trivariate_poly(gcd[2], "u", "v", "x", "$$", "$$")->string);
-*/
+
 	int i;
 	for(i=0; i<len; ++i) {
 		append_to_string(output, 
-			latex_trivariate_poly(answer[i]->num, "u", "v", "x", "$$", "$$")->string);
-		append_to_string(output, 
-			latex_trivariate_poly(answer[i]->denom, "u", "v", "x", "$$", "$$")->string);
+			latex_atan_tri(answer[i], "u", "v", "x", "$$", "$$")->string);
 	}	
+
 	write_to_file("tri_output.txt", output);
 
 

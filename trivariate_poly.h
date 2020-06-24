@@ -24,15 +24,16 @@ tpoly *initialize_tp();
 tpoly **initialize_array_tp();
 tpoly *copy_tp();
 tpoly *negative_tp();
-//tpoly *scale_tp();
+tpoly *scale_tp();
 tpoly *add_tp();
 tpoly *subtract_tp();
 tpoly *multiply_tp();
+tpoly *one_tp();
 tpoly *pow_tp();
 //tpoly **pseudo_divide_tp();
 
 bool zero_tp();
-
+bool equals_tp();
 
 //initialize all coefficients to zero
 tpoly *initialize_tp(int degree) {
@@ -47,7 +48,7 @@ tpoly *initialize_tp(int degree) {
 	trivariate_poly->brcoefficients = initialize_array_br(degree+1);
 
 	for(i=0; i<=degree; ++i) {
-		trivariate_poly->brcoefficients[i] = init_br(initialize_bp(0), onebp);
+		trivariate_poly->brcoefficients[i] = init_br(initialize_fe(0), bp_to_fe(onebp));
 	}
 
 	return trivariate_poly;
@@ -84,7 +85,7 @@ bool zero_tp(tpoly *t_poly) {
 	int i;
 	bool result = true;
 	for(i=0; i<=t_poly->deg; ++i) {
-		if(!zero_bp(t_poly->brcoefficients[i]->num)) {
+		if(!zero_fe(t_poly->brcoefficients[i]->num)) {
 			result = false;
 		}
 	}
@@ -100,7 +101,7 @@ void strip_tp(tpoly *t_poly) {
 	}
 
 	else {
-		while(zero_bp(t_poly->brcoefficients[leading_zeroes]->num)) {
+		while(zero_fe(t_poly->brcoefficients[leading_zeroes]->num)) {
 			++leading_zeroes;
 		}
 
@@ -122,6 +123,18 @@ tpoly *negative_tp(tpoly *t_poly) {
 
 	for(i=0; i<=t_poly->deg; ++i) {
 		result -> brcoefficients[i] = negative_br(t_poly->brcoefficients[i]);
+	}
+
+	return result;
+}
+
+tpoly *scale_tp(biv_rational *scalar, tpoly *poly) {
+	
+	int i;
+	tpoly *result = initialize_tp(poly->deg);
+
+	for(i=0; i<= poly->deg; ++i) {
+		result->brcoefficients[i] = multiply_br(scalar, poly->brcoefficients[i]);
 	}
 
 	return result;
@@ -180,13 +193,19 @@ tpoly *multiply_tp(tpoly *t_poly1, tpoly *t_poly2) {
 	return result;
 }
 
+tpoly *one_tp() {
+
+	tpoly *onetp;
+	bpoly *onebp = one_bp();
+	onetp = initialize_tp(0);
+	onetp->brcoefficients[0] = init_br(bp_to_fe(onebp), bp_to_fe(onebp));
+	return onetp;
+}
+
 //raises a trivariate polynomial to the power of an int
 tpoly *pow_tp(tpoly *t_poly1, int exp) {
 	if(exp==0) {
-		tpoly *onetp;
-		bpoly *onebp = one_bp();
-		onetp = initialize_tp(0);
-		onetp->brcoefficients[0] = init_br(onebp, onebp);
+		tpoly *onetp = one_tp();
 
 		return onetp;
 	}
@@ -246,7 +265,7 @@ tpoly **half_ext_euclid_tp(tpoly *t_poly1, tpoly *t_poly2) {
 	tpoly *q, *r, *a_1, *b_1, *r_1;
 
 	a_1 = initialize_tp(0);
-	a_1->brcoefficients[0] = init_br(onebp, onebp);
+	a_1->brcoefficients[0] = init_br(bp_to_fe(onebp), bp_to_fe(onebp));
 	b_1 = initialize_tp(0);
 
 	while(!zero_tp(t_poly2)) {
@@ -288,6 +307,11 @@ tpoly **ext_euclid_tp(tpoly *t_poly1, tpoly *t_poly2) {
 	result[2] = g;
 
 	return result;
+}
+
+bool equals_tp(tpoly *t_poly1, tpoly *t_poly2) {
+
+	return zero_tp(subtract_tp(t_poly1, t_poly2));
 }
 
 #endif /* TRIVARIATE_POLY_H */

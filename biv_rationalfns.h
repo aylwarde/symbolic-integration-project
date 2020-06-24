@@ -2,14 +2,11 @@
 #define BIV_RATIONALFNS_H
 
 #include "polynomials.h"
-#include "bivariate_poly.h"
-#include "bivariateResultant.h"
-
-
+#include "field_extension.h"
 
 typedef struct biv_rational {
 
-	bpoly *num, *denom;
+	field_extension *num, *denom;
 } biv_rational;
 
 /*Functions defined in this header */
@@ -19,8 +16,7 @@ biv_rational *bpoly_to_br();
 biv_rational **initialize_array_br();
 
 void free_br();
-
-//int reduce_br();
+int reduce_br();
 
 biv_rational *copy_br();
 biv_rational *add_br();
@@ -35,28 +31,35 @@ biv_rational *divide_br();
 
 void free_br(biv_rational *brat) {
 
-	free_bp(brat->num);
-	free_bp(brat->denom);
+	free_fe(brat->num);
+	free_fe(brat->denom);
 	free(brat);
 }
 
 
 //initialize a biv rational struct from a numerator and denominator bivariate poly (denom non zero)
-biv_rational *init_br(bpoly *num, bpoly *denom) {
+biv_rational *init_br(field_extension *num, field_extension *denom) {
 
-	if(zero_bp(denom)) {
-		printf("Error: division by zero bivariate poly\n");
+	if(zero_fe(denom)) {
+		printf("Error, division by zero bivariate poly\n");
 		return NULL;
 	}
 
 	else {
 	
 		biv_rational *result = (biv_rational *)calloc(1, sizeof(biv_rational));
-		result->num = num;
-		result->denom = denom;
+		result->num = copy_fe(num);
+		result->denom = copy_fe(denom);
+
+		if( reduce_br(result) == -1) {
+			printf("ERROR\n");
+			return NULL;
+		}
+
 		return result;
 	}
 }
+
 //returns rational num/1
 biv_rational *bpoly_to_br(bpoly *num) {
 
@@ -64,7 +67,7 @@ biv_rational *bpoly_to_br(bpoly *num) {
 	bpoly *onebp = one_bp();
 
 	biv_rational *result;
-	result = init_br(num, onebp);
+	result = init_br(bp_to_fe(num), bp_to_fe(onebp));
 	return result;
 }
 
@@ -73,6 +76,27 @@ biv_rational *bpoly_to_br(bpoly *num) {
 biv_rational **initialize_array_br(int n) {
 	biv_rational **array_br = (biv_rational **)calloc(n, sizeof(biv_rational *));
 	return array_br;
+}
+
+int reduce_br(biv_rational *brat) {
+	
+	field_extension *gcd = gcd_fe(brat->num, brat->denom);
+	field_extension *newnum = divide_fe(brat->num, gcd)[0]; //exact division
+	field_extension *newdenom = divide_fe(brat->denom, gcd)[0]; //exact division
+
+	newnum = scale_fe(reciprocal_r(content_fe(newdenom)), newnum); 
+	newdenom = scale_fe(reciprocal_r(content_fe(newdenom)), newdenom); 
+	
+	if(newdenom->deg==0) {
+		bpoly *onebp = one_bp();
+		newnum = scale_fe(newdenom->rcoefficients[0], newnum);
+		newdenom = bp_to_fe(onebp);
+	}	
+
+	brat->num = newnum; 
+	brat->denom = newdenom;
+
+	return 0;
 }
 
 //copy
@@ -89,9 +113,9 @@ biv_rational *add_br(biv_rational *brat1, biv_rational *brat2) {
 
 	biv_rational *result;
 
-	bpoly *newnum = add_bp(multiply_bp(brat1->num, brat2->denom), 
-			multiply_bp(brat2->num, brat1->denom));
-	bpoly *newdenom = multiply_bp(brat1->denom, brat2->denom);
+	field_extension *newnum = add_fe(multiply_fe(brat1->num, brat2->denom), 
+			multiply_fe(brat2->num, brat1->denom));
+	field_extension *newdenom = multiply_fe(brat1->denom, brat2->denom);
 
 	result = init_br(newnum, newdenom);
 	return result;
@@ -102,8 +126,8 @@ biv_rational *multiply_br(biv_rational *brat1, biv_rational *brat2) {
 	
 	biv_rational *result;
 	
-	bpoly *newnum = multiply_bp(brat1->num, brat2->num);
-	bpoly *newdenom = multiply_bp(brat1->denom, brat2->denom);
+	field_extension *newnum = multiply_fe(brat1->num, brat2->num);
+	field_extension *newdenom = multiply_fe(brat1->denom, brat2->denom);
 
 	result = init_br(newnum, newdenom);
 	return result;
@@ -114,7 +138,7 @@ biv_rational *negative_br(biv_rational *brat1) {
 
 	biv_rational *result;
 
-	bpoly *newnum = negative_bp(brat1->num);
+	field_extension *newnum = negative_fe(brat1->num);
 	result = init_br(newnum, brat1->denom);
 	return result;
 }

@@ -14,7 +14,8 @@ typedef struct rational {
 /* Functions defined in this header */
 
 rational *init_r();
-
+rational **initialize_array_r();
+rational *copy_r();
 void print_r();
 void free_r();
 
@@ -67,11 +68,22 @@ rational *init_r(poly *num, poly *denom) {
   }
 }
 
+rational **initialize_array_r(int len) {
+	rational **result = (rational **)calloc(len, sizeof(rational *));
+	return result;
+}
+
 int reduce_r(rational *rfa) {
 
+  //find primitive gcd
   poly *gcd = gcd_p(rfa->num, rfa->denom);
   poly *newnum = divide_p(rfa->num, gcd)[0];
   poly *newdenom = divide_p(rfa->denom, gcd)[0];
+  
+  //find gcd of contents
+  frac *content_gcd = gcd_f(content_p(newnum), content_p(newdenom));
+  newnum = scale_p(reciprocal_f(content_gcd), newnum);
+  newdenom = scale_p(reciprocal_f(content_gcd), newdenom);
   
   rfa->num = newnum;
   rfa->denom = newdenom;
@@ -85,6 +97,13 @@ void print_r(rational *rfa) {
   printf("---------------------\n");
   print_p(rfa->denom);
   
+}
+
+//copy rational 
+rational *copy_r(rational *rfa) {
+	int i;
+	rational *duplicate = init_r(rfa->num, rfa->denom);
+	return duplicate;
 }
 
 
@@ -152,4 +171,32 @@ rational *divide_r(rational *rfa, rational *rfb) {
   return result;
 }
 
+rational *gcd_r(rational *rat1, rational *rat2) {
+	
+	rational *result;
+	poly *num = gcd_p(rat1->num, rat2->num);
+	poly *denom =lcm_p(rat1->denom, rat2->denom);
+	result = init_r(num, denom);
+	return result;
+}
+
+rational *gcd_array_r(int i, rational **rat_array) {
+
+	rational *gcd_array;
+
+	if(i==0) {
+		return rat_array[0];
+	}
+
+	else if(i==1) {
+		gcd_array = gcd_r(rat_array[1], rat_array[0]);
+		return gcd_array;
+	}
+
+	else {
+		return gcd_r(gcd_array_r(i-1, rat_array), rat_array[i]);
+	}
+}
+
+	
 #endif /* RATIONALFNS_H */
