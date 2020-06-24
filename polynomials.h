@@ -35,6 +35,7 @@ bool equals_p();
 poly *initialize_p();
 poly **initialize_array_p();
 poly *initialize_from_array_p();
+poly *one_p();
 poly *copy_p();
 poly *negative_p();
 poly *scale_p();
@@ -215,6 +216,17 @@ void strip_p(poly *polynomial)
 		degree = polynomial->deg-leading_zeroes;
 		polynomial->deg = degree;
 	}
+}
+
+//generate a one polynomial
+poly *one_p() {
+
+      poly *onep = initialize_p(0);
+      mpz_t one;
+      mpz_init_set_si(one, 1);
+      onep->coefficients[0] = init_f(one, one);
+      mpz_clear(one);
+      return onep;
 }
 
 //duplicate a polynomical structure

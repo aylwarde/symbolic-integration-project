@@ -14,7 +14,8 @@ typedef struct rational {
 /* Functions defined in this header */
 
 rational *init_r();
-
+rational **initialize_array_r();
+rational *copy_r();
 void print_r();
 void free_r();
 
@@ -67,11 +68,22 @@ rational *init_r(poly *num, poly *denom) {
   }
 }
 
+rational **initialize_array_r(int len) {
+	rational **result = (rational **)calloc(len, sizeof(rational *));
+	return result;
+}
+
 int reduce_r(rational *rfa) {
 
+  //find primitive gcd
   poly *gcd = gcd_p(rfa->num, rfa->denom);
   poly *newnum = divide_p(rfa->num, gcd)[0];
   poly *newdenom = divide_p(rfa->denom, gcd)[0];
+  
+  //find gcd of contents
+  frac *content_gcd = gcd_f(content_p(newnum), content_p(newdenom));
+  newnum = scale_p(reciprocal_f(content_gcd), newnum);
+  newdenom = scale_p(reciprocal_f(content_gcd), newdenom);
   
   rfa->num = newnum;
   rfa->denom = newdenom;
@@ -85,6 +97,13 @@ void print_r(rational *rfa) {
   printf("---------------------\n");
   print_p(rfa->denom);
   
+}
+
+//copy rational 
+rational *copy_r(rational *rfa) {
+	int i;
+	rational *duplicate = init_r(rfa->num, rfa->denom);
+	return duplicate;
 }
 
 
