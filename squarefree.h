@@ -31,7 +31,8 @@ poly **squarefree_p(poly *poly1, int *outlen) {
 	mpz_t one; mpz_init_set_ui(one, 1);
 	onepoly->coefficients[0] = init_f(one, one);
 	mpz_clear(one);
-	a[0] = onepoly;
+	a[0] = copy_p(onepoly);
+	free_p(onepoly);
 
         c = content_p(poly1);
         s = scale_p(reciprocal_f(c), poly1); //s primitive part of poly1
@@ -55,20 +56,21 @@ poly **squarefree_p(poly *poly1, int *outlen) {
         } 
               
         
-        a[k] = e;
+        a[k] = copy_p(e);
         a[1] = scale_p(c, a[1]);
 	*outlen = k;
 
-	//free subsequent polynomials in array not used
+	//make subsequent polynomials in array not used point to null
         for(i=k+1; i<poly1->deg; ++i)
         {
-                free_p(a[i]);
                 a[i] = NULL;
         }
 
 	free_p(y);
 	free_p(s);
 	free_p(d);
+	free_p(e);
+	free_f(c);
 
         return a;
 }

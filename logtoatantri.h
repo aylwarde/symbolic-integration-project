@@ -9,7 +9,10 @@ typedef struct atan_tri {
 	tpoly *num, *denom;
 } atan_tri;
 
+atan_tri *initialize_t();
 int reduce_t();
+atan_tri **initialize_array_t();
+atan_tri **logtoatantri();
 
 atan_tri *initialize_t(tpoly *num, tpoly *denom) {
 
@@ -47,7 +50,7 @@ atan_tri **initialize_array_t(int n) {
 atan_tri **logtoatantri(tpoly *t_poly1, tpoly *t_poly2, int *outlen) {
 
 	atan_tri **result = initialize_array_t(MAX(t_poly1->deg, t_poly2->deg)+3);
-	tpoly *a, *b, *r, *d, *c, *g, *hold;
+	tpoly *a, *b, *r, *d, *c, *g;
 	int k=0;
 
 	if(t_poly1->deg < t_poly2->deg) {
@@ -62,25 +65,33 @@ atan_tri **logtoatantri(tpoly *t_poly1, tpoly *t_poly2, int *outlen) {
 
 	r = divide_tp(a, b)[1];
 	
-	while(!zero_tp(r)) {	
+	while(!zero_tp(r)) {
+	free_tp(r);	
 	d = ext_euclid_tp(b, negative_tp(a))[0];
 	c = ext_euclid_tp(b, negative_tp(a))[1];
 	g = ext_euclid_tp(b, negative_tp(a))[2];
-	result[k]= initialize_t(add_tp(multiply_tp(a, d), multiply_tp(b, c)), copy_tp(g));
+	result[k]= initialize_t(add_tp(multiply_tp(a, d), multiply_tp(b, c)), g);
+	free_tp(g);
 	++k;
 	if(d->deg < c->deg) {
+		free_tp(a);
 		a = negative_tp(c);
+		free_tp(b);
 		b = d;
 	}
 	else {
+		free_tp(a);
+		free_tp(b);
 		a = d;
 		b = c;
 	}
 	r = divide_tp(a, b)[1];
 	}
 	
-	result[k] = initialize_t(copy_tp(a), copy_tp(b));
+	result[k] = initialize_t(a, b);
 	*outlen = k+1;
+	free_tp(a);
+	free_tp(b);
 
 	return result;
 }

@@ -36,13 +36,13 @@ field_extension *initialize_fe(int degree) {
 	field_extension *result = (field_extension *)calloc(1, sizeof(field_extension));
 	
 	result->deg = degree;
-	rational **rcoefficients = initialize_array_r(degree+1);
+	result->rcoefficients = initialize_array_r(degree+1);
 
 	for(i=0; i<=degree; ++i) {
-		rcoefficients[i] = init_r(zerop, onep);
+		result->rcoefficients[i] = init_r(zerop, onep);
 	}
-	
-	result->rcoefficients = rcoefficients;
+	free_p(zerop);
+	free_p(onep);
 
 	return result;
 }
@@ -57,6 +57,9 @@ field_extension **initialize_array_fe(int n) {
 //free
 void free_fe(field_extension *poly) {
 
+	for(int i=0; i<=poly->deg; ++i) {
+		free_r(poly->rcoefficients[i]);
+	}	
 	free(poly->rcoefficients);
 	free(poly);
 }
@@ -79,7 +82,7 @@ void strip_fe(field_extension *poly) {
 	int i, leading_zeroes=0, degree;
 
 	if(zero_fe(poly)) {
-		poly->deg = 0;
+		poly->deg=0;
 	}
 
 	else {
@@ -89,7 +92,7 @@ void strip_fe(field_extension *poly) {
 		}
 
 		for(i=0; i<=poly->deg-leading_zeroes; ++i) {
-			poly->rcoefficients[i] = copy_r(poly->rcoefficients[i+leading_zeroes]);
+			poly->rcoefficients[i] = poly->rcoefficients[i+leading_zeroes];
 		}
 		degree = poly->deg-leading_zeroes;
 		poly->deg = degree;
@@ -104,7 +107,7 @@ field_extension *copy_fe(field_extension *poly) {
 	duplicate = initialize_fe(poly->deg);
 	
 	for(i=0; i<=poly->deg; ++i) {
-		duplicate->rcoefficients[i] = poly->rcoefficients[i];
+		duplicate->rcoefficients[i] = copy_r(poly->rcoefficients[i]);
 	}
 
 	return duplicate;

@@ -39,6 +39,7 @@ frac *gcd_array_f();
 frac *lcm_array_f();
 frac *abs_f();
 
+frac *copy_f();
 frac **copy_array_f();
 
 bool zero_f();
@@ -316,7 +317,11 @@ bool equals_f(frac *frac_a, frac *frac_b) {
     
 }
 
-
+frac *copy_f(frac *input) {
+	
+	frac *result = init_f(input->num, input->denom);
+	return result;
+}
 
 //copy array of fractions
 frac **copy_array_f(frac **src, int len) {

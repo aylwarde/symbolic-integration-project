@@ -77,6 +77,9 @@ tpoly *copy_tp(tpoly *t_poly1) {
 //free trivariate poly
 void free_tp(tpoly *t_poly) {
 
+	for(int i=0; i<=t_poly->deg; ++i) {
+		free_br(t_poly->brcoefficients[i]);
+	}
 	free(t_poly->brcoefficients);
 	free(t_poly);
 }
@@ -110,8 +113,8 @@ void strip_tp(tpoly *t_poly) {
 
 
 		for(i=0; i<=t_poly->deg-leading_zeroes; ++i) {
-			t_poly->brcoefficients[i] = (
-					t_poly->brcoefficients[i + leading_zeroes]);
+			t_poly->brcoefficients[i] = 
+					t_poly->brcoefficients[i + leading_zeroes];
 		}
 		degree = t_poly->deg - leading_zeroes;
 		t_poly->deg = degree;
@@ -286,22 +289,20 @@ tpoly **half_ext_euclid_tp(tpoly *t_poly1, tpoly *t_poly2) {
 
 		free_tp(a_1);
 		a_1 = copy_tp(b_1);
+		
 		free_tp(b_1);
 		b_1 = copy_tp(r_1);
+		
 		free_tp(r_1);
 		free_tp(q);
 		free_tp(r);
 	}
 
 	result = initialize_array_tp(2);
-	result[0] = scale_tp(reciprocal_br(content_tp(t_poly1)), a_1);
-	result[1] = scale_tp(reciprocal_br(content_tp(t_poly1)), t_poly1);
-	
-	//free_tp(q);
-	//free_tp(r);
-	free_tp(a_1);
-	free_tp(b_1);
-	//free_tp(r_1);
+	result[0] = copy_tp(a_1);
+	result[1] = copy_tp(t_poly1);
+
+	free_tp(a_1);	free_tp(b_1);
 
 	return result;
 }
