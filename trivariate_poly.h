@@ -98,19 +98,22 @@ void strip_tp(tpoly *t_poly) {
 	int i, leading_zeroes=0, degree;
 
 	if(zero_tp(t_poly)) {
-		t_poly->deg = 0;
+		free_tp(t_poly);
+		t_poly = initialize_tp(0);
 	}
 
 	else {
+
 		while(zero_fe(t_poly->brcoefficients[leading_zeroes]->num)) {
 			++leading_zeroes;
 		}
 
+
 		for(i=0; i<=t_poly->deg-leading_zeroes; ++i) {
-			t_poly->brcoefficients[i] = copy_br(
+			t_poly->brcoefficients[i] = (
 					t_poly->brcoefficients[i + leading_zeroes]);
 		}
-		degree = t_poly->deg-leading_zeroes;
+		degree = t_poly->deg - leading_zeroes;
 		t_poly->deg = degree;
 	}
 }
@@ -200,6 +203,7 @@ tpoly *one_tp() {
 	bpoly *onebp = one_bp();
 	onetp = initialize_tp(0);
 	onetp->brcoefficients[0] = init_br(bp_to_fe(onebp), bp_to_fe(onebp));
+	free_bp(onebp);
 	return onetp;
 }
 
@@ -242,12 +246,12 @@ tpoly **divide_tp(tpoly *t_poly1, tpoly *t_poly2) {
 			d = remainder->deg - t_poly2->deg;
 			t = divide_br(remainder->brcoefficients[0], t_poly2->brcoefficients[0]);
 			division = initialize_tp(d);
-			division->brcoefficients[0] = t;
+			division->brcoefficients[0] = copy_br(t);
 
 			quotient = add_tp(quotient, division);
 			remainder = subtract_tp(remainder, multiply_tp(t_poly2, division));
-			//free_br(t);
-			//free_tp(division);
+			free_br(t);
+			free_tp(division);
 		}
 		result[0] = quotient;
 		result[1] = remainder;
@@ -268,6 +272,7 @@ tpoly **half_ext_euclid_tp(tpoly *t_poly1, tpoly *t_poly2) {
 	a_1 = initialize_tp(0);
 	a_1->brcoefficients[0] = init_br(bp_to_fe(onebp), bp_to_fe(onebp));
 	b_1 = initialize_tp(0);
+	free_bp(onebp);
 
 	while(!zero_tp(t_poly2)) {
 
@@ -279,13 +284,24 @@ tpoly **half_ext_euclid_tp(tpoly *t_poly1, tpoly *t_poly2) {
 
 		r_1 = subtract_tp(a_1, multiply_tp(q, b_1));
 
+		free_tp(a_1);
 		a_1 = copy_tp(b_1);
+		free_tp(b_1);
 		b_1 = copy_tp(r_1);
+		free_tp(r_1);
+		free_tp(q);
+		free_tp(r);
 	}
 
 	result = initialize_array_tp(2);
-	result[0] = a_1;
-	result[1] = t_poly1;
+	result[0] = scale_tp(reciprocal_br(content_tp(t_poly1)), a_1);
+	result[1] = scale_tp(reciprocal_br(content_tp(t_poly1)), t_poly1);
+	
+	//free_tp(q);
+	//free_tp(r);
+	free_tp(a_1);
+	free_tp(b_1);
+	//free_tp(r_1);
 
 	return result;
 }
@@ -300,7 +316,7 @@ tpoly **ext_euclid_tp(tpoly *t_poly1, tpoly *t_poly2) {
 	s = half_ext_euclid_tp(t_poly1, t_poly2)[0];
 	g = half_ext_euclid_tp(t_poly1, t_poly2)[1];
 	t = divide_tp(subtract_tp(g, multiply_tp(s, t_poly1)), t_poly2)[0];
-	r = divide_tp(subtract_tp(g, multiply_tp(s, t_poly1)), t_poly2)[1]; //r must be zero
+//	r = divide_tp(subtract_tp(g, multiply_tp(s, t_poly1)), t_poly2)[1]; //r must be zero
 
 	result = initialize_array_tp(3);
 	result[0] = s;
