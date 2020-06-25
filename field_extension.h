@@ -232,6 +232,13 @@ field_extension *gcd_fe(field_extension *polynomial1, field_extension *polynomia
         return polynomial1;
 }
 
+field_extension *lcm_fe(field_extension *polynomial1, field_extension *polynomial2) {
+
+	field_extension *lcm;
+	lcm = divide_fe(multiply_fe(polynomial1, polynomial2), gcd_fe(polynomial1, polynomial2))[0];
+	return lcm;
+}
+
 field_extension *bp_to_fe(bpoly *polynomial) {
 	
 	int i;
