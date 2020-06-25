@@ -26,6 +26,8 @@ biv_rational *reciprocal_br();
 biv_rational *pow_br();
 biv_rational *subtract_br();
 biv_rational *divide_br();
+biv_rational *gcd_br();
+biv_rational *gcd_array_br();
 
 /* End of function defs */
 
@@ -170,5 +172,35 @@ biv_rational *divide_br(biv_rational *brat1, biv_rational *brat2) {
 	biv_rational *result = multiply_br(brat1, recip);
 	return result;
 }
+
+biv_rational *gcd_br(biv_rational *brat1, biv_rational *brat2) {
+	
+	biv_rational *result;
+	field_extension *num = gcd_fe(brat1->num, brat2->num);
+	field_extension *denom = lcm_fe(brat1->denom, brat2->denom);
+	result = init_br(num, denom);
+	free_fe(num);
+	free_fe(denom);
+	return result;
+}
+
+biv_rational *gcd_array_br(int i, biv_rational **brat_array) {
+
+	biv_rational *gcd_array;
+
+	if(i==0) {
+		return brat_array[0];
+	}
+
+	else if(i==1) {
+		gcd_array = gcd_br(brat_array[1], brat_array[0]);
+		return gcd_array;
+	}
+
+	else {
+		return gcd_br(gcd_array_br(i-1, brat_array), brat_array[i]);
+	}
+}
+
 
 #endif /* BIV_RATIONALFNS_H */

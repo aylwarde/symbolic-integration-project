@@ -27,15 +27,11 @@ atan_tri *initialize_t(tpoly *num, tpoly *denom) {
 
 int reduce_t(atan_tri *input) {
 
-	tpoly *gcd = ext_euclid_tp(input->num, input->denom)[2];
-	tpoly *newnum = divide_tp(input->num, gcd)[0];
-	tpoly *newdenom = divide_tp(input->denom, gcd)[0];
+	tpoly *newnum = scale_tp(reciprocal_br(content_tp(input->denom)), input->num);
+	tpoly *newdenom = scale_tp(reciprocal_br(content_tp(input->denom)), input->denom);
+	free(input->num);
+	free(input->denom);
 
-	if(newdenom->deg ==0) {
-		newnum = scale_tp(newdenom->brcoefficients[0], newnum);
-		tpoly *onetp = one_tp();
-		newdenom = copy_tp(onetp);
-	}
 	input->num = newnum;
 	input->denom = newdenom;
 

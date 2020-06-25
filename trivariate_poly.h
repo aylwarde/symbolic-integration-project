@@ -34,6 +34,7 @@ tpoly *pow_tp();
 
 bool zero_tp();
 bool equals_tp();
+biv_rational *content_tp();
 
 //initialize all coefficients to zero
 tpoly *initialize_tp(int degree) {
@@ -312,6 +313,11 @@ tpoly **ext_euclid_tp(tpoly *t_poly1, tpoly *t_poly2) {
 bool equals_tp(tpoly *t_poly1, tpoly *t_poly2) {
 
 	return zero_tp(subtract_tp(t_poly1, t_poly2));
+}
+
+biv_rational *content_tp(tpoly *t_poly) {
+
+	return gcd_array_br(t_poly->deg, t_poly->brcoefficients);
 }
 
 #endif /* TRIVARIATE_POLY_H */
