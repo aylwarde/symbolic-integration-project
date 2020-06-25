@@ -80,7 +80,7 @@ poly *initialize_p(int degree)
 	}
 
 	result->deg = degree;
-//	mpz_clears(zero, one, NULL);
+	mpz_clears(zero, one, NULL);
 	return result;
 	}
 
@@ -88,12 +88,12 @@ poly *initialize_p(int degree)
 poly **initialize_array_p(int len) {
 
 	poly **array_p = (poly **)calloc(len,sizeof(poly *));
-	int i;
+//	int i;
 
-	for(i=0; i<len; ++i)
-	{
-		array_p[i] = (poly *)calloc(1, sizeof(poly));
-	}
+//	for(i=0; i<len; ++i)
+//	{
+//		array_p[i] = (poly *)calloc(1, sizeof(poly));
+//	}
 	
 	return array_p;
 }
@@ -203,7 +203,7 @@ void strip_p(poly *polynomial)
 	//make a zero polynomial the constant zero
 	if(zero_p(polynomial))
 	{	
-		polynomial->deg = 0;
+		polynomial = initialize_p(0);
 	}
 	
 	else
@@ -212,11 +212,15 @@ void strip_p(poly *polynomial)
 		{
 			++leading_zeroes;
 		}
+
+		degree = polynomial->deg - leading_zeroes;
+
 		for(i=0; i<=polynomial->deg-leading_zeroes; ++i)
 		{
-			polynomial->coefficients[i] = polynomial->coefficients[i+leading_zeroes];
+			polynomial->coefficients[i] = polynomial->
+					coefficients[i+leading_zeroes];
 		}	
-		degree = polynomial->deg-leading_zeroes;
+		
 		polynomial->deg = degree;
 	}
 }
@@ -430,16 +434,21 @@ poly *derivative_p(poly *polynomial) {
 poly *gcd_p(poly *polynomial1, poly *polynomial2) {
 
         poly *q, *r;
+	poly *a = copy_p(polynomial1);
+	poly *b = copy_p(polynomial2);
 
-        while(!zero_p(polynomial2))
+        while(!zero_p(b))
         {
-                //q = divide_p(polynomial1, polynomial2)[0];
-                r = divide_p(polynomial1, polynomial2)[1];
-                polynomial1 = copy_p(polynomial2);
-                polynomial2 = copy_p(r);
+                r = divide_p(a, b)[1];
+                free_p(a);
+		a = copy_p(b);
+		free_p(b);
+                b = copy_p(r);
+		free_p(r);
         }
-	polynomial1 = scale_p(reciprocal_f(content_p(polynomial1)), polynomial1);
-        return polynomial1;
+	a = scale_p(reciprocal_f(content_p(a)), a);
+	free_p(b);
+        return a;
 }
 
 poly *lcm_p(poly *polynomial1, poly *polynomial2) {

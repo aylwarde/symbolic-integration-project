@@ -101,7 +101,7 @@ void strip_tp(tpoly *t_poly) {
 	int i, leading_zeroes=0, degree;
 
 	if(zero_tp(t_poly)) {
-		free_tp(t_poly);
+	//	free_tp(t_poly);
 		t_poly = initialize_tp(0);
 	}
 

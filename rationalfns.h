@@ -85,6 +85,11 @@ int reduce_r(rational *rfa) {
   newnum = scale_p(reciprocal_f(content_gcd), newnum);
   newdenom = scale_p(reciprocal_f(content_gcd), newdenom);
   
+  free_p(rfa->num);
+  free_p(rfa->denom);
+  free_f(content_gcd);
+  free_p(gcd);
+  
   rfa->num = newnum;
   rfa->denom = newdenom;
 
@@ -116,6 +121,8 @@ rational *add_r(rational *rfa, rational *rfb) {
   poly *newdenom = multiply_p( rfa->denom, rfb->denom );
   
   result = init_r( newnum, newdenom );
+  free_p(newnum);
+  free_p(newdenom);
   return result;
 }
 
@@ -127,6 +134,8 @@ rational *multiply_r(rational *rfa, rational *rfb) {
   poly *newdenom = multiply_p( rfa->denom, rfb->denom );
 
   result = init_r( newnum, newdenom );
+  free_p(newnum);
+  free_p(newdenom);
   return result;
 }
 
@@ -136,6 +145,7 @@ rational *negative_r(rational *rfa) {
   poly *newnum = negative_p( rfa->num );
 
   result = init_r( newnum, rfa->denom );
+  free_p(newnum);
   return result;
 }
 
@@ -177,6 +187,8 @@ rational *gcd_r(rational *rat1, rational *rat2) {
 	poly *num = gcd_p(rat1->num, rat2->num);
 	poly *denom =lcm_p(rat1->denom, rat2->denom);
 	result = init_r(num, denom);
+	free_p(num);
+	free_p(denom);
 	return result;
 }
 

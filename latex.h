@@ -46,10 +46,10 @@ int write_to_file();
 
 //End of Fn Defs
 
-//make a string of default length 100 chars
+//make a string of default length 200 chars
 STRING *make_string() {
 	STRING *str = (STRING *)calloc(1, sizeof(STRING));
-	str->capacity = 100;
+	str->capacity = 200;
 	char *contents = (char *)calloc(str->capacity, sizeof(char));
 	str->string = contents;
 	return str;
@@ -75,7 +75,7 @@ void append_to_string(STRING *str, char *words) {
 
 	//if words does exceed capacity of string
 	else { 
-		char *newstr = (char *)calloc(strlen(str->string) + wordslen + 100, sizeof(char));
+		char *newstr = (char *)calloc(strlen(str->string) + wordslen + 200, sizeof(char));
 		//if original string is empty
 		if(strlen(str->string)==0) {
 			snprintf(newstr, wordslen+1, "%s", words);
@@ -87,7 +87,7 @@ void append_to_string(STRING *str, char *words) {
 					words);
 		}
 
-		str->capacity = strlen(str->string ) +1 +wordslen +100; 
+		str->capacity = strlen(str->string ) +1 +wordslen +200; 
 		
 		free(str->string);
 		str->string = newstr;
