@@ -91,8 +91,13 @@ int reduce_br(biv_rational *brat) {
 		bpoly *onebp = one_bp();
 		newnum = scale_fe(newdenom->rcoefficients[0], newnum);
 		newdenom = bp_to_fe(onebp);
-	}	
+	}
 
+	// cleaning up
+	field_extension *oldnum = brat->num, *olddenom = brat->denom;
+	free_fe(oldnum);
+	free_fe(olddenom);
+	  
 	brat->num = newnum; 
 	brat->denom = newdenom;
 
