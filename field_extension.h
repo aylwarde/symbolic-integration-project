@@ -293,9 +293,14 @@ field_extension *bp_to_fe(bpoly *polynomial) {
 field_extension *scale_fe(rational *scalar, field_extension *poly) {
 	int i;
 	field_extension *result = initialize_fe(poly->deg);
+	rational *newcoeff;
 
 	for(i=0; i<= poly->deg; ++i) {
-		result->rcoefficients[i] = multiply_r(scalar, poly->rcoefficients[i]);
+
+	  newcoeff = multiply_r(scalar, poly->rcoefficients[i]);
+	  result->rcoefficients[i] = copy_r(newcoeff);
+	  free_r(newcoeff);
+	  
 	}
 
 	return result;
