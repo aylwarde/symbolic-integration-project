@@ -359,9 +359,13 @@ poly *multiply_p(poly *polynomial1, poly *polynomial2)
 	{
 		for(j=0; j<=polynomial2->deg; ++j)
 		{
-			result->coefficients[i+j]=add_f(result->coefficients[i+j], 
-					multiply_f(polynomial1->coefficients[i], 
-						polynomial2->coefficients[j]));
+		  frac *increment = multiply_f(polynomial1->coefficients[i], polynomial2->coefficients[j]);
+		  frac *newcoeff = add_f(result->coefficients[i+j], increment);
+		  
+		  result->coefficients[i+j] = copy_f(newcoeff);
+
+		  free_f(increment);
+		  free_f(newcoeff);
 		}
 	}
 	strip_p(result);
