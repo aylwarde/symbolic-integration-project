@@ -49,7 +49,8 @@ tpoly *initialize_tp(int degree) {
 	trivariate_poly->brcoefficients = initialize_array_br(degree+1);
 
 	for(i=0; i<=degree; ++i) {
-		trivariate_poly->brcoefficients[i] = init_br(initialize_fe(0), bp_to_fe(onebp));
+		trivariate_poly->brcoefficients[i] = init_br(initialize_and_zero_fe(0), 
+				bp_to_fe(onebp));
 	}
 
 	return trivariate_poly;

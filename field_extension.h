@@ -14,6 +14,7 @@ void free_fe();
 void strip_fe();
 
 field_extension *initialize_fe();
+field_extension *initialize_and_zero_fe();
 field_extension **initialize_array_fe();
 field_extension *copy_fe();
 field_extension *negative_fe();
@@ -22,13 +23,28 @@ field_extension *subtract_fe();
 field_extension *multiply_fe();
 field_extension **divide_fe();
 field_extension *gcd_fe();
+field_extension *lcm_fe();
+field_extension *bp_to_fe();
+field_extension *scale_fe();
+rational *content_fe();
 
 bool zero_fe();
 bool equals_fe();
 
 
-//initialize all coefficients to zero
+//initialize struct
 field_extension *initialize_fe(int degree) {
+	
+	field_extension *result = (field_extension *)calloc(1, sizeof(field_extension));
+	
+	result->deg = degree;
+	result->rcoefficients = initialize_array_r(degree+1);
+
+	return result;
+}
+
+//initialize all coefficients to zero
+field_extension *initialize_and_zero_fe(int degree) {
 	
 	int i;
 	poly *onep = one_p();
@@ -46,7 +62,6 @@ field_extension *initialize_fe(int degree) {
 
 	return result;
 }
-
 //initialize an array of n struct
 field_extension **initialize_array_fe(int n) {
 
@@ -157,7 +172,7 @@ field_extension *add_fe(field_extension *poly1, field_extension *poly2) {
 		result = initialize_fe(poly1->deg);
 
 		for(i=0; i<difference; ++i) {
-			result->rcoefficients[i] = poly1->rcoefficients[i];
+			result->rcoefficients[i] = copy_r(poly1->rcoefficients[i]);
 		}
 
 		for(i=difference; i<=result->deg; ++i) {
@@ -182,7 +197,7 @@ field_extension *multiply_fe(field_extension *poly1, field_extension *poly2) {
 	int i,j;
 	field_extension *result;
 
-	result = initialize_fe(poly1->deg + poly2->deg);
+	result = initialize_and_zero_fe(poly1->deg + poly2->deg);
 
 	for(i=0; i<= poly1->deg; ++i) {
 		for(j=0; j<= poly2->deg; ++j) {
@@ -217,14 +232,14 @@ field_extension **divide_fe(field_extension *poly1, field_extension *poly2) {
 		rational *t;
 		field_extension *division, *r;
 
-		field_extension *quotient = initialize_fe(MAX(poly1->deg - poly2->deg, 0));
+		field_extension *quotient = initialize_and_zero_fe(0);
 		field_extension *remainder = copy_fe(poly1);
 
 		while(!zero_fe(remainder) && (remainder->deg - poly2->deg)>=0) {
 
 			d = remainder->deg - poly2->deg;
 			t = divide_r(remainder->rcoefficients[0], poly2->rcoefficients[0]);
-			division = initialize_fe(d);
+			division = initialize_and_zero_fe(d);
 			division->rcoefficients[0] = t;
 
 			quotient = add_fe(quotient, division);
