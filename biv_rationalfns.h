@@ -70,6 +70,7 @@ biv_rational *bpoly_to_br(bpoly *num) {
 
 	biv_rational *result;
 	result = init_br(bp_to_fe(num), bp_to_fe(onebp));
+	free_bp(onebp);
 	return result;
 }
 
@@ -82,10 +83,12 @@ biv_rational **initialize_array_br(int n) {
 
 int reduce_br(biv_rational *brat) {
 	
+	//gcd computation
 	field_extension *gcd = gcd_fe(brat->num, brat->denom);
 	field_extension *newnum = divide_fe(brat->num, gcd)[0]; //exact division
 	field_extension *newdenom = divide_fe(brat->denom, gcd)[0]; //exact division
 
+	//make denom primive
 	newnum = scale_fe(reciprocal_r(content_fe(newdenom)), newnum); 
 	newdenom = scale_fe(reciprocal_r(content_fe(newdenom)), newdenom); 
 /*	
@@ -126,6 +129,8 @@ biv_rational *add_br(biv_rational *brat1, biv_rational *brat2) {
 	field_extension *newdenom = multiply_fe(brat1->denom, brat2->denom);
 
 	result = init_br(newnum, newdenom);
+	free_fe(newnum);
+	free_fe(newdenom);
 	return result;
 }
 
@@ -138,6 +143,8 @@ biv_rational *multiply_br(biv_rational *brat1, biv_rational *brat2) {
 	field_extension *newdenom = multiply_fe(brat1->denom, brat2->denom);
 
 	result = init_br(newnum, newdenom);
+	free_fe(newnum);
+	free_fe(newdenom);
 	return result;
 }
 
@@ -148,6 +155,7 @@ biv_rational *negative_br(biv_rational *brat1) {
 
 	field_extension *newnum = negative_fe(brat1->num);
 	result = init_br(newnum, brat1->denom);
+	free_fe(newnum);
 	return result;
 }
 
@@ -163,6 +171,7 @@ biv_rational *subtract_br(biv_rational *brat1, biv_rational *brat2) {
 
 	biv_rational *neg = negative_br(brat2); 
 	biv_rational *result = add_br(brat1, neg);
+	free_br(neg);
 	return result;
 }
 
@@ -171,6 +180,7 @@ biv_rational *divide_br(biv_rational *brat1, biv_rational *brat2) {
 
 	biv_rational *recip = reciprocal_br(brat2);
 	biv_rational *result = multiply_br(brat1, recip);
+	free_br(recip);
 	return result;
 }
 

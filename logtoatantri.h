@@ -19,7 +19,7 @@ atan_tri *initialize_t(tpoly *num, tpoly *denom) {
 	atan_tri *result = (atan_tri *)calloc(1, sizeof(atan_tri));
 	result->num = copy_tp(num);
 	result->denom = copy_tp(denom);
-
+	
 	if(reduce_t(result) == -1) {
 		printf("error\n");
 		return NULL;
@@ -77,21 +77,24 @@ atan_tri **logtoatantri(tpoly *t_poly1, tpoly *t_poly2, int *outlen) {
 		free_tp(a);
 		a = negative_tp(c);
 		free_tp(b);
-		b = d;
+		b = copy_tp(d);
 	}
 	else {
 		free_tp(a);
 		free_tp(b);
-		a = d;
-		b = c;
+		a = copy_tp(d);
+		b = copy_tp(c);
 	}
 	r = divide_tp(a, b)[1];
+	free_tp(d);
+	free_tp(c);
 	}
 	
 	result[k] = initialize_t(a, b);
 	*outlen = k+1;
 	free_tp(a);
 	free_tp(b);
+	free_tp(r);
 
 	return result;
 }

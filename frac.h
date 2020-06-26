@@ -83,8 +83,9 @@ void print_f(frac *frac_a) {
 //free a frac
 void free_f(frac *frac_a) {
 	
-	mpz_clears(frac_a->num, frac_a->denom, NULL);	
-  	free(frac_a);
+	mpz_clears(frac_a->num, frac_a->denom, NULL);		
+	free(frac_a);
+
 }
 
 
@@ -319,7 +320,9 @@ bool equals_f(frac *frac_a, frac *frac_b) {
 
 frac *copy_f(frac *input) {
 	
-	frac *result = init_f(input->num, input->denom);
+	frac *result = (frac *)calloc(1, sizeof(frac));
+	mpz_init_set(result->num, input->num);
+	mpz_init_set(result->denom, input->denom);
 	return result;
 }
 

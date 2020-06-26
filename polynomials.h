@@ -205,23 +205,28 @@ void strip_p(poly *polynomial)
 	{	
 		polynomial = initialize_p(0);
 	}
-	
-	else
-	{
+
+	else {
 		while(zero_f(polynomial->coefficients[leading_zeroes]))
 		{
 			++leading_zeroes;
 		}
 
 		degree = polynomial->deg - leading_zeroes;
+		frac **new_coeffs = (frac **)calloc(degree+1, sizeof(frac *));
 
-		for(i=0; i<=polynomial->deg-leading_zeroes; ++i)
+		for(i=0; i<=degree; ++i)
 		{
-			polynomial->coefficients[i] = polynomial->
-					coefficients[i+leading_zeroes];
+			
+			new_coeffs[i] = copy_f( polynomial->
+					coefficients[i+leading_zeroes]);
 		}	
-		
+		for(i=0; i<=polynomial->deg; ++i ) {
+			free_f(polynomial->coefficients[i]);
+		}
+		//free(polynomial->coefficients);
 		polynomial->deg = degree;
+		polynomial->coefficients = new_coeffs;
 	}
 }
 
@@ -240,8 +245,9 @@ poly *one_p() {
 poly *copy_p(poly *polynomial)
 {
 	int i;
-	poly *duplicate;
-	duplicate = initialize_p(polynomial->deg);
+	poly *duplicate = (poly *)calloc(1, sizeof(poly));
+	duplicate->deg = polynomial->deg;
+	duplicate->coefficients = (frac **)calloc(duplicate->deg+1, sizeof(frac *));
 	for(i=0; i<polynomial->deg+1;++i)
 	{
 		duplicate->coefficients[i]=copy_f(polynomial->coefficients[i]);
@@ -309,8 +315,9 @@ poly *add_p(poly *polynomial1, poly *polynomial2)
 poly *subtract_p(poly *polynomial1, poly *polynomial2)
 {
 	poly *result;
-	polynomial2 = negative_p(polynomial2);
-	result = add_p(polynomial1, polynomial2);
+	poly *neg = negative_p(polynomial2);
+	result = add_p(polynomial1, neg);
+	free_p(neg);
 	return result;
 }
 
@@ -341,11 +348,7 @@ poly *pow_p(poly *poly_a, int exponent) {
 
   if (exponent == 0)
     {
-      poly *onep = initialize_p(0);
-      mpz_t one;
-      mpz_init_set_si(one, 1);
-      onep->coefficients[0] = init_f(one, one);
-      mpz_clear(one);
+      poly *onep = one_p();
       return onep;
     }
   else if(exponent==1)
@@ -427,13 +430,14 @@ poly *derivative_p(poly *polynomial) {
 		mpz_sub_ui(d, d, 1);
 		++i;
 	}
+	mpz_clears(d, one, NULL);
 	return derivative;
 }
 
 //euclidean algorithm
 poly *gcd_p(poly *polynomial1, poly *polynomial2) {
 
-        poly *q, *r;
+        poly *r;
 	poly *a = copy_p(polynomial1);
 	poly *b = copy_p(polynomial2);
 
@@ -791,6 +795,7 @@ poly *integrate_p(poly* polynomial)
 		mpz_sub_ui(degree, degree, 1);
 	       
 	}
+	mpz_clears(one, degree, NULL);
 	return intergral;
 }
 

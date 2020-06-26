@@ -101,7 +101,7 @@ void strip_tp(tpoly *t_poly) {
 	int i, leading_zeroes=0, degree;
 
 	if(zero_tp(t_poly)) {
-	//	free_tp(t_poly);
+		free_tp(t_poly);
 		t_poly = initialize_tp(0);
 	}
 
@@ -114,9 +114,9 @@ void strip_tp(tpoly *t_poly) {
 
 		for(i=0; i<=t_poly->deg-leading_zeroes; ++i) {
 			t_poly->brcoefficients[i] = 
-					t_poly->brcoefficients[i + leading_zeroes];
+					copy_br(t_poly->brcoefficients[i + leading_zeroes]);
 		}
-		degree = t_poly->deg - leading_zeroes;
+		degree = t_poly->deg-leading_zeroes;
 		t_poly->deg = degree;
 	}
 }
