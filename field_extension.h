@@ -162,6 +162,7 @@ field_extension *add_fe(field_extension *poly1, field_extension *poly2) {
 
 	int i, difference;
 	field_extension *result;
+	rational *newcoeff;
 
 	if(poly1->deg < poly2->deg) {
 		result = add_fe(poly2, poly1);
@@ -176,8 +177,9 @@ field_extension *add_fe(field_extension *poly1, field_extension *poly2) {
 		}
 
 		for(i=difference; i<=result->deg; ++i) {
-			result->rcoefficients[i] 
-			= add_r(poly1->rcoefficients[i], poly2->rcoefficients[i-difference]);
+		  newcoeff = add_r(poly1->rcoefficients[i], poly2->rcoefficients[i-difference]);
+		  result->rcoefficients[i] = copy_r(newcoeff);
+		  free_r(newcoeff);
 		}
 	}
 		strip_fe(result);
