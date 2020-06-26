@@ -200,7 +200,7 @@ field_extension **divide_fe(field_extension *poly1, field_extension *poly2) {
 	else {
 		int d=0;
 		rational *t;
-		field_extension *division;
+		field_extension *division, *r;
 
 		field_extension *quotient = initialize_fe(MAX(poly1->deg - poly2->deg, 0));
 		field_extension *remainder = copy_fe(poly1);
@@ -213,7 +213,9 @@ field_extension **divide_fe(field_extension *poly1, field_extension *poly2) {
 			division->rcoefficients[0] = t;
 
 			quotient = add_fe(quotient, division);
-			remainder = subtract_fe(remainder, multiply_fe(poly2, division));
+		        r = subtract_fe(remainder, multiply_fe(poly2, division));
+			free_fe(remainder);
+			remainder = r;
 		}
 		result[0] = quotient;
 		result[1] = remainder;
@@ -223,7 +225,7 @@ field_extension **divide_fe(field_extension *poly1, field_extension *poly2) {
 
 field_extension *gcd_fe(field_extension *polynomial1, field_extension *polynomial2) {
 
-        field_extension *r;
+  field_extension *r;
 
         while(!zero_fe(polynomial2))
         {
