@@ -32,7 +32,7 @@ field_extension *initialize_fe(int degree) {
 	
 	int i;
 	poly *onep = one_p();
-	poly *zerop = initialize_p(0);
+	poly *zerop = initialize_and_zero_p(0);
 	field_extension *result = (field_extension *)calloc(1, sizeof(field_extension));
 	
 	result->deg = degree;

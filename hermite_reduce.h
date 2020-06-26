@@ -22,11 +22,12 @@ rational **hermite_reduce(rational *rational_a) {
 	
 	//make one and zero polynomials
 	poly *onepoly, *zeropoly;
-	zeropoly = initialize_p(0);
+	zeropoly = initialize_and_zero_p(0);
 	
 	mpz_t one; mpz_init_set_ui(one, 1);
 	onepoly = initialize_p(0);
 	onepoly->coefficients[0] = init_f(one, one);
+	mpz_clear(one);
 	
 	//initialize result[0] as zero rational polynomial
 	result[0] = init_r(zeropoly, onepoly);

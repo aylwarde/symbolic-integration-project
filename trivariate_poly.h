@@ -301,10 +301,10 @@ tpoly **half_ext_euclid_tp(tpoly *t_poly1, tpoly *t_poly2) {
 		q = divide_tp(a, b)[0];
 		r = divide_tp(a, b)[1];
 
-	//	free_tp(a);
+		free_tp(a);
 		a = copy_tp(b);
 
-	//	free_tp(b);
+		free_tp(b);
 		b = copy_tp(r);
 
 		r_1 = subtract_tp(a_1, multiply_tp(q, b_1));

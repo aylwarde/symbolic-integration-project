@@ -19,7 +19,7 @@ poly **half_extended_euclidean(poly *poly1, poly *poly2) {
 
 	a_1 = initialize_p(0);
        	a_1->coefficients[0] = init_f(one,one);	
-	b_1 = initialize_p(0); 
+	b_1 = initialize_and_zero_p(0); 
 
 	while(!zero_p(poly2))
 	{

@@ -27,10 +27,7 @@ poly **squarefree_p(poly *poly1, int *outlen) {
 	}
 
 	//set a[0] =1
-	onepoly = initialize_p(0);
-	mpz_t one; mpz_init_set_ui(one, 1);
-	onepoly->coefficients[0] = init_f(one, one);
-	mpz_clear(one);
+	onepoly = one_p(); 
 	a[0] = copy_p(onepoly);
 	free_p(onepoly);
 

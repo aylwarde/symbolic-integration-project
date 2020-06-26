@@ -68,28 +68,28 @@ bpoly **monomial_complexify(int n) {
 	for(k=0; k<=n; ++k) {
 		if(k%4==0) {
 			add = initialize_bp(k);
-			add->pcoefficients[0] = initialize_p(n-k);
+			add->pcoefficients[0] = initialize_and_zero_p(n-k);
 			add->pcoefficients[0]->coefficients[0] = choose_f(n,k);
 			result[0] = add_bp(add, result[0]);
 		}
 
 		else if(k%4==1) {
 			add = initialize_bp(k);
-			add->pcoefficients[0] = initialize_p(n-k);
+			add->pcoefficients[0] = initialize_and_zero_p(n-k);
 			add->pcoefficients[0]->coefficients[0] = choose_f(n,k);
 			result[1] = add_bp(add, result[1]);
 		}
 
 		else if(k%4==2) {
 			add = initialize_bp(k);
-			add->pcoefficients[0] = initialize_p(n-k);
+			add->pcoefficients[0] = initialize_and_zero_p(n-k);
 			add->pcoefficients[0]->coefficients[0] = negative_f(choose_f(n,k));
 			result[0] = add_bp(add, result[0]);
 		}
 
 		else if(k%4==3) {
 			add = initialize_bp(k);
-			add->pcoefficients[0] = initialize_p(n-k);
+			add->pcoefficients[0] = initialize_and_zero_p(n-k);
 			add->pcoefficients[0]->coefficients[0] = negative_f(choose_f(n,k));
 			result[1] = add_bp(add, result[1]);
 		}
@@ -112,7 +112,7 @@ bpoly **poly_complexify(poly *poly1) {
 	for(i=0; i<=poly1->deg; ++i) {
 		poly *scale;
 		scale = initialize_p(0);
-		scale->coefficients[0] = poly1->coefficients[i];
+		scale->coefficients[0] = copy_f(poly1->coefficients[i]);
 		result[0] = add_bp(result[0], scale_bp(scale, monomial_complexify(poly1->deg-i)[0]));
 		result[1] = add_bp(result[1], scale_bp(scale, monomial_complexify(poly1->deg-i)[1]));
 	}

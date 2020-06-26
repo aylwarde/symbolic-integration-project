@@ -89,7 +89,7 @@ poly **subresultant_p(poly * polya, poly *polyb, int *outlen) {
   
   if ( result[i]->deg > 0 ) {
 
-    result[0] = initialize_p(0);
+    result[0] = initialize_and_zero_p(0);
 
     return result;
     

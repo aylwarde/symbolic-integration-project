@@ -44,7 +44,7 @@ bpoly *initialize_bp(int degree) {
 	bivariate_poly->pcoefficients = initialize_array_p(degree+1);
 
 	for(i=0; i<=degree; ++i) {
-		bivariate_poly->pcoefficients[i] = initialize_p(0);
+		bivariate_poly->pcoefficients[i] = initialize_and_zero_p(0);
 	}
 
 	return bivariate_poly;
@@ -70,7 +70,7 @@ bpoly *variable_change(bpoly *b_poly) {
 
 	for(i=0; i<=b_poly->deg; ++i) { 
 		for(j=0; j<=b_poly->pcoefficients[i]->deg; ++j) {
-			placeholder = initialize_p(b_poly->deg-i);
+			placeholder = initialize_and_zero_p(b_poly->deg-i);
 			placeholder->coefficients[0] = b_poly->pcoefficients[i]->coefficients[j];
 			k = b_poly->pcoefficients[i]->deg-j;
 			

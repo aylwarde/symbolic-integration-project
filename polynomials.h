@@ -33,6 +33,7 @@ bool monomial_p();
 bool equals_p();
 
 poly *initialize_p();
+poly *initialize_and_zero_p();
 poly **initialize_array_p();
 poly *initialize_from_array_p();
 poly *one_p();
@@ -62,8 +63,19 @@ void to_file_p();
 /* End of function defs */
 
 
-//allocate a polynomial of certain degree, and intialize all coeffs to zero
+//allocate a polynomial of certain degree
 poly *initialize_p(int degree)
+{
+	int i;
+
+	poly *result= (poly *)calloc(1,sizeof(poly));
+	result->coefficients=(frac **)calloc(degree+1,sizeof(frac *));
+	result->deg = degree;
+	return result;
+	}
+
+//allocate a polynomial of certain degree, and intialize all coeffs to zero
+poly *initialize_and_zero_p(int degree)
 {
 	int i;
 
@@ -84,17 +96,11 @@ poly *initialize_p(int degree)
 	return result;
 	}
 
+
 //initialize an array of a prescribed length of polynomial structures
 poly **initialize_array_p(int len) {
 
-	poly **array_p = (poly **)calloc(len,sizeof(poly *));
-//	int i;
-
-//	for(i=0; i<len; ++i)
-//	{
-//		array_p[i] = (poly *)calloc(1, sizeof(poly));
-//	}
-	
+	poly **array_p = (poly **)calloc(len,sizeof(poly *));	
 	return array_p;
 }
 
@@ -243,7 +249,7 @@ poly *one_p() {
       poly *onep = initialize_p(0);
       mpz_t one;
       mpz_init_set_si(one, 1);
-      mpz_set(onep->coefficients[0]->num, one);
+      onep->coefficients[0] = init_f(one, one);
       mpz_clear(one);
       return onep;
 }
@@ -335,7 +341,7 @@ poly *multiply_p(poly *polynomial1, poly *polynomial2)
 	int i,j;
 	poly *result;
 
-	result = initialize_p(polynomial1->deg+polynomial2->deg);
+	result = initialize_and_zero_p(polynomial1->deg+polynomial2->deg);
 	
 	for(i=0; i<=polynomial1->deg; ++i)
 	{
@@ -395,7 +401,7 @@ poly **divide_p(poly *polynomial1, poly *polynomial2)
 		}
 		else 
 		{
-	  		quotient = initialize_p(MAX(polynomial1->deg-polynomial2->deg,0));
+	  		quotient = initialize_and_zero_p(0);
 	  		remainder = copy_p(polynomial1);
 
 	  	while(!zero_p(remainder) && (remainder->deg-polynomial2->deg)>=0)
@@ -403,7 +409,7 @@ poly **divide_p(poly *polynomial1, poly *polynomial2)
 	      		d = remainder->deg-polynomial2->deg;
 	      		t = divide_f(remainder->coefficients[0], polynomial2->coefficients[0]);
 			
-	      		division = initialize_p(d);
+	      		division = initialize_and_zero_p(d);
 	      		division->coefficients[0] = copy_f(t);
 
 	      		quotient = add_p(quotient, division);
@@ -647,7 +653,7 @@ void latex_p(poly *polynomial)
 poly *conmultiply_p(frac *c,poly *polynomial)
 {
   poly *q;
-  q=initialize_p(0);
+  q=initialize_and_zero_p(0);
   q->coefficients[0]=c;
   return multiply_p(q,polynomial);
 }
