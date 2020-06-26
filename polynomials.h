@@ -173,6 +173,18 @@ void free_p(poly *polynomial)
 }
 
 
+//free a polynomial array
+void free_array_p(poly **polyarray, int len) {
+  int i;
+
+  for (i=0; i<len; ++i) {
+    free_p(polyarray[i]);
+  }
+
+  free(polyarray);
+}
+
+
 //check if polynomial is zero (return boolean value)
 bool zero_p(poly *polynomial)
 {	int i;
@@ -450,18 +462,18 @@ poly *derivative_p(poly *polynomial) {
 //euclidean algorithm
 poly *gcd_p(poly *polynomial1, poly *polynomial2) {
 
-        poly *r;
+        poly **div;
 	poly *a = copy_p(polynomial1);
 	poly *b = copy_p(polynomial2);
 
         while(!zero_p(b))
         {
-                r = divide_p(a, b)[1];
+                div = divide_p(a, b);
                 free_p(a);
 		a = copy_p(b);
 		free_p(b);
-                b = copy_p(r);
-		free_p(r);
+                b = copy_p(div[1]);
+		free_array_p(div, 2);
         }
 	a = scale_p(reciprocal_f(content_p(a)), a);
 	free_p(b);
