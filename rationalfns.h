@@ -125,7 +125,14 @@ rational *add_r(rational *rfa, rational *rfb) {
   
   rational *result;
 
-  poly *newnum = add_p(multiply_p( rfa->num, rfb->denom ), multiply_p( rfb->num, rfa->denom ));
+  poly *summand1 = multiply_p( rfa->num, rfb->denom );
+  poly *summand2 = multiply_p( rfb->num, rfa->denom );
+  
+  poly *newnum = add_p( summand1, summand2);
+
+  free_p(summand1);
+  free_p(summand2);
+  
   poly *newdenom = multiply_p( rfa->denom, rfb->denom );
   
   result = init_r( newnum, newdenom );
