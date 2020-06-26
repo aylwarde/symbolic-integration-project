@@ -85,8 +85,15 @@ int reduce_br(biv_rational *brat) {
 	
 	//gcd computation
 	field_extension *gcd = gcd_fe(brat->num, brat->denom);
-	field_extension *newnum = divide_fe(brat->num, gcd)[0]; //exact division
-	field_extension *newdenom = divide_fe(brat->denom, gcd)[0]; //exact division
+
+	field_extension **numdiv = divide_fe(brat->num, gcd); //exact division;
+	field_extension **denomdiv = divide_fe(brat->denom, gcd); //exact division
+	  
+	field_extension *newnum = copy_fe(numdiv[0]);
+	field_extension *newdenom = copy_fe(denomdiv[0]);
+
+	free_array_fe(numdiv, 2);
+	free_array_fe(denomdiv, 2);
 
 	//make denom primive
 	newnum = scale_fe(reciprocal_r(content_fe(newdenom)), newnum); 

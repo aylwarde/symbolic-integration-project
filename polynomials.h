@@ -26,6 +26,7 @@ typedef struct poly {
 void assign_coeffs_p();
 void print_p();
 void free_p();
+void free_array_p();
 void strip_p();
 
 bool zero_p();
@@ -361,6 +362,8 @@ poly *multiply_p(poly *polynomial1, poly *polynomial2)
 		{
 		  frac *increment = multiply_f(polynomial1->coefficients[i], polynomial2->coefficients[j]);
 		  frac *newcoeff = add_f(result->coefficients[i+j], increment);
+
+		  free_f(result->coefficients[i+j]);
 		  
 		  result->coefficients[i+j] = copy_f(newcoeff);
 
