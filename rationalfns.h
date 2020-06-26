@@ -81,12 +81,14 @@ int reduce_r(rational *rfa) {
   poly *newdenom = divide_p(rfa->denom, gcd)[0];
   
   //find gcd of contents
-  newnum = scale_p(reciprocal_f(content_p(newdenom)), newnum);
-  newdenom = scale_p(reciprocal_f(content_p(newdenom)), newdenom);
+  frac *gcd_content  = gcd_f(content_p(newnum), content_p(newdenom));
+  newnum = scale_p(reciprocal_f(gcd_content), newnum);
+  newdenom = scale_p(reciprocal_f(gcd_content), newdenom);
   
   free_p(rfa->num);
   free_p(rfa->denom);
   free_p(gcd);
+  free_f(gcd_content);
   
   rfa->num = newnum;
   rfa->denom = newdenom;

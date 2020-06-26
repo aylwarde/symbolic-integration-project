@@ -46,10 +46,10 @@ int write_to_file();
 
 //End of Fn Defs
 
-//make a string of default length 200 chars
+//make a string of default length 300 chars
 STRING *make_string() {
 	STRING *str = (STRING *)calloc(1, sizeof(STRING));
-	str->capacity = 200;
+	str->capacity = 300;
 	char *contents = (char *)calloc(str->capacity, sizeof(char));
 	str->string = contents;
 	return str;
@@ -75,7 +75,7 @@ void append_to_string(STRING *str, char *words) {
 
 	//if words does exceed capacity of string
 	else { 
-		char *newstr = (char *)calloc(strlen(str->string) + wordslen + 200, sizeof(char));
+		char *newstr = (char *)calloc(strlen(str->string) + wordslen + 300, sizeof(char));
 		//if original string is empty
 		if(strlen(str->string)==0) {
 			snprintf(newstr, wordslen+1, "%s", words);
@@ -87,7 +87,7 @@ void append_to_string(STRING *str, char *words) {
 					words);
 		}
 
-		str->capacity = strlen(str->string ) +1 +wordslen +200; 
+		str->capacity = strlen(str->string ) +wordslen +300; 
 		
 		free(str->string);
 		str->string = newstr;
@@ -193,6 +193,7 @@ STRING *latex_poly(poly *poly1, char *var, char *leftbinder, char *rightbinder) 
 	}
 
 	mpz_clear(one);
+	free_f(onefrac);
 
 	append_to_string(output, rightbinder);
 	return output;
@@ -210,6 +211,8 @@ STRING *latex_rational(rational *rat_poly, char *var, char *leftbinder, char *ri
 	if(rat_poly->denom->deg==0) {
 		rat_poly->num = scale_p(reciprocal_f(rat_poly->denom->coefficients[0]), 
 				rat_poly->num);
+		rat_poly->denom = scale_p(reciprocal_f(rat_poly->denom->coefficients[0]), 
+				rat_poly->denom);
 		free(output);
 		output = latex_poly(rat_poly->num, var, leftbinder, rightbinder);
 	}
@@ -402,9 +405,10 @@ STRING *latex_biv_rational(biv_rational *brat,
 	STRING *output;
 	output = make_string();
 
-	//if denominator is onebpoly then do not print
-	bpoly *onebp = one_bp();
-	if(equals_fe(brat->denom, bp_to_fe(onebp))) {
+	//if denominator is const then divide num by reciprocal
+	if(brat->denom->deg == 0) {
+		brat->num = scale_fe(reciprocal_r(brat->denom->rcoefficients[0]), brat->num);
+		brat->denom = scale_fe(reciprocal_r(brat->denom->rcoefficients[0]), brat->denom);
 		append_to_string(output, latex_field_extension(brat->num, 
 					var1, var2, leftbinder, rightbinder)->string);
 			}
@@ -421,7 +425,7 @@ STRING *latex_biv_rational(biv_rational *brat,
 		append_to_string(output, "}");
 		append_to_string(output, rightbinder);
 		
-		}
+	}
 
 	return output;
 }
@@ -544,10 +548,9 @@ STRING *latex_atan_tri(atan_tri *input, char *var1, char *var2, char *var3, char
 
 	STRING *output;
 	output = make_string();
-	tpoly *onetp = one_tp();
 
 	append_to_string(output, leftbinder);
-	if(!equals_tp(input->denom, onetp)) {
+	if(input->denom->deg != 0) {
 		append_to_string(output, "\\arctan(\\frac{");
 		append_to_string(output, 
 			latex_trivariate_poly(input->num, var1, var2, var3, "", "}")->string);
@@ -556,6 +559,10 @@ STRING *latex_atan_tri(atan_tri *input, char *var1, char *var2, char *var3, char
 	}
 
 	else {
+		input->num = scale_tp(reciprocal_br(input->denom->brcoefficients[0]),
+			       	input->num);
+		input->denom = scale_tp(reciprocal_br(input->denom->brcoefficients[0]), 
+				input->denom);
 		append_to_string(output, 
 				latex_trivariate_poly
 				(input->num, var1, var2, var3, "\\arctan(", ")")->string);

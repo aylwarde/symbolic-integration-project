@@ -27,7 +27,7 @@ bpoly *subtract_bp();
 bpoly *multiply_bp();
 bpoly *pow_bp();
 bpoly **pseudo_divide_bp();
-
+bpoly *one_bp();
 poly *content_bp();
 
 bool zero_bp();
@@ -106,6 +106,9 @@ void print_bp(bpoly *b_poly) {
 //free bivariate poly
 void free_bp(bpoly *b_poly) {
 
+	for(int i=0; i<=b_poly->deg; ++i) {
+		free_p(b_poly->pcoefficients[i]);
+	}
 	free(b_poly->pcoefficients);
 	free(b_poly);
 }
@@ -149,11 +152,12 @@ void strip_bp(bpoly *b_poly) {
 bpoly *copy_bp(bpoly *b_poly) {
 
 	int i;
-	bpoly *duplicate;
-	duplicate = initialize_bp(b_poly->deg);
+	bpoly *duplicate = (bpoly *)calloc(1, sizeof(bpoly));
+	duplicate->deg = b_poly->deg;
+	duplicate->pcoefficients = (poly **)calloc(duplicate->deg+1, sizeof( poly *));
 	
 	for(i=0; i<=b_poly->deg; ++i) {
-		duplicate->pcoefficients[i] = b_poly->pcoefficients[i];
+		duplicate->pcoefficients[i] = copy_p(b_poly->pcoefficients[i]);
 	}
 
 	return duplicate;
@@ -279,16 +283,7 @@ bpoly *pow_bp(bpoly *poly1,int exp)
 {
   if(exp==0)
     {
-      bpoly *onebp;
-      poly *onep;
-      mpz_t one;
-
-
-      mpz_init_set_si(one,1);
-      onep = initialize_p(0);
-      onebp = initialize_bp(0);
-      onep->coefficients[0]= init_f(one,one);
-      onebp->pcoefficients[0] = onep;
+      bpoly *onebp = one_bp();
 
       return onebp ;
     }
@@ -310,13 +305,11 @@ bool equals_bp(bpoly *b_poly1, bpoly *b_poly2) {
 //make one bpoly
 bpoly *one_bp() {
 	bpoly *onebp;
-	poly *onep;
-	mpz_t one; mpz_init_set_si(one,1);
-
-	onep = initialize_p(0);
-	onep->coefficients[0] = init_f(one,one);
+	poly *onep = one_p();
 	onebp = initialize_bp(0);
-	onebp->pcoefficients[0] = onep;
+	free_p(onebp->pcoefficients[0]);
+	onebp->pcoefficients[0] = copy_p(onep);
+	free_p(onep);
 	return onebp;
 }
 

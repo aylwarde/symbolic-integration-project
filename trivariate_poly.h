@@ -220,8 +220,11 @@ tpoly *one_tp() {
 	tpoly *onetp;
 	bpoly *onebp = one_bp();
 	onetp = initialize_tp(0);
-	onetp->brcoefficients[0] = init_br(bp_to_fe(onebp), bp_to_fe(onebp));
+	free_br(onetp->brcoefficients[0]);
+	biv_rational *one= init_br(bp_to_fe(onebp), bp_to_fe(onebp));
+	onetp->brcoefficients[0] = copy_br(one); 
 	free_bp(onebp);
+	free_br(one);
 	return onetp;
 }
 
@@ -283,22 +286,26 @@ tpoly **divide_tp(tpoly *t_poly1, tpoly *t_poly2) {
 tpoly **half_ext_euclid_tp(tpoly *t_poly1, tpoly *t_poly2) {
 	
 	tpoly **result;
-	bpoly *onebp = one_bp();
-
+	
+	tpoly *a, *b;
 	tpoly *q, *r, *a_1, *b_1, *r_1;
 
-	a_1 = initialize_tp(0);
-	a_1->brcoefficients[0] = init_br(bp_to_fe(onebp), bp_to_fe(onebp));
+	a_1 = one_tp();
 	b_1 = initialize_tp(0);
-	free_bp(onebp);
 
-	while(!zero_tp(t_poly2)) {
+	a = copy_tp(t_poly1);
+	b = copy_tp(t_poly2);
 
-		q = divide_tp(t_poly1, t_poly2)[0];
-		r = divide_tp(t_poly1, t_poly2)[1];
+	while(!zero_tp(b)) {
 
-		t_poly1 = copy_tp(t_poly2);
-		t_poly2 = copy_tp(r);
+		q = divide_tp(a, b)[0];
+		r = divide_tp(a, b)[1];
+
+	//	free_tp(a);
+		a = copy_tp(b);
+
+	//	free_tp(b);
+		b = copy_tp(r);
 
 		r_1 = subtract_tp(a_1, multiply_tp(q, b_1));
 
@@ -314,10 +321,11 @@ tpoly **half_ext_euclid_tp(tpoly *t_poly1, tpoly *t_poly2) {
 	}
 
 	result = initialize_array_tp(2);
-	result[0] = copy_tp(a_1);
-	result[1] = copy_tp(t_poly1);
+	result[0] = a_1;
+	result[1] = a;
 
-	free_tp(a_1);	free_tp(b_1);
+	free_tp(b_1);
+	free_tp(b);
 
 	return result;
 }
