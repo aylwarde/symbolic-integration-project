@@ -77,8 +77,14 @@ int reduce_r(rational *rfa) {
 
   //find primitive gcd
   poly *gcd = gcd_p(rfa->num, rfa->denom);
-  poly *newnum = divide_p(rfa->num, gcd)[0];
-  poly *newdenom = divide_p(rfa->denom, gcd)[0];
+  poly **numdiv = divide_p(rfa->num, gcd);
+  poly **denomdiv = divide_p(rfa->denom, gcd);
+
+  poly *newnum = copy_p(numdiv[0]);
+  poly *newdenom = copy_p(denomdiv[0]);
+
+  free_array_p(numdiv, 2);
+  free_array_p(denomdiv, 2);
   
   //find gcd of contents
   frac *gcd_content  = gcd_f(content_p(newnum), content_p(newdenom));

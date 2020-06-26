@@ -482,8 +482,13 @@ poly *gcd_p(poly *polynomial1, poly *polynomial2) {
 
 poly *lcm_p(poly *polynomial1, poly *polynomial2) {
 	
-	poly *lcm = divide_p(multiply_p(polynomial1, polynomial2), 
-			gcd_p(polynomial1, polynomial2))[0];
+	poly **div = divide_p(multiply_p(polynomial1, polynomial2), 
+			gcd_p(polynomial1, polynomial2));
+
+	poly *lcm = copy_p(div[0]);
+
+	free_array_p(div, 2);
+	
 	return lcm;
 }
 
@@ -502,7 +507,13 @@ frac *content_p(poly *polynomial) {
 
 bool equals_p(poly *poly_a, poly * poly_b) {
 
-  return zero_p(subtract_p(poly_a, poly_b));
+  poly * diff = subtract_p(poly_a, poly_b);
+
+  bool result = zero_p(diff);
+
+  free_p(diff);
+  
+  return result;
   
 }
 
@@ -683,6 +694,10 @@ poly **pseudodiv_p(poly *poly1 , poly *poly2)
   cpoly = scale_p(c, poly1);
 
   result = divide_p(cpoly,poly2);
+
+  free_f(c);
+  free_p(cpoly);
+  
   return result;
 }
 
