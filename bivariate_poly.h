@@ -17,6 +17,7 @@ void free_bp();
 void strip_bp();
 
 bpoly *initialize_bp();
+bpoly *initialize_and_zero_bp();
 bpoly *variable_change();
 bpoly **initialize_array_bp();
 bpoly *copy_bp();
@@ -33,9 +34,19 @@ poly *content_bp();
 bool zero_bp();
 bool equals_bp();
 
-
 //initialize all coefficients to zero
 bpoly *initialize_bp(int degree) {
+	
+	bpoly *bivariate_poly = (bpoly *)calloc(1, sizeof(bpoly));
+	
+	bivariate_poly->deg = degree;
+	bivariate_poly->pcoefficients = initialize_array_p(degree+1);
+
+	return bivariate_poly;
+}
+
+//initialize all coefficients to zero
+bpoly *initialize_and_zero_bp(int degree) {
 	
 	int i;
 	bpoly *bivariate_poly = (bpoly *)calloc(1, sizeof(bpoly));
@@ -66,7 +77,7 @@ bpoly *variable_change(bpoly *b_poly) {
 	}
 	
 	//initialize bivariate poly of degree max
-	result = initialize_bp(max);
+	result = initialize_and_zero_bp(max);
 
 	for(i=0; i<=b_poly->deg; ++i) { 
 		for(j=0; j<=b_poly->pcoefficients[i]->deg; ++j) {
@@ -206,7 +217,7 @@ bpoly *add_bp(bpoly *b_poly1, bpoly *b_poly2) {
 		result = initialize_bp(b_poly1->deg);
 
 		for(i=0; i<difference; ++i) {
-			result->pcoefficients[i] = b_poly1->pcoefficients[i];
+			result->pcoefficients[i] = copy_p(b_poly1->pcoefficients[i]);
 		}
 
 		for(i=difference; i<=result->deg; ++i) {
@@ -221,8 +232,7 @@ bpoly *add_bp(bpoly *b_poly1, bpoly *b_poly2) {
 //subtract two polys
 bpoly *subtract_bp(bpoly *b_poly1, bpoly *b_poly2) { 
 	bpoly *result;
-	b_poly2 = negative_bp(b_poly2);
-	result = add_bp(b_poly1, b_poly2);
+	result = add_bp(b_poly1, negative_bp(b_poly2));
 	return result;
 }
 
@@ -232,7 +242,7 @@ bpoly *multiply_bp(bpoly *b_poly1, bpoly *b_poly2) {
 	int i,j;
 	bpoly *result;
 
-	result = initialize_bp(b_poly1->deg + b_poly2->deg);
+	result = initialize_and_zero_bp(b_poly1->deg + b_poly2->deg);
 
 	for(i=0; i<= b_poly1->deg; ++i) {
 		for(j=0; j<= b_poly2->deg; ++j) {
@@ -249,31 +259,33 @@ bpoly *multiply_bp(bpoly *b_poly1, bpoly *b_poly2) {
 
 //pseudo division, result[0]=pquo(bpoly1, bpoly2), result[1]=prem(bpoly1, bpoly2)
 bpoly **pseudo_divide_bp(bpoly *b_poly1, bpoly *b_poly2) {
+
 	poly *b;
 	int N, d;
-	bpoly *q, *r, *T;
+	bpoly *T;
 	bpoly **result;
-
 
 	result = initialize_array_bp(2);
 
-	result[0] = initialize_bp(0);
-	result[1] = b_poly1;
+	result[0] = initialize_and_zero_bp(0);
+	result[1] = copy_bp(b_poly1);
 
-	b = b_poly2->pcoefficients[0];
+	b = copy_p(b_poly2->pcoefficients[0]);
 	N = b_poly1->deg-b_poly2->deg +1;
 
 	while(!zero_bp(result[1]) && result[1]->deg-b_poly2->deg>=0 ) {
 		d = result[1]->deg-b_poly2->deg;
-		T = initialize_bp(d);
+		T = initialize_and_zero_bp(d);
 		T->pcoefficients[0] = result[1]->pcoefficients[0];
 		--N;
 		result[0] = add_bp(scale_bp(b, result[0]), T);
 	       	result[1] = subtract_bp(scale_bp(b, result[1]), multiply_bp(T, b_poly2));
+		free_bp(T);
 	}
 
 	result[0] = scale_bp(pow_p( b, N), result[0]);
 	result[1] = scale_bp(pow_p( b, N), result[1]);
+	free_p(b);
 
 	return result;
 }
@@ -307,7 +319,6 @@ bpoly *one_bp() {
 	bpoly *onebp;
 	poly *onep = one_p();
 	onebp = initialize_bp(0);
-	free_p(onebp->pcoefficients[0]);
 	onebp->pcoefficients[0] = copy_p(onep);
 	free_p(onep);
 	return onebp;

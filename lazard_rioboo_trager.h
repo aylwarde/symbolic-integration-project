@@ -67,12 +67,12 @@ logpart *int_rational_log_part(rational *rat_poly) {
 	//we introduce t, an indeterminate over Q
 	//define d as a polynomial over t of degree 0  
 	d = initialize_bp(0);
-	d->pcoefficients[0] = D; //set D to const coeff
+	d->pcoefficients[0] = copy_p(D); //set D to const coeff
 
 	//construct (A-t*derivative_x(D))
 	a = initialize_bp(1);
 	a->pcoefficients[0] = negative_p(derivative_p(D));
-	a->pcoefficients[1] = A;
+	a->pcoefficients[1] = copy_p(A);
 
 	//change a, d to polynomials over x with coeffs in Q(t)
 	a = variable_change(a);
@@ -100,7 +100,7 @@ logpart *int_rational_log_part(rational *rat_poly) {
 		//if squarefree factor non constant
 		if(squarefree_r[i]->deg>0) {
 			if(i==d->deg) {
-				S[i] = d;
+				S[i] = copy_bp(d);
 			}
 
 			else {
@@ -108,7 +108,7 @@ logpart *int_rational_log_part(rational *rat_poly) {
 				//find member of subresultant prs that has degree i		
 				while(j<k) {
 					if(subresultant[j]->deg == i) {
-						S[i] = subresultant[j];
+						S[i] = copy_bp(subresultant[j]);
 					}
 					++j;
 				}
@@ -131,12 +131,16 @@ logpart *int_rational_log_part(rational *rat_poly) {
 					}
 					free_p(gcd);
 				}
-				
+				//free squarefree_a
+				for(int m=0; m<=terms; ++m) {
+					free_p(squarefree_a[m]);
+				}
+				free(squarefree_a);
 			}
 		}
 		//set S[i] to zero if degree of squarefree factor is zero
 		else {
-			S[i] = initialize_bp(0);
+			S[i] = initialize_and_zero_bp(0);
 			++zero_s_terms;
 		}
 	}
@@ -152,11 +156,24 @@ logpart *int_rational_log_part(rational *rat_poly) {
 			S[i] = make_monic(S[i], squarefree_r[i]);
 			result->roots[j] = scale_p(reciprocal_f(content_p(squarefree_r[i])),
 					squarefree_r[i]);;
-			result->arguments[j] = S[i];
+			result->arguments[j] = copy_bp(S[i]);
 			++j;
 		}
+		free_bp(S[i]);
+		free_p(squarefree_r[i]);
 	}
-	
+
+	//freeing
+	free(S);
+	free(squarefree_r);
+	free_p(A);
+	free_p(D);
+	free_bp(d);
+	free_bp(a);
+	for(i=0; i<k; ++i) {
+		free_bp(subresultant[i]);
+	}
+	free(subresultant); 
 	return result;
 
 }

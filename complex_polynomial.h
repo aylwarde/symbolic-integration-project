@@ -61,34 +61,34 @@ bpoly **monomial_complexify(int n) {
 	bpoly **result, *add;
 	result = initialize_array_bp(2);
 	
-	result[0] = initialize_bp(n); //real part
-	result[1] = initialize_bp(n); //imaginary part
+	result[0] = initialize_and_zero_bp(0); //real part
+	result[1] = initialize_and_zero_bp(0); //imaginary part
 	
 	int k;
 	for(k=0; k<=n; ++k) {
 		if(k%4==0) {
-			add = initialize_bp(k);
+			add = initialize_and_zero_bp(k);
 			add->pcoefficients[0] = initialize_and_zero_p(n-k);
 			add->pcoefficients[0]->coefficients[0] = choose_f(n,k);
 			result[0] = add_bp(add, result[0]);
 		}
 
 		else if(k%4==1) {
-			add = initialize_bp(k);
+			add = initialize_and_zero_bp(k);
 			add->pcoefficients[0] = initialize_and_zero_p(n-k);
 			add->pcoefficients[0]->coefficients[0] = choose_f(n,k);
 			result[1] = add_bp(add, result[1]);
 		}
 
 		else if(k%4==2) {
-			add = initialize_bp(k);
+			add = initialize_and_zero_bp(k);
 			add->pcoefficients[0] = initialize_and_zero_p(n-k);
 			add->pcoefficients[0]->coefficients[0] = negative_f(choose_f(n,k));
 			result[0] = add_bp(add, result[0]);
 		}
 
 		else if(k%4==3) {
-			add = initialize_bp(k);
+			add = initialize_and_zero_bp(k);
 			add->pcoefficients[0] = initialize_and_zero_p(n-k);
 			add->pcoefficients[0]->coefficients[0] = negative_f(choose_f(n,k));
 			result[1] = add_bp(add, result[1]);
@@ -105,8 +105,8 @@ bpoly **poly_complexify(poly *poly1) {
 
 	bpoly **result;
 	result = initialize_array_bp(2);
-	result[0] = initialize_bp(0);
-	result[1] = initialize_bp(0);
+	result[0] = initialize_and_zero_bp(0);
+	result[1] = initialize_and_zero_bp(0);
 	int i;
 
 	for(i=0; i<=poly1->deg; ++i) {

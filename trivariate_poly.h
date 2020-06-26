@@ -20,7 +20,7 @@ void free_tp();
 void strip_tp();
 
 tpoly *initialize_tp();
-//tpoly *variable_change();
+tpoly *initialize_and_zero_tp();
 tpoly **initialize_array_tp();
 tpoly *copy_tp();
 tpoly *negative_tp();
@@ -39,6 +39,17 @@ biv_rational *content_tp();
 //initialize all coefficients to zero
 tpoly *initialize_tp(int degree) {
 	
+	tpoly *trivariate_poly = (tpoly *)calloc(1, sizeof(tpoly));
+
+	trivariate_poly->deg = degree;
+	trivariate_poly->brcoefficients = initialize_array_br(degree+1);
+
+	return trivariate_poly;
+}
+
+//initialize all coefficients to zero
+tpoly *initialize_and_zero_tp(int degree) {
+	
 	int  i;
 	tpoly *trivariate_poly = (tpoly *)calloc(1, sizeof(tpoly));
 
@@ -52,6 +63,7 @@ tpoly *initialize_tp(int degree) {
 		trivariate_poly->brcoefficients[i] = init_br(initialize_and_zero_fe(0), 
 				bp_to_fe(onebp));
 	}
+	free_bp(onebp);
 
 	return trivariate_poly;
 }
@@ -198,12 +210,13 @@ tpoly *subtract_tp(tpoly *t_poly1, tpoly *t_poly2) {
 	return result;
 }
 
+//multiplication
 tpoly *multiply_tp(tpoly *t_poly1, tpoly *t_poly2) {
 
 	int i,j;
 	tpoly *result;
 
-	result = initialize_tp(t_poly1->deg +t_poly2->deg);
+	result = initialize_and_zero_tp(t_poly1->deg +t_poly2->deg);
 
 	for(i=0; i<=t_poly1->deg; ++i) {
 		for(j=0; j<= t_poly2->deg; ++j) {
@@ -216,12 +229,12 @@ tpoly *multiply_tp(tpoly *t_poly1, tpoly *t_poly2) {
 	return result;
 }
 
+//make one t poly
 tpoly *one_tp() {
 
 	tpoly *onetp;
 	bpoly *onebp = one_bp();
 	onetp = initialize_tp(0);
-	free_br(onetp->brcoefficients[0]);
 	biv_rational *one= init_br(bp_to_fe(onebp), bp_to_fe(onebp));
 	onetp->brcoefficients[0] = copy_br(one); 
 	free_bp(onebp);
@@ -260,14 +273,14 @@ tpoly **divide_tp(tpoly *t_poly1, tpoly *t_poly2) {
 		biv_rational *t;
 		tpoly *division;
 
-		tpoly *quotient = initialize_tp(MAX(t_poly1->deg - t_poly2->deg, 0));
+		tpoly *quotient = initialize_and_zero_tp(0);
 		tpoly *remainder = copy_tp(t_poly1);
 
 		while(!zero_tp(remainder) && (remainder->deg - t_poly2->deg)>=0) {
 
 			d = remainder->deg - t_poly2->deg;
 			t = divide_br(remainder->brcoefficients[0], t_poly2->brcoefficients[0]);
-			division = initialize_tp(d);
+			division = initialize_and_zero_tp(d);
 			division->brcoefficients[0] = copy_br(t);
 
 			quotient = add_tp(quotient, division);
@@ -292,7 +305,7 @@ tpoly **half_ext_euclid_tp(tpoly *t_poly1, tpoly *t_poly2) {
 	tpoly *q, *r, *a_1, *b_1, *r_1;
 
 	a_1 = one_tp();
-	b_1 = initialize_tp(0);
+	b_1 = initialize_and_zero_tp(0);
 
 	a = copy_tp(t_poly1);
 	b = copy_tp(t_poly2);

@@ -284,6 +284,7 @@ field_extension *bp_to_fe(bpoly *polynomial) {
 	for(i=0; i<=polynomial->deg; ++i) {
 		result->rcoefficients[i] = init_r(polynomial->pcoefficients[i], onep);
 		}
+	free_p(onep);
 	return result;
 }
 
