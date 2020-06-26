@@ -104,8 +104,10 @@ void print_r(rational *rfa) {
 
 //copy rational 
 rational *copy_r(rational *rfa) {
-	int i;
-	rational *duplicate = init_r(rfa->num, rfa->denom);
+
+	rational *duplicate = (rational *)calloc(1, sizeof(rational));
+	duplicate->num = copy_p(rfa->num);
+	duplicate->denom = copy_p(rfa->denom);
 	return duplicate;
 }
 

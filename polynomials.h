@@ -203,7 +203,14 @@ void strip_p(poly *polynomial)
 	//make a zero polynomial the constant zero
 	if(zero_p(polynomial))
 	{	
-		polynomial = initialize_p(0);
+		frac **new_coeffs = (frac **)calloc(1, sizeof(frac *));
+		new_coeffs[0] = copy_f(polynomial->coefficients[0]);
+		for(i=0; i<=polynomial->deg; ++i ) {
+			free_f(polynomial->coefficients[i]);
+		}
+		free(polynomial->coefficients);
+		polynomial->deg = 0;
+		polynomial->coefficients = new_coeffs;
 	}
 
 	else {
@@ -224,7 +231,7 @@ void strip_p(poly *polynomial)
 		for(i=0; i<=polynomial->deg; ++i ) {
 			free_f(polynomial->coefficients[i]);
 		}
-		//free(polynomial->coefficients);
+		free(polynomial->coefficients);
 		polynomial->deg = degree;
 		polynomial->coefficients = new_coeffs;
 	}

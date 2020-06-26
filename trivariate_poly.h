@@ -62,12 +62,14 @@ tpoly **initialize_array_tp(int n) {
 	return array_tp;
 }
 
+//copy tp
 tpoly *copy_tp(tpoly *t_poly1) {
 
 	int i;
-	tpoly *duplicate;
-	duplicate = initialize_tp(t_poly1->deg);
-
+	tpoly *duplicate = (tpoly *)calloc(1, sizeof(tpoly));
+	duplicate->deg = t_poly1->deg;
+	duplicate->brcoefficients = (biv_rational **)
+		calloc(duplicate->deg+1, sizeof(biv_rational *));
 	for(i=0; i<=t_poly1->deg; ++i) {
 		duplicate->brcoefficients[i] = copy_br(t_poly1->brcoefficients[i]);
 	}
@@ -101,8 +103,15 @@ void strip_tp(tpoly *t_poly) {
 	int i, leading_zeroes=0, degree;
 
 	if(zero_tp(t_poly)) {
-		free_tp(t_poly);
-		t_poly = initialize_tp(0);
+		biv_rational **new_coeffs = (biv_rational **)calloc(1, sizeof(biv_rational *));
+		new_coeffs[0] = copy_br(t_poly->brcoefficients[0]);
+
+		for(i=0; i<=t_poly->deg; ++i) {
+			free_br(t_poly->brcoefficients[i]);
+		}
+		free(t_poly->brcoefficients);
+		t_poly->deg = 0;
+		t_poly->brcoefficients = new_coeffs;
 	}
 
 	else {
@@ -111,13 +120,19 @@ void strip_tp(tpoly *t_poly) {
 			++leading_zeroes;
 		}
 
-
-		for(i=0; i<=t_poly->deg-leading_zeroes; ++i) {
-			t_poly->brcoefficients[i] = 
-					copy_br(t_poly->brcoefficients[i + leading_zeroes]);
-		}
 		degree = t_poly->deg-leading_zeroes;
+		biv_rational **new_coeffs = (biv_rational **)
+			calloc(degree+1, sizeof(biv_rational *));
+
+		for(i=0; i<=degree; ++i) {
+			new_coeffs[i] = copy_br(t_poly->brcoefficients[i + leading_zeroes]);
+		}
+		for(i=0; i<=t_poly->deg; ++i) {
+			free_br(t_poly->brcoefficients[i]);
+		}
+		free(t_poly->brcoefficients);
 		t_poly->deg = degree;
+		t_poly->brcoefficients = new_coeffs;
 	}
 }
 

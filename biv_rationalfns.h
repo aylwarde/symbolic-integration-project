@@ -112,10 +112,10 @@ int reduce_br(biv_rational *brat) {
 
 //copy
 biv_rational *copy_br(biv_rational *brat1) {
-	int i;
-	biv_rational *duplicate;
-	duplicate = init_br(brat1->num, brat1->denom);
-
+	
+	biv_rational *duplicate = (biv_rational *)calloc(1, sizeof(biv_rational)) ;
+	duplicate->num = copy_fe(brat1->num);
+	duplicate->denom = copy_fe(brat1->denom);
 	return duplicate;
 }
 
