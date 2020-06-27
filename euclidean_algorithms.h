@@ -13,7 +13,7 @@ poly **extended_euclidean_diophantine();
 //return a_1 such that a_1*poly1 = a, and return a=gcd(poly1, poly2)
 poly **half_extended_euclidean(poly *poly1, poly *poly2) {
 
-	poly *q, *r, *a_1, *b_1, *r_1;
+  poly *a_1, *b_1, *r_1, **div;
 	poly **result;
 	mpz_t one; mpz_init_set_si(one,1);
 
@@ -23,23 +23,23 @@ poly **half_extended_euclidean(poly *poly1, poly *poly2) {
 
 	while(!zero_p(poly2))
 	{
-		q = divide_p(poly1, poly2)[0];
-		r = divide_p(poly1, poly2)[1];
 
-		poly1 = copy_p(poly2);
-		poly2 = copy_p(r);
+	  
+	  div = divide_p(poly1, poly2);
+
+	  poly1 = copy_p(poly2);
+	  poly2 = copy_p(div[1]);
 		
-		r_1 = subtract_p(a_1, multiply_p(q, b_1));
+	  r_1 = subtract_p(a_1, multiply_p(div[0], b_1));
 
-		free_p(a_1);
-		a_1 = copy_p(b_1);
+	  free_p(a_1);
+	  a_1 = copy_p(b_1);
 
-		free_p(b_1);
-		b_1 = copy_p(r_1);
+	  free_p(b_1);
+	  b_1 = copy_p(r_1);
 
-		free_p(q);
-		free_p(r);
-		free_p(r_1);
+	  free_array_p(div, 2);
+	  free_p(r_1);
 	}
 
 	result = initialize_array_p(2);
