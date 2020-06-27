@@ -99,6 +99,15 @@ void free_tp(tpoly *t_poly) {
 	free(t_poly);
 }
 
+//free array of trivariate polys
+void free_array_tp(tpoly **tpolyarray, int len) {
+	int i;
+	for(i=0; i<len; ++i) {
+		free_tp(tpolyarray[i]);
+	}
+	free(tpolyarray);
+}
+
 //check if trivariate poly is zero
 bool zero_tp(tpoly *t_poly) {
 	int i;
@@ -348,18 +357,19 @@ tpoly **half_ext_euclid_tp(tpoly *t_poly1, tpoly *t_poly2) {
 //returns S,T,G, st G=gcd(t_poly1, t_poly2) and G = St_poly1 +Tt_poly2
 tpoly **ext_euclid_tp(tpoly *t_poly1, tpoly *t_poly2) {
 
-	tpoly *s, *g, *t, *r;
+	tpoly **half, **div;
 	tpoly **result;
 
-	s = half_ext_euclid_tp(t_poly1, t_poly2)[0];
-	g = half_ext_euclid_tp(t_poly1, t_poly2)[1];
-	t = divide_tp(subtract_tp(g, multiply_tp(s, t_poly1)), t_poly2)[0];
-//	r = divide_tp(subtract_tp(g, multiply_tp(s, t_poly1)), t_poly2)[1]; //r must be zero
+	half = half_ext_euclid_tp(t_poly1, t_poly2);
+	div = divide_tp(subtract_tp(half[1], multiply_tp(half[0], t_poly1)), t_poly2);
 
 	result = initialize_array_tp(3);
-	result[0] = s;
-	result[1] = t;
-	result[2] = g;
+	result[0] = copy_tp(half[0]);
+	result[1] = copy_tp(div[0]);
+	result[2] = copy_tp(half[1]);
+
+	free_array_tp(half, 2);
+	free_array_tp(div, 2);
 
 	return result;
 }
