@@ -13,7 +13,7 @@ poly **extended_euclidean_diophantine();
 //return a_1 such that a_1*poly1 = a, and return a=gcd(poly1, poly2)
 poly **half_extended_euclidean(poly *poly1, poly *poly2) {
 
-  poly *a_1, *b_1, *r_1;
+  poly *a_1, *b_1, *r_1, **div;
   poly **result;
   mpz_t one; mpz_init_set_si(one,1);
 
