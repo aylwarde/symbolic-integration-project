@@ -26,6 +26,7 @@ typedef struct poly {
 void assign_coeffs_p();
 void print_p();
 void free_p();
+void free_array_p();
 void strip_p();
 
 bool zero_p();
@@ -361,6 +362,8 @@ poly *multiply_p(poly *polynomial1, poly *polynomial2)
 		{
 		  frac *increment = multiply_f(polynomial1->coefficients[i], polynomial2->coefficients[j]);
 		  frac *newcoeff = add_f(result->coefficients[i+j], increment);
+
+		  free_f(result->coefficients[i+j]);
 		  
 		  result->coefficients[i+j] = copy_f(newcoeff);
 
@@ -405,7 +408,7 @@ poly **divide_p(poly *polynomial1, poly *polynomial2)
 	else {
 		int d=0;
 		frac *t;
-		poly *division, *quotient, *remainder;
+		poly *division, *quotient, *remainder, *newquo, *newr;
 		poly **result;
 	
 		result = initialize_array_p(2);
@@ -428,8 +431,14 @@ poly **divide_p(poly *polynomial1, poly *polynomial2)
 	      		division = initialize_and_zero_p(d);
 	      		division->coefficients[0] = copy_f(t);
 
-	      		quotient = add_p(quotient, division);
-	      		remainder = subtract_p(remainder, multiply_p(polynomial2, division));
+	      		newquo = add_p(quotient, division);
+			free_p(quotient);
+			quotient = newquo;
+			
+	      		newr = subtract_p(remainder, multiply_p(polynomial2, division));
+			free_p(remainder);
+			remainder = newr;
+			
 			free_f(t);
 			free_p(division);
 	    	}

@@ -11,6 +11,7 @@ typedef struct field_extension {
 
 void print_fe();
 void free_fe();
+void free_array_fe();
 void strip_fe();
 
 field_extension *initialize_fe();
@@ -77,6 +78,16 @@ void free_fe(field_extension *poly) {
 	}	
 	free(poly->rcoefficients);
 	free(poly);
+}
+
+//free fe array
+void free_array_fe(field_extension **polyarray, int num) {
+  int i;
+
+  for (i=0; i<num; ++i) {
+    free_fe(polyarray[i]);
+  }
+  free(polyarray);
 }
 
 //check if poly is zero
@@ -162,6 +173,7 @@ field_extension *add_fe(field_extension *poly1, field_extension *poly2) {
 
 	int i, difference;
 	field_extension *result;
+	rational *newcoeff;
 
 	if(poly1->deg < poly2->deg) {
 		result = add_fe(poly2, poly1);
@@ -176,8 +188,9 @@ field_extension *add_fe(field_extension *poly1, field_extension *poly2) {
 		}
 
 		for(i=difference; i<=result->deg; ++i) {
-			result->rcoefficients[i] 
-			= add_r(poly1->rcoefficients[i], poly2->rcoefficients[i-difference]);
+		  newcoeff = add_r(poly1->rcoefficients[i], poly2->rcoefficients[i-difference]);
+		  result->rcoefficients[i] = copy_r(newcoeff);
+		  free_r(newcoeff);
 		}
 	}
 		strip_fe(result);
@@ -186,8 +199,9 @@ field_extension *add_fe(field_extension *poly1, field_extension *poly2) {
 
 //subtract two polys
 field_extension *subtract_fe(field_extension *poly1, field_extension *poly2) { 
-	field_extension *result;
-	result = add_fe(poly1, negative_fe(poly2));
+  field_extension *result, *neg = negative_fe(poly2);
+	result = add_fe(poly1, neg);
+	free_fe(neg);
 	return result;
 }
 
@@ -230,7 +244,7 @@ field_extension **divide_fe(field_extension *poly1, field_extension *poly2) {
 	else {
 		int d=0;
 		rational *t;
-		field_extension *division, *r;
+		field_extension *division, *newquo, *newr;
 
 		field_extension *quotient = initialize_and_zero_fe(0);
 		field_extension *remainder = copy_fe(poly1);
@@ -242,10 +256,16 @@ field_extension **divide_fe(field_extension *poly1, field_extension *poly2) {
 			division = initialize_and_zero_fe(d);
 			division->rcoefficients[0] = t;
 
-			quotient = add_fe(quotient, division);
-		        r = subtract_fe(remainder, multiply_fe(poly2, division));
+			newquo = add_fe(quotient, division);
+			free_fe(quotient);
+			quotient = newquo;
+			
+		        newr = subtract_fe(remainder, multiply_fe(poly2, division));
 			free_fe(remainder);
-			remainder = r;
+			remainder = newr;
+
+			free_r(t);
+			free_fe(division);
 		}
 		result[0] = quotient;
 		result[1] = remainder;
@@ -291,9 +311,14 @@ field_extension *bp_to_fe(bpoly *polynomial) {
 field_extension *scale_fe(rational *scalar, field_extension *poly) {
 	int i;
 	field_extension *result = initialize_fe(poly->deg);
+	rational *newcoeff;
 
 	for(i=0; i<= poly->deg; ++i) {
-		result->rcoefficients[i] = multiply_r(scalar, poly->rcoefficients[i]);
+
+	  newcoeff = multiply_r(scalar, poly->rcoefficients[i]);
+	  result->rcoefficients[i] = copy_r(newcoeff);
+	  free_r(newcoeff);
+	  
 	}
 
 	return result;
