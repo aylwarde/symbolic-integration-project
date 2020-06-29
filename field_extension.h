@@ -254,7 +254,7 @@ field_extension **divide_fe(field_extension *poly1, field_extension *poly2) {
 			d = remainder->deg - poly2->deg;
 			t = divide_r(remainder->rcoefficients[0], poly2->rcoefficients[0]);
 			division = initialize_and_zero_fe(d);
-			division->rcoefficients[0] = t;
+			division->rcoefficients[0] = copy_r(t);
 
 			newquo = add_fe(quotient, division);
 			free_fe(quotient);
