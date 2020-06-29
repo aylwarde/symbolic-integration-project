@@ -3,7 +3,7 @@
 
 #include "complex_polynomial.h"
 #include "trivariate_poly.h"
-#include "latex.h"
+
 
 typedef struct atan_tri {
 	tpoly *num, *denom;

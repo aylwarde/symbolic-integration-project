@@ -9,6 +9,7 @@
 #include "trivariate_poly.h"
 #include "lazard_rioboo_trager.h"
 #include "logtoatantri.h"
+#include "Rintegration.h"
 
 typedef struct STRING {
 	int capacity;
@@ -38,9 +39,17 @@ STRING *log_string();
 STRING *log_poly();
 STRING *log_rational();
 STRING *log_bivariate_poly();
+STRING *log_trivariate_poly();
 STRING *latex_Logs();
 
 STRING *latex_atan_tri();
+STRING *sum_over_complex_root();
+STRING *latex_real_transcendental_part();
+
+STRING *integral_string();
+STRING *integrate_rational_string();
+STRING *integral_string_full();
+STRING *integrate_rational_string_full();
 
 int write_to_file();
 
@@ -520,6 +529,21 @@ STRING *log_bivariate_poly(bpoly *b_poly, char *var1, char *var2, char *leftbind
 	return output;
 }
 
+
+//return latex string of log of trivariate poly in Q(var1)(var2)[var3], w/ left/right bindings
+STRING *log_trivariate_poly(tpoly *poly, char *var1, char *var2, char *var3,
+		char *leftbinder, char *rightbinder) { 
+
+	STRING *output;
+	output = make_string();
+	
+	append_to_string(output, leftbinder);
+	append_to_string(output, (log_string(latex_trivariate_poly(
+				poly, var1, var2, var3, "", ""), "",""))->string);
+	append_to_string(output, rightbinder);
+	
+	return output;
+}
 //takes a Log struct and returns string with required latex-formatted output
 //var 1 should be "a" in K (field) closure, var2 the indeterminate our polys are defined over eg x
 STRING *latex_Logs(logpart *input, char *var1, char *var2, char *leftbinder, char *rightbinder) {
@@ -570,6 +594,150 @@ STRING *latex_atan_tri(atan_tri *input, char *var1, char *var2, char *var3, char
 	append_to_string(output, rightbinder);
 	return output;
 }
+
+//NEED TO INCLUDE AMSMATH TO STACK EQNS
+STRING *sum_over_complex_root(bpoly **complex_root, char *var1, 
+		char *var2, char *leftbinder, char *rightbinder) {
+
+	STRING *output;
+	output = make_string();
+
+	append_to_string(output, leftbinder);
+	append_to_string(output, "\\sum_{\\substack{(");
+	append_to_string(output, var1);
+	append_to_string(output, ",");
+	append_to_string(output, var2);
+	append_to_string(output, "), ");
+	append_to_string(output, var2);
+	append_to_string(output, ">0, | \\\\");
+
+	append_to_string(output, latex_bivariate_poly
+			(complex_root[0], var1, var2, "", "=0, \\\\")->string);
+
+	append_to_string(output, latex_bivariate_poly
+			(complex_root[1], var1, var2, "", "=0, \\\\}}")->string);
+	
+	append_to_string(output, rightbinder);
+	return output;
+}
+
+STRING *latex_real_transcendental_part(realtrans *input, char *var1, char *var2, 
+		char *var3, char *leftbinder, char *rightbinder) {
+
+	STRING *output;
+	output = make_string();
+	append_to_string(output, leftbinder);
+
+	for(int i=0; i<input->num; ++i) {
+		append_to_string(output, sum_over_complex_root(input->
+					complex_roots[i], var1, var2, "$$", "")->string);
+		append_to_string(output, log_trivariate_poly(input->magnitude[i], var1, 
+					var2, var3, var1, "+ $$")->string);
+		for(int j=0; j<input->lens[i]; ++j) {
+			append_to_string(output, " $$ 2");
+			append_to_string(output, latex_atan_tri(input->arctan_arguments[i][j]
+						, var1, var2, var3, var2, "+")->string);
+		
+		append_to_string(output, "$$");
+		}
+	}
+
+	append_to_string(output, rightbinder);
+	return output;
+}
+
+//this string will include the result, but not "\int{integrand}"
+STRING *integral_string(rational *rat_poly, char *var1, char *var2, char *leftbinder, char *rightbinder) {
+
+	//perform integration
+	rational *g;
+	poly *Q;
+	logpart *Rh;
+	integrate_r(rat_poly, &g, &Q, &Rh);
+
+	STRING *output;
+	output = make_string();
+	append_to_string(output, leftbinder);
+
+	if(!zero_p(g->num)) {
+		append_to_string(output, latex_rational(g, var2, "", "")->string);
+		append_to_string(output, "+");
+	}
+
+	if(!zero_p(Q)) {
+		append_to_string(output, latex_poly(Q, var2, "", "")->string);
+		append_to_string(output, "+");
+	}
+
+	if(Rh != NULL) {
+		append_to_string(output, latex_Logs(Rh, var1, var2, "", "")->string);
+	}
+
+	append_to_string(output, rightbinder);
+
+	return output;
+}
+
+//this string will have "\int{integrand} = ...."
+STRING *integrate_rational_string(rational *rat_poly, char *var1, char *var2, char *leftbinder, char *rightbinder) {
+	
+	STRING *output;
+	output = make_string();
+	append_to_string(output, integrate_rational(rat_poly, var2, leftbinder, "=")->string);
+	append_to_string(output, integral_string(rat_poly, var1, var2, "", rightbinder)->string);
+	return output;
+}
+
+
+
+//this string will include the result, but not "\int{integrand}"
+STRING *integral_string_full(rational *rat_poly, char *var1, char *var2, char *var3,
+		char *leftbinder, char *rightbinder) {
+
+	//perform integration
+	rational *g;
+	poly *Q;
+	logpart *Rh;
+	realtrans *a;
+
+	integrate_r(rat_poly, &g, &Q, &Rh);
+	a = logpart_to_realtrans(Rh);
+
+	STRING *output;
+	output = make_string();
+	append_to_string(output, leftbinder);
+
+	if(!zero_p(g->num)) {
+		append_to_string(output, latex_rational(g, var3, "", "")->string);
+		append_to_string(output, "+");
+	}
+
+	if(!zero_p(Q)) {
+		append_to_string(output, latex_poly(Q, var3, "", "")->string);
+		append_to_string(output, "+");
+	}
+
+	if(Rh != NULL) {
+		append_to_string(output, latex_Logs(Rh, var1, var3, "$$", "+ $$")->string);
+		append_to_string(output, latex_real_transcendental_part(a, var1, var2, var3,
+					"", "")->string);
+	}
+	append_to_string(output, rightbinder);
+	return output;
+}
+
+//this string will have "\int{integrand} = ...."
+STRING *integrate_rational_string_full(rational *rat_poly, char *var1, char *var2, char *var3,
+		char *leftbinder, char *rightbinder) {
+	
+	STRING *output;
+	output = make_string();
+	append_to_string(output, integrate_rational(rat_poly, var3, leftbinder, "= $$")->string);
+	append_to_string(output, integral_string_full(rat_poly, 
+				var1, var2, var3,  "", rightbinder)->string);
+	return output;
+}
+
 
 
 //write a given string to a file, returns 1
