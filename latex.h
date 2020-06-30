@@ -304,7 +304,7 @@ STRING *sum_over_poly_sol(poly *poly1, char *var, char *leftbinder, char *rightb
 	append_to_string(output, leftbinder);
 	append_to_string(output, "\\sum_{");
 	append_to_string(output, var);
-	append_to_string(output, "|");
+	append_to_string(output, "\\in \\Re |");
 	if(mpz_sgn(poly1->coefficients[0]->num)<0) {
 		append_to_string(output, (latex_poly(negative_p(poly1), var, "", ""))->string);
 	}
@@ -603,19 +603,19 @@ STRING *sum_over_complex_root(bpoly **complex_root, char *var1,
 	output = make_string();
 
 	append_to_string(output, leftbinder);
-	append_to_string(output, "\\sum_{\\substack{(");
+	append_to_string(output, "\\sum_{\\substack{");
 	append_to_string(output, var1);
 	append_to_string(output, ",");
 	append_to_string(output, var2);
-	append_to_string(output, "), ");
+	append_to_string(output, "\\in \\Re,");
 	append_to_string(output, var2);
-	append_to_string(output, ">0, | \\\\");
+	append_to_string(output, ">0 | \\\\");
 
 	append_to_string(output, latex_bivariate_poly
 			(complex_root[0], var1, var2, "", "=0, \\\\")->string);
 
 	append_to_string(output, latex_bivariate_poly
-			(complex_root[1], var1, var2, "", "=0, \\\\}}")->string);
+			(complex_root[1], var1, var2, "", "=0 \\\\}}")->string);
 	
 	append_to_string(output, rightbinder);
 	return output;
@@ -624,21 +624,35 @@ STRING *sum_over_complex_root(bpoly **complex_root, char *var1,
 STRING *latex_real_transcendental_part(realtrans *input, char *var1, char *var2, 
 		char *var3, char *leftbinder, char *rightbinder) {
 
+	int i,j;
 	STRING *output;
 	output = make_string();
 	append_to_string(output, leftbinder);
 
-	for(int i=0; i<input->num; ++i) {
+	for(i=0; i<input->num; ++i) {
 		append_to_string(output, sum_over_complex_root(input->
 					complex_roots[i], var1, var2, "$$", "")->string);
-		append_to_string(output, log_trivariate_poly(input->magnitude[i], var1, 
-					var2, var3, var1, "+ $$")->string);
-		for(int j=0; j<input->lens[i]; ++j) {
-			append_to_string(output, " $$ 2");
-			append_to_string(output, latex_atan_tri(input->arctan_arguments[i][j]
-						, var1, var2, var3, var2, "+")->string);
+		append_to_string(output, "\\bigg[");
 		
-		append_to_string(output, "$$");
+		if(input->arctan_arguments[i] != NULL) {
+			append_to_string(output, log_trivariate_poly(input->magnitude[i], var1, 
+					var2, var3, var1, "$$")->string);
+			for(j=0; j<input->lens[i]-1; ++j) {
+				append_to_string(output, " $$ +2");
+				append_to_string(output, latex_atan_tri(input->arctan_arguments[i][j]
+						, var1, var2, var3, var2, "$$")->string);
+			}
+			j = input->lens[i]-1;
+			append_to_string(output, " $$ +2");
+			append_to_string(output, latex_atan_tri(input->arctan_arguments[i][j], var1,
+					   var2, var3, var2, "\\bigg] $$ ")->string);
+			
+		}
+				
+		else {
+			append_to_string(output, log_trivariate_poly(input->magnitude[i], var1, 
+					var2, var3, var1, "")->string);
+			append_to_string(output, "\\bigg] $$");
 		}
 	}
 
@@ -708,13 +722,11 @@ STRING *integral_string_full(rational *rat_poly, char *var1, char *var2, char *v
 	append_to_string(output, leftbinder);
 
 	if(!zero_p(g->num)) {
-		append_to_string(output, latex_rational(g, var3, "", "")->string);
-		append_to_string(output, "+");
+		append_to_string(output, latex_rational(g, var3, "$$", " +$$")->string);
 	}
 
 	if(!zero_p(Q)) {
-		append_to_string(output, latex_poly(Q, var3, "", "")->string);
-		append_to_string(output, "+");
+		append_to_string(output, latex_poly(Q, var3, "$$", "+$$")->string);
 	}
 
 	if(Rh != NULL) {
@@ -732,7 +744,8 @@ STRING *integrate_rational_string_full(rational *rat_poly, char *var1, char *var
 	
 	STRING *output;
 	output = make_string();
-	append_to_string(output, integrate_rational(rat_poly, var3, leftbinder, "= $$")->string);
+	append_to_string(output, leftbinder);
+	append_to_string(output, integrate_rational(rat_poly, var3, "$$", "= $$")->string);
 	append_to_string(output, integral_string_full(rat_poly, 
 				var1, var2, var3,  "", rightbinder)->string);
 	return output;

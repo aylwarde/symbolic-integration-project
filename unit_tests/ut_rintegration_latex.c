@@ -5,7 +5,7 @@ int main() {
 
 	FILE *polyfile;
 
-	polyfile = fopen("integrate_latex.txt", "r");
+	polyfile = fopen("integrate/integrate_latex4.txt", "r");
 
 	if(polyfile == NULL) {
 		printf("Error: Invalid file read\n");
