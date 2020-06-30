@@ -61,15 +61,13 @@ realtrans *logpart_to_realtrans(logpart *input) {
 		
 		result->complex_roots[i] = poly_complexify(input->roots[i]);
 		complex_log_arguments = bpoly_complexify(input->arguments[i]);
+		
 		result->magnitude[i] = add_tp(pow_tp(complex_log_arguments[0], 2),
 			       	pow_tp(complex_log_arguments[1], 2));
-		if(zero_tp(complex_log_arguments[1])) {
-			result->arctan_arguments[i] = NULL;
-		}
-		else {
-			result->arctan_arguments[i] = logtoatantri(complex_log_arguments[0], 
+
+		result->arctan_arguments[i] = logtoatantri(complex_log_arguments[0], 
 				complex_log_arguments[1], &result->lens[i]);
-		}
+		
 		free_tp(complex_log_arguments[0]);
 		free_tp(complex_log_arguments[1]);
 		free(complex_log_arguments);

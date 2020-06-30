@@ -633,14 +633,12 @@ STRING *latex_real_transcendental_part(realtrans *input, char *var1, char *var2,
 					complex_roots[i], var1, var2, "$$", "")->string);
 		append_to_string(output, log_trivariate_poly(input->magnitude[i], var1, 
 					var2, var3, var1, "+ $$")->string);
-		if(input->arctan_arguments[i] != NULL) {
-			for(int j=0; j<input->lens[i]; ++j) {
-				append_to_string(output, " $$ 2");
-				append_to_string(output, latex_atan_tri(input->arctan_arguments[i][j]
+		for(int j=0; j<input->lens[i]; ++j) {
+			append_to_string(output, " $$ 2");
+			append_to_string(output, latex_atan_tri(input->arctan_arguments[i][j]
 						, var1, var2, var3, var2, "+")->string);
 		
-			append_to_string(output, "$$");
-			}
+		append_to_string(output, "$$");
 		}
 	}
 
