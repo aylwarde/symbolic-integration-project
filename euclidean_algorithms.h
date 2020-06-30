@@ -15,6 +15,7 @@ poly **half_extended_euclidean(poly *poly1, poly *poly2) {
 
   poly *a_1, *b_1, *r_1, **div;
   poly **result;
+  poly **div;
   mpz_t one; mpz_init_set_si(one,1);
 
   a_1 = initialize_p(0);
