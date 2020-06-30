@@ -115,9 +115,8 @@ bpoly **poly_complexify(poly *poly1) {
 		scale->coefficients[0] = copy_f(poly1->coefficients[i]);
 		result[0] = add_bp(result[0], scale_bp(scale, monomial_complexify(poly1->deg-i)[0]));
 		result[1] = add_bp(result[1], scale_bp(scale, monomial_complexify(poly1->deg-i)[1]));
+		free_p(scale);
 	}
-	strip_bp(result[0]);
-	strip_bp(result[1]);
 
 	return result;
 }
@@ -137,8 +136,6 @@ tpoly **bpoly_complexify(bpoly *bpoly1) {
 		result[1]->brcoefficients[i] = bpoly_to_br(
 				poly_complexify(bpoly1->pcoefficients[i])[1]);
 	}
-	strip_tp(result[0]);
-	strip_tp(result[1]);
 
 	return result;
 }
