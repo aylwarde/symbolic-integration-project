@@ -14,7 +14,8 @@ rational **hermite_reduce();
 
 rational **hermite_reduce(rational *rational_a) {
 
-	poly *a, *b, *c, *d, *e, *f, *g;
+	poly *a, *c, **d, *e, **div, **div1, **div2, **ext;
+	rational *temp;
 
 	//initializing rational array structure for result
 	rational **result;
@@ -23,11 +24,7 @@ rational **hermite_reduce(rational *rational_a) {
 	//make one and zero polynomials
 	poly *onepoly, *zeropoly;
 	zeropoly = initialize_and_zero_p(0);
-	
-	mpz_t one; mpz_init_set_ui(one, 1);
-	onepoly = initialize_p(0);
-	onepoly->coefficients[0] = init_f(one, one);
-	mpz_clear(one);
+	onepoly = one_p();
 	
 	//initialize result[0] as zero rational polynomial
 	result[0] = init_r(zeropoly, onepoly);
@@ -40,39 +37,46 @@ rational **hermite_reduce(rational *rational_a) {
 
 	//a = deflation of denominator, b = squarefree part of denominator
 	a = gcd_p(rational_a->denom, derivative_p(rational_a->denom));
-	b = divide_p(rational_a->denom, a)[0];
+	div = divide_p(rational_a->denom, a);
 
 	while(a->deg>0) {
 		c = gcd_p(a, derivative_p(a)); //deflation of a
-		d = divide_p(a, c)[0]; //squarefree part of a
+		div1 = divide_p(a, c); // div[1] = squarefree part of a
 		
-		//polynomial defined for tidyness
-		e = negative_p(divide_p(multiply_p(b,derivative_p(a)), a)[0]);
+		//polynomials defined for tidyness
+		d = divide_p(multiply_p(div[0],derivative_p(a)), a);
+		e = negative_p(d[0]);
 		
-		// num = e*f + d*g
-		f = extended_euclidean_diophantine(e, d, num)[0];
-		g = extended_euclidean_diophantine(e, d, num)[1];
+		// num = e*ext[0] + d*ext[1]
+		ext = extended_euclidean_diophantine(e, div1[0], num);
 		free_p(e);
+		free_array_p(d, 2);
 		
 		//new numerator in reduction step	
-		num = subtract_p(g, divide_p(multiply_p(derivative_p(f), b), d)[0]);
-		free_p(d);
+		free_p(num);
+		div2 = divide_p(multiply_p(derivative_p(ext[0]), div[0]), div1[0]);
+		num = subtract_p(ext[1], div2[0]);
+		free_array_p(div2, 2);
 
-		result[0] = add_r(result[0], init_r(f, a));
+		temp = copy_r(result[0]);
+		free_r(result[0]);
+		result[0] = add_r(temp, init_r(ext[0], a));
+		free_r(temp);
 		
-		free_p(f);
-		free_p(g);
+		free_array_p(ext, 2);
 
 		//replace a by deflation of a 
+		free_p(a);
 		a = copy_p(c);
 		free_p(c);
+		free_array_p(div1, 2);
 	}
 
-	result[1] = init_r(num, b);
+	result[1] = init_r(num, div[0]);
 	
 	//freeing up
 	free_p(a);
-	free_p(b);
+	free_array_p(div, 2);
 	
 	return result;
 }

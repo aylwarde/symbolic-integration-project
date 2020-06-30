@@ -12,8 +12,8 @@ poly **squarefree_p();
 //outlen is the position of the last non-zero factor in our array
 poly **squarefree_p(poly *poly1, int *outlen) {
       	
-        poly *s, *d, *e, *y, *z, *b, *onepoly;
-        poly **a;
+        poly *s, *d, *e, *z, *b, *onepoly;
+        poly **a, **div, **div1;
         int k, i;
         frac *c;
         
@@ -36,16 +36,22 @@ poly **squarefree_p(poly *poly1, int *outlen) {
 
         d = gcd_p(s, derivative_p(s)); //deflation of s
 
-	e = divide_p(s, d)[0]; //squarefree part of S
-        y = divide_p(derivative_p(s), d)[0];
+	div = divide_p(s, d); //squarefree part of S= div[0]
+        div1 = divide_p(derivative_p(s), d);
         k = 1; 
 
-        while(!zero_p(subtract_p(y, derivative_p(e))) )
+        while(!equals_p(div1[0], derivative_p(div[0])) )
         {
-                z = subtract_p(y, derivative_p(e));
-	       	b = gcd_p(e, z);
-                e = divide_p(e, b)[0];
-                y = divide_p(z, b)[0];
+                z = subtract_p(div1[0], derivative_p(div[0]));
+	       	b = gcd_p(div[0], z);
+		
+		e = copy_p(div[0]);
+		free_array_p(div, 2);
+                div = divide_p(e, b);
+		free_p(e);
+                
+		free_array_p(div1, 2);
+		div1 = divide_p(z, b);
 		a[k] = copy_p(b);
 		free_p(b);
 		++k;
@@ -53,7 +59,7 @@ poly **squarefree_p(poly *poly1, int *outlen) {
         } 
               
         
-        a[k] = copy_p(e);
+        a[k] = copy_p(div[0]);
         a[1] = scale_p(c, a[1]);
 	*outlen = k;
 
@@ -63,11 +69,12 @@ poly **squarefree_p(poly *poly1, int *outlen) {
                 a[i] = NULL;
         }
 
-	free_p(y);
 	free_p(s);
 	free_p(d);
-	free_p(e);
+	
 	free_f(c);
+	free_array_p(div1, 2);
+	free_array_p(div,2 );
 
         return a;
 }
