@@ -30,15 +30,21 @@ atan_tri *initialize_t(tpoly *num, tpoly *denom) {
 
 int reduce_t(atan_tri *input) {
 
-	tpoly *newnum = scale_tp(reciprocal_br(content_tp(input->denom)), input->num);
-	tpoly *newdenom = scale_tp(reciprocal_br(content_tp(input->denom)), input->denom);
-	free(input->num);
-	free(input->denom);
+  biv_rational *denom_ct = copy_br(content_tp(input->denom));
+  biv_rational *recip_denom_ct = reciprocal_br(denom_ct);
+  tpoly *newnum = scale_tp(recip_denom_ct, input->num);
+  tpoly *newdenom = scale_tp(recip_denom_ct, input->denom);
 
-	input->num = newnum;
-	input->denom = newdenom;
+  free_br(denom_ct);
+  free_br(recip_denom_ct); 
+  
+  free_tp(input->num);
+  free_tp(input->denom);
 
-	return 0;
+  input->num = newnum;
+  input->denom = newdenom;
+
+  return 0;
 }
 	
 atan_tri **initialize_array_t(int n) {
