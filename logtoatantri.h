@@ -56,7 +56,7 @@ atan_tri **initialize_array_t(int n) {
 atan_tri **logtoatantri(tpoly *t_poly1, tpoly *t_poly2, int *outlen) {
 
 	atan_tri **result = initialize_array_t(MAX(t_poly1->deg, t_poly2->deg)+3);
-	tpoly *a, *b, *r, *d, *c, *g;
+	tpoly *a, *b, **div, **ext;
 	int k=0;
 
 	if(t_poly1->deg < t_poly2->deg) {
@@ -69,38 +69,34 @@ atan_tri **logtoatantri(tpoly *t_poly1, tpoly *t_poly2, int *outlen) {
 		b = copy_tp(t_poly2);
 	}
 
-	r = divide_tp(a, b)[1];
+	div = divide_tp(a, b);
 	
-	while(!zero_tp(r)) {
-	free_tp(r);	
-	d = ext_euclid_tp(b, negative_tp(a))[0];
-	c = ext_euclid_tp(b, negative_tp(a))[1];
-	g = ext_euclid_tp(b, negative_tp(a))[2];
-	result[k]= initialize_t(add_tp(multiply_tp(a, d), multiply_tp(b, c)), g);
-	free_tp(g);
+	while(!zero_tp(div[1])) {
+	free_array_tp(div, 2);	
+	ext = ext_euclid_tp(b, negative_tp(a));
+	result[k]= initialize_t(add_tp(multiply_tp(a, ext[0]), multiply_tp(b, ext[1])), ext[2]);
 	++k;
-	if(d->deg < c->deg) {
+	if(ext[0]->deg < ext[1]->deg) {
 		free_tp(a);
-		a = negative_tp(c);
+		a = negative_tp(ext[1]);
 		free_tp(b);
-		b = copy_tp(d);
+		b = copy_tp(ext[0]);
 	}
 	else {
 		free_tp(a);
 		free_tp(b);
-		a = copy_tp(d);
-		b = copy_tp(c);
+		a = copy_tp(ext[0]);
+		b = copy_tp(ext[1]);
 	}
-	r = divide_tp(a, b)[1];
-	free_tp(d);
-	free_tp(c);
+	div = divide_tp(a, b);
+	free_array_tp(ext, 3);
 	}
 	
 	result[k] = initialize_t(a, b);
 	*outlen = k+1;
 	free_tp(a);
 	free_tp(b);
-	free_tp(r);
+	free_array_tp(div, 2);
 
 	return result;
 }

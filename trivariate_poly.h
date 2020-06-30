@@ -99,6 +99,13 @@ void free_tp(tpoly *t_poly) {
 	free(t_poly);
 }
 
+void free_array_tp(tpoly **tpolyarray, int len) {
+	for(int i=0; i<len; ++i) {
+		free_tp(tpolyarray[i]);
+	}
+	free(tpolyarray);
+}
+
 //check if trivariate poly is zero
 bool zero_tp(tpoly *t_poly) {
 	int i;
