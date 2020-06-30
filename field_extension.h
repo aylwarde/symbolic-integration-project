@@ -209,16 +209,21 @@ field_extension *subtract_fe(field_extension *poly1, field_extension *poly2) {
 field_extension *multiply_fe(field_extension *poly1, field_extension *poly2) { 
 
 	int i,j;
+	rational *summand, *newcoeff;
 	field_extension *result;
 
 	result = initialize_and_zero_fe(poly1->deg + poly2->deg);
 
 	for(i=0; i<= poly1->deg; ++i) {
 		for(j=0; j<= poly2->deg; ++j) {
-			result->rcoefficients[i+j] 
-				= add_r(result->rcoefficients[i+j], 
-						multiply_r(poly1->rcoefficients[i], 
-							poly2->rcoefficients[j]));
+		  summand = multiply_r(poly1->rcoefficients[i], poly2->rcoefficients[j]);
+		  newcoeff = add_r(result->rcoefficients[i+j], summand);
+
+		  free_r(result->rcoefficients[i+j]);
+		  result->rcoefficients[i+j] = copy_r(newcoeff);
+		  
+		  free_r(summand);
+		  free_r(newcoeff);
 		}
 	}
 	strip_fe(result);
