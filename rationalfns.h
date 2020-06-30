@@ -87,14 +87,23 @@ int reduce_r(rational *rfa) {
   free_array_p(denomdiv, 2);
   
   //find gcd of contents
-  frac *gcd_content  = gcd_f(content_p(newnum), content_p(newdenom));
-  newnum = scale_p(reciprocal_f(gcd_content), newnum);
-  newdenom = scale_p(reciprocal_f(gcd_content), newdenom);
+
+  frac *numcont = content_p(newnum);
+  frac *denomcont = content_p(newdenom);
+  frac *gcd_content  = gcd_f(numcont, denomcont);
+  frac *recip_gcd_cont = reciprocal_f(gcd_content);
+  
+  newnum = scale_p(recip_gcd_cont, newnum);
+  newdenom = scale_p(recip_gcd_cont, newdenom);
+
+  free_f(numcont);
+  free_f(denomcont);
+  free_f(gcd_content);
+  free_f(recip_gcd_cont);
   
   free_p(rfa->num);
   free_p(rfa->denom);
   free_p(gcd);
-  free_f(gcd_content);
   
   rfa->num = newnum;
   rfa->denom = newdenom;
