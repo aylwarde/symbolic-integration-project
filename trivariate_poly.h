@@ -278,7 +278,7 @@ tpoly **divide_tp(tpoly *t_poly1, tpoly *t_poly2) {
 	else {
 		int d=0;
 		biv_rational *t;
-		tpoly *division;
+		tpoly *division, *newquo, *newrem;
 
 		tpoly *quotient = initialize_and_zero_tp(0);
 		tpoly *remainder = copy_tp(t_poly1);
@@ -290,8 +290,14 @@ tpoly **divide_tp(tpoly *t_poly1, tpoly *t_poly2) {
 			division = initialize_and_zero_tp(d);
 			division->brcoefficients[0] = copy_br(t);
 
-			quotient = add_tp(quotient, division);
-			remainder = subtract_tp(remainder, multiply_tp(t_poly2, division));
+			newquo = add_tp(quotient, division);
+			free_tp(quotient);
+			quotient = newquo;
+			
+			newrem = subtract_tp(remainder, multiply_tp(t_poly2, division));
+			free_tp(remainder);
+			remainder = newrem;
+			
 			free_br(t);
 			free_tp(division);
 		}

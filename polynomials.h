@@ -495,14 +495,18 @@ poly *gcd_p(poly *polynomial1, poly *polynomial2) {
 
 poly *lcm_p(poly *polynomial1, poly *polynomial2) {
 	
-	poly **div = divide_p(multiply_p(polynomial1, polynomial2), 
-			gcd_p(polynomial1, polynomial2));
+  poly *divisor1 = multiply_p(polynomial1, polynomial2);
+  poly *divisor2 = gcd_p(polynomial1, polynomial2);
 
-	poly *lcm = copy_p(div[0]);
+  poly **div = divide_p(divisor1, divisor2);
 
-	free_array_p(div, 2);
+  poly *lcm = copy_p(div[0]);
+
+  free_array_p(div, 2);
+  free_p(divisor1);
+  free_p(divisor2);
 	
-	return lcm;
+  return lcm;
 }
 
 //return content of polynomial
