@@ -281,23 +281,42 @@ field_extension **divide_fe(field_extension *poly1, field_extension *poly2) {
 
 field_extension *gcd_fe(field_extension *polynomial1, field_extension *polynomial2) {
 
-  field_extension *r;
+  field_extension *r, **div;
 
-        while(!zero_fe(polynomial2))
+  field_extension *a = copy_fe(polynomial1);
+  field_extension *b = copy_fe(polynomial2);
+  
+  
+        while(!zero_fe(b))
         {
-                r = divide_fe(polynomial1, polynomial2)[1];
-                polynomial1 = copy_fe(polynomial2);
-                polynomial2 = copy_fe(r);
+	  div = divide_fe(a, b);
+
+	  free_fe(a);
+	  a = copy_fe(b);
+
+	  free_fe(b);
+	  b = copy_fe(div[1]);
+	  
+	  free_array_fe(div, 2);
         }
 	
-        return polynomial1;
+        return a;
 }
 
 field_extension *lcm_fe(field_extension *polynomial1, field_extension *polynomial2) {
 
-	field_extension *lcm;
-	lcm = divide_fe(multiply_fe(polynomial1, polynomial2), gcd_fe(polynomial1, polynomial2))[0];
-	return lcm;
+  field_extension *lcm, **lcm_arr;
+  field_extension *divisor1 = multiply_fe(polynomial1, polynomial2);
+  field_extension *divisor2 = gcd_fe(polynomial1, polynomial2);
+	
+  lcm_arr = divide_fe(divisor1, divisor2);
+  lcm = copy_fe(lcm_arr[0]);
+
+  free_fe(divisor1);
+  free_fe(divisor2);
+  free_array_fe(lcm_arr, 2);
+  
+  return lcm;
 }
 
 field_extension *bp_to_fe(bpoly *polynomial) {
