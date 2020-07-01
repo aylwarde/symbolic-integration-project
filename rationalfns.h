@@ -95,6 +95,15 @@ int reduce_r(rational *rfa) {
   
   newnum = scale_p(recip_gcd_cont, newnum);
   newdenom = scale_p(recip_gcd_cont, newdenom);
+  if(mpz_sgn(newdenom->coefficients[0]->num)<0) {
+	  poly *negnewdenom, *negnewnum;
+	  negnewdenom = negative_p(newdenom);
+	  negnewnum = negative_p(newnum);
+	  free_p(newnum);
+	  free_p(newdenom);
+	  newnum = negnewnum;
+	  newdenom = negnewdenom;
+  }
 
   free_f(numcont);
   free_f(denomcont);
