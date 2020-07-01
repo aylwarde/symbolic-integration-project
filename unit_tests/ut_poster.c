@@ -1,12 +1,15 @@
 #include "../latex.h"
 #include "../Rintegration.h"
 
+
+//This is so we can see what input works best for out poster, importantly, the input must be a 
+//proper rational
 int main() {
 
 	FILE *polyfile;
 	poly **input;
 
-	polyfile = fopen("integrate/integrate_latex4.txt", "r");
+	polyfile = fopen("integrate/integrate_latex2.txt", "r");
 	
 	if(polyfile == NULL) {
 		printf("Invalid File Path\n");
@@ -36,9 +39,9 @@ int main() {
 	log_result = integrate_rational_string(hermite[1], "a", "x", "$$", "$$");
 	write_to_file("log_poster.txt", log_result);
 
-	STRING *atan_result;
-	atan_result = latex_real_transcendental_part(atan_part, "u", "v", "x", "", "");
-	write_to_file("atan_poster.txt", atan_result);
+	STRING *atan_result; // this one will probably need some dollar removing
+	atan_result = integrate_rational_string_full(hermite[1], "u", "v", "x", "", "");
+	write_to_file("atan_poster.txt", atan_result); 	
 
 	return 0;
 }
