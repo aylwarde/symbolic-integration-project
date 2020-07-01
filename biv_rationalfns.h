@@ -96,8 +96,14 @@ int reduce_br(biv_rational *brat) {
 	free_array_fe(denomdiv, 2);
 
 	//make denom primive
-	newnum = scale_fe(reciprocal_r(content_fe(newdenom)), newnum); 
-	newdenom = scale_fe(reciprocal_r(content_fe(newdenom)), newdenom); 
+	rational *newdenom_cont = content_fe(newdenom);
+	rational *recip_newdenom_cont = reciprocal_r(newdenom_cont);
+	
+	newnum = scale_fe(recip_newdenom_cont, newnum); 
+	newdenom = scale_fe(recip_newdenom_cont, newdenom);
+
+	free_r(newdenom_cont);
+	free_r(recip_newdenom_cont);
 /*	
 	if(newdenom->deg==0) {
 		bpoly *onebp = one_bp();
@@ -106,9 +112,8 @@ int reduce_br(biv_rational *brat) {
 	}
 */
 	// cleaning up
-	field_extension *oldnum = brat->num, *olddenom = brat->denom;
-	free_fe(oldnum);
-	free_fe(olddenom);
+	free_fe(brat->num);
+	free_fe(brat->denom);
 	free_fe(gcd);
 
 	brat->num = newnum; 

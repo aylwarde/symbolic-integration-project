@@ -18,6 +18,7 @@ typedef struct trivariate_poly {
 //void display_tp();
 void free_tp();
 void strip_tp();
+void free_array_tp();
 
 tpoly *initialize_tp();
 tpoly *initialize_and_zero_tp();
@@ -53,17 +54,21 @@ tpoly *initialize_and_zero_tp(int degree) {
 	int  i;
 	tpoly *trivariate_poly = (tpoly *)calloc(1, sizeof(tpoly));
 
-	//make 1 bpoly
 	bpoly *onebp = one_bp();
+	field_extension *zero = initialize_and_zero_fe(0);
+	field_extension *onefe = bp_to_fe(onebp);
+	biv_rational *zerobr = init_br(zero, onefe);
 
 	trivariate_poly->deg = degree;
 	trivariate_poly->brcoefficients = initialize_array_br(degree+1);
 
 	for(i=0; i<=degree; ++i) {
-		trivariate_poly->brcoefficients[i] = init_br(initialize_and_zero_fe(0), 
-				bp_to_fe(onebp));
+		trivariate_poly->brcoefficients[i] = copy_br(zerobr);
 	}
+	free_br(zerobr);
+	free_fe(onefe);
 	free_bp(onebp);
+	free_fe(zero);
 
 	return trivariate_poly;
 }

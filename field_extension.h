@@ -50,14 +50,17 @@ field_extension *initialize_and_zero_fe(int degree) {
 	int i;
 	poly *onep = one_p();
 	poly *zerop = initialize_and_zero_p(0);
+	rational *zeror = init_r(zerop, onep);
 	field_extension *result = (field_extension *)calloc(1, sizeof(field_extension));
-	
+
+
 	result->deg = degree;
 	result->rcoefficients = initialize_array_r(degree+1);
 
 	for(i=0; i<=degree; ++i) {
-		result->rcoefficients[i] = init_r(zerop, onep);
+		result->rcoefficients[i] = copy_r(zeror);
 	}
+	free_r(zeror);
 	free_p(zerop);
 	free_p(onep);
 
