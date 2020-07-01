@@ -30,6 +30,7 @@ field_extension *scale_fe();
 rational *content_fe();
 
 bool zero_fe();
+bool monomial_fe();
 bool equals_fe();
 
 
@@ -105,6 +106,17 @@ bool zero_fe(field_extension *poly) {
 	return result;
 }
 
+//check if poly is monomial
+bool monomial_fe(field_extension *poly) {
+	int i;
+	bool result = true;
+	for(i=1; i<=poly->deg; ++i) {
+		if(!zero_p(poly->rcoefficients[i]->num)) {
+				result = false;
+		}
+	}
+	return result;
+}
 
 //strip poly of higher order terms with zero coeffs
 void strip_fe(field_extension *poly) {

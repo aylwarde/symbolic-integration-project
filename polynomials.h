@@ -260,10 +260,9 @@ void strip_p(poly *polynomial)
 poly *one_p() {
 
       poly *onep = initialize_p(0);
-      mpz_t one;
-      mpz_init_set_si(one, 1);
-      onep->coefficients[0] = init_f(one, one);
-      mpz_clear(one);
+      frac *onef = one_f();
+      onep->coefficients[0] = copy_f(onef);
+      free_f(onef);
       return onep;
 }
 

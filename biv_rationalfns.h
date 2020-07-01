@@ -102,16 +102,20 @@ int reduce_br(biv_rational *brat) {
 	newnum = scale_fe(recip_newdenom_cont, newnum); 
 	newdenom = scale_fe(recip_newdenom_cont, newdenom);
 
+	//ensure lc in denominator is non-negative
+	if(mpz_sgn(newdenom->rcoefficients[0]->num->coefficients[0]->num)<0) {
+		field_extension *negnewnum, *negnewdenom;
+		negnewnum = negative_fe(newnum);
+		negnewdenom = negative_fe(newdenom);
+		free_fe(newnum);
+		free_fe(newdenom);
+		newnum = negnewnum;
+		newdenom = negnewdenom;
+	}
+
+	// cleaning up
 	free_r(newdenom_cont);
 	free_r(recip_newdenom_cont);
-/*	
-	if(newdenom->deg==0) {
-		bpoly *onebp = one_bp();
-		newnum = scale_fe(newdenom->rcoefficients[0], newnum);
-		newdenom = bp_to_fe(onebp);
-	}
-*/
-	// cleaning up
 	free_fe(brat->num);
 	free_fe(brat->denom);
 	free_fe(gcd);

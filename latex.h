@@ -160,9 +160,7 @@ STRING *latex_poly(poly *poly1, char *var, char *leftbinder, char *rightbinder) 
 	char minus[] = "-", plus[] = "+";
 
 	//create one frac;
-	mpz_t one; mpz_init_set_ui(one, 1);
-	frac *onefrac;
-	onefrac = init_f(one, one);
+	frac *onefrac = one_f();
 
 	append_to_string(output, leftbinder);
 
@@ -200,7 +198,6 @@ STRING *latex_poly(poly *poly1, char *var, char *leftbinder, char *rightbinder) 
 		}
 	}
 
-	mpz_clear(one);
 	free_f(onefrac);
 
 	append_to_string(output, rightbinder);
@@ -225,17 +222,7 @@ STRING *latex_rational(rational *rat_poly, char *var, char *leftbinder, char *ri
 		output = latex_poly(rat_poly->num, var, leftbinder, rightbinder);
 	}
 
-	else {
-		//if leading coeff of denom is neg, negate both num and denom
-		if(mpz_sgn(rat_poly->denom->coefficients[0]->num)<0) {
-			free(output);
-			rat_poly->num = negative_p(rat_poly->num);
-			rat_poly->denom = negative_p(rat_poly->denom);
-			output = latex_rational(rat_poly, var, leftbinder, rightbinder);
-		}
-
-		else {
-			
+	else {			
 			append_to_string(output, "\\frac{");
 			//append numerator
 			append_to_string(output, (latex_poly(rat_poly->num, var, "", ""))->string);
@@ -244,7 +231,6 @@ STRING *latex_rational(rational *rat_poly, char *var, char *leftbinder, char *ri
 			append_to_string(output, (latex_poly(rat_poly->denom, var, "", ""))->string);
 			append_to_string(output, "}");
 			append_to_string(output, rightbinder);
-		}
 	}
 
 	return output;
@@ -294,8 +280,9 @@ STRING *integrate_rational(rational *rat_poly, char *var, char *leftbinder, char
 	return output;
 }
 
-//return latex string for sum over sols of polynomial
-STRING *sum_over_poly_sol(poly *poly1, char *var, char *leftbinder, char *rightbinder) {
+//return latex string for sum over sols of polynomial **THE SET REFERS TO WHERE THE SOLS LIVE EG
+//QUOTIENTS, REALS, ALGEBRAIC CLOSURES, WHATEVER**
+STRING *sum_over_poly_sol(poly *poly1, char *var, char *set, char *leftbinder, char *rightbinder) {
 
 	STRING *output;
 	output = make_string();
@@ -303,13 +290,18 @@ STRING *sum_over_poly_sol(poly *poly1, char *var, char *leftbinder, char *rightb
 	append_to_string(output, leftbinder);
 	append_to_string(output, "\\sum_{");
 	append_to_string(output, var);
-	append_to_string(output, "\\in \\Re |");
+	append_to_string(output, "\\in"); 
+	append_to_string(output, set);
+	append_to_string(output, "|");
+	
 	if(mpz_sgn(poly1->coefficients[0]->num)<0) {
 		append_to_string(output, (latex_poly(negative_p(poly1), var, "", ""))->string);
 	}
+	
 	else {
 		append_to_string(output, (latex_poly(poly1, var, "", ""))->string);
 	}
+	
 	append_to_string(output, "=0}");
 	append_to_string(output, rightbinder);
 	
@@ -323,57 +315,51 @@ STRING *latex_bivariate_poly(bpoly *b_poly, char *var1, char *var2, char *leftbi
 	output = make_string();
 	
 	//create (neg)/one frac;
-	mpz_t one; mpz_init_set_ui(one, 1);
-	mpz_t negone; mpz_init(negone);
-	mpz_neg(negone, one);
 	frac *onefrac, *negonefrac;
-	onefrac = init_f(one, one);
-	negonefrac = init_f(negone, one);
+	onefrac = one_f();
+	negonefrac = negative_f(onefrac);
 	
 	append_to_string(output, leftbinder); 
 	
 	int i=0;
 	while(i<=b_poly->deg) {
 
-		if(!zero_p(b_poly->pcoefficients[i])) {
-			if(!monomial_p(b_poly->pcoefficients[i])) {
+	if(!zero_p(b_poly->pcoefficients[i])) {
+		if(!monomial_p(b_poly->pcoefficients[i])) {
 		
-				if(i!=0) {
-					append_to_string(output, "+");
-				}
+			if(i!=0) {
+				append_to_string(output, "+");
+			}
 
-				append_to_string(output,
-					(latex_poly(b_poly->
+			append_to_string(output,(latex_poly(b_poly->
 						    pcoefficients[i], var1, "(",")"))->string);
 			}
-			//no brackets for monomials
-			else {
+		//no brackets for monomials
+		else {
 			
-				//add plus sign	
-				if(i!=0 && mpz_sgn(b_poly->
-							pcoefficients[i]->coefficients[0]->num)>0) {
-					append_to_string(output, "+");
-				}
-
-				//print minus sign if monomial is neg one (and not const term)
-				if(equals_f(b_poly->pcoefficients[i]->coefficients[0],
-							negonefrac) && i!=b_poly->deg) {
-					append_to_string(output, "-");
-				}
-
-				//dont print monomial if its one
-				if(!equals_f(abs_f(
-					b_poly->pcoefficients[i]->coefficients[0]), onefrac) || 
-						i==b_poly->deg) {
-				append_to_string(output,
-					(latex_poly
-					 (b_poly->pcoefficients[i], var1, "",""))->string);
-				}
+			//add plus sign					
+			if(i!=0 && mpz_sgn(b_poly->pcoefficients[i]->coefficients[0]->num)>0) {
+				append_to_string(output, "+");
 			}
 
-			append_to_string(output, print_monomial(var2, b_poly->deg-i));
+			//print minus sign if monomial is neg one (and not const term)
+			if(equals_f(b_poly->pcoefficients[i]->coefficients[0],negonefrac) 
+					&& i!=b_poly->deg) {
+					
+				append_to_string(output, "-");	
+			}
+
+			//dont print monomial if its one
+			if(!equals_f(abs_f(b_poly->pcoefficients[i]->coefficients[0]), onefrac) || 
+						i==b_poly->deg) {
+				append_to_string(output,(latex_poly
+					 (b_poly->pcoefficients[i], var1, "",""))->string);
+			}
 		}
-			++i;
+		
+		append_to_string(output, print_monomial(var2, b_poly->deg-i));
+	}
+	++i;
 	}
 
 	append_to_string(output, rightbinder);
@@ -391,26 +377,41 @@ STRING *latex_field_extension(field_extension *poly, char *var1, char *var2,
 	int i=0;
 	while(i<=poly->deg) {
 
-		if(!zero_p(poly->rcoefficients[i]->num)) {
-				if(i!=0) {
-					append_to_string(output, "+");
-				}
-				if(!monomial_p(poly->rcoefficients[i]->num) && 
-						poly->rcoefficients[i]->denom->deg==0) {
-					
-					append_to_string(output,
-						(latex_rational(poly->
-						    rcoefficients[i], var1, "(",")"))->string);
-				}
-				else {
-					append_to_string(output,
-						(latex_rational(poly->
-						    rcoefficients[i], var1, "",""))->string);
-				}
-
-			append_to_string(output, print_monomial(var2, poly->deg-i));
+	if(!zero_p(poly->rcoefficients[i]->num)) {
+	
+		//add plus if lc is positive
+		if(i!=0) {
+			if(mpz_sgn(poly->rcoefficients[i]->num->coefficients[0]->num)>0) {
+						append_to_string(output, "+");
+			}	
 		}
-			++i;
+				
+		//include brackets 
+		if(!monomial_p(poly->rcoefficients[i]->num) && poly->rcoefficients[i]->denom
+				->deg==0 && i !=poly->deg) {
+					
+			//add negative sign and negation of rational if lc is neg
+			if(mpz_sgn(poly->rcoefficients[i]->num->coefficients[0]->num)<0) {
+				append_to_string(output, "-");
+				append_to_string(output,(latex_rational(negative_r(poly->
+						    rcoefficients[i]), var1, "(",")"))->string);
+			}
+	
+			else {
+				append_to_string(output,(latex_rational(poly->
+						rcoefficients[i], var1, "(",")"))->string);
+			}
+		}
+		
+		//no brackets
+		else {
+			append_to_string(output,(latex_rational(poly->rcoefficients[i],
+						       	var1, "",""))->string);
+		}
+		
+		append_to_string(output, print_monomial(var2, poly->deg-i));
+	}
+	++i;
 	}
 
 	append_to_string(output, rightbinder);
@@ -432,59 +433,51 @@ STRING *latex_biv_rational(biv_rational *brat,
 					var1, var2, leftbinder, rightbinder)->string);
 			}
 	else {
-		//if leading coeff of denom is neg, negate both num and denom
-		if(mpz_sgn(brat->denom->rcoefficients[0]->num->coefficients[0]->num)<0) {
-			free(output);
-			brat->num = negative_fe(brat->num);
-			brat->denom = negative_fe(brat->denom);
-			output = latex_biv_rational(brat, var1, var2, leftbinder, rightbinder);
-		}
-	
-		else {	
-			append_to_string(output, leftbinder);
-			append_to_string(output, "\\frac{");
-			//append numerator
-			append_to_string(output, (latex_field_extension
-						(brat->num, var1, var2, "", ""))->string);
-			append_to_string(output, "}{");
-			//append denominator
-			append_to_string(output, (latex_field_extension
-						(brat->denom, var1, var2, "", ""))->string);
-			append_to_string(output, "}");
-			append_to_string(output, rightbinder);
-		}
+		append_to_string(output, leftbinder);
+		append_to_string(output, "\\frac{");
+		//append numerator
+		append_to_string(output, (latex_field_extension(brat->num, 
+						var1, var2, "", ""))->string);
+		append_to_string(output, "}{");
+		//append denominator
+		append_to_string(output, (latex_field_extension(brat->denom, 
+						var1, var2, "", ""))->string);
+		append_to_string(output, "}");
+		append_to_string(output, rightbinder);
 	}
 
 	return output;
 }
+
 //print a trivariate poly in Q(var1)(var2)[var3]
 STRING *latex_trivariate_poly(tpoly *t_poly, char *var1, char *var2, char *var3, 
 		char *leftbinder, char *rightbinder) {
+	
 	STRING *output;
 	output = make_string();
-	
 	append_to_string(output, leftbinder); 
 	
 	int i=0;
 	while(i<=t_poly->deg) {
 
-		if(!zero_fe(t_poly->brcoefficients[i]->num)) {
-				if(i!=0) {
-					append_to_string(output, "+");
-				}
-				if(i==t_poly->deg) {
-					append_to_string(output,(latex_biv_rational(t_poly->
-						 brcoefficients[i], var1, var2, "",""))->string);
-				}
-				
-				else {
-					append_to_string(output,(latex_biv_rational(t_poly->
-						 brcoefficients[i], var1, var2, "(",")"))->string);
-				}
-
-			append_to_string(output, print_monomial(var3, t_poly->deg-i));
+	if(!zero_fe(t_poly->brcoefficients[i]->num)) {
+		if(i!=0) {
+			append_to_string(output, "+");
 		}
-			++i;
+				
+		if(i==t_poly->deg || monomial_fe(t_poly->brcoefficients[i]->num)) {
+			append_to_string(output,(latex_biv_rational(t_poly->brcoefficients[i], 
+							var1, var2, "",""))->string);
+		}
+				
+		else {
+			append_to_string(output,(latex_biv_rational(t_poly->brcoefficients[i], 
+						 var1, var2, "\\big(","\\big)"))->string);
+		}
+		
+		append_to_string(output, print_monomial(var3, t_poly->deg-i));
+		}
+		++i;
 	}
 
 	append_to_string(output, rightbinder);
@@ -516,7 +509,6 @@ STRING *log_poly(poly *poly1, char *var, char *leftbinder, char *rightbinder) {
 	append_to_string(output, 
 			(log_string(latex_poly(poly1, var, "", ""), "","")->string));
 	append_to_string(output, rightbinder);
-	
 	return output;
 }
 
@@ -530,12 +522,11 @@ STRING *log_rational(rational *rat_poly, char *var, char *leftbinder, char *righ
 	append_to_string(output, (log_string(
 				latex_rational(rat_poly, var, "", ""), "","")->string));
 	append_to_string(output, rightbinder);
-	
 	return output;
 }
 
 
-//return latex string of log of bivariate poly in Q(var1)(var2), w/ left/right bindings
+//return latex string of log of bivariate poly in Q[var1][var2], w/ left/right bindings
 STRING *log_bivariate_poly(bpoly *b_poly, char *var1, char *var2, char *leftbinder, 
 		char *rightbinder) { 
 
@@ -562,12 +553,13 @@ STRING *log_trivariate_poly(tpoly *poly, char *var1, char *var2, char *var3,
 	append_to_string(output, (log_string(latex_trivariate_poly(
 				poly, var1, var2, var3, "", ""), "",""))->string);
 	append_to_string(output, rightbinder);
-	
 	return output;
 }
+
 //takes a Log struct and returns string with required latex-formatted output
 //var 1 should be "a" in K (field) closure, var2 the indeterminate our polys are defined over eg x
-STRING *latex_Logs(logpart *input, char *var1, char *var2, char *leftbinder, char *rightbinder) {
+//WE MUST CHOOSE WHAT SET THIS "a" is in eg. reals and set it to char *set
+STRING *latex_Logs(logpart *input, char *var1, char *var2, char *set, char *leftbinder, char *rightbinder) {
 
 	int i;
 	STRING *output;
@@ -575,7 +567,8 @@ STRING *latex_Logs(logpart *input, char *var1, char *var2, char *leftbinder, cha
 
 	append_to_string(output, leftbinder);
 	for(i=0; i<input->num; ++i) {
-		append_to_string(output, sum_over_poly_sol(input->roots[i], var1, "", "")->string);
+		append_to_string(output, sum_over_poly_sol(input->roots[i], var1, 
+					set, "", "")->string);
 		append_to_string(output, var1);
 		append_to_string(output,
 				log_bivariate_poly(input->arguments[i], var1, var2, "", "")->string);
@@ -584,11 +577,10 @@ STRING *latex_Logs(logpart *input, char *var1, char *var2, char *leftbinder, cha
 		}
 	}
 	append_to_string(output, rightbinder);
-
 	return output;
 }
 	
-
+//wrap arctan around atan_tri input
 STRING *latex_atan_tri(atan_tri *input, char *var1, char *var2, char *var3, 
 		char *leftbinder, char *rightbinder) {
 
@@ -617,7 +609,7 @@ STRING *latex_atan_tri(atan_tri *input, char *var1, char *var2, char *var3,
 	return output;
 }
 
-//NEED TO INCLUDE AMSMATH TO STACK EQNS
+//IMPORTANT: NEED TO INCLUDE AMSMATH TO STACK EQNS UNDER SUM (\substack)
 STRING *sum_over_complex_root(bpoly **complex_root, char *var1, 
 		char *var2, char *leftbinder, char *rightbinder) {
 
@@ -643,6 +635,7 @@ STRING *sum_over_complex_root(bpoly **complex_root, char *var1,
 	return output;
 }
 
+//print complexification and atan conversion part(this has all $$ contained within for neatness) 
 STRING *latex_real_transcendental_part(realtrans *input, char *var1, char *var2, 
 		char *var3, char *leftbinder, char *rightbinder) {
 
@@ -707,7 +700,8 @@ STRING *integral_string(rational *rat_poly, char *var1, char *var2,
 	}
 
 	if(Rh != NULL) {
-		append_to_string(output, latex_Logs(Rh, var1, var2, "", "")->string);
+		append_to_string(output, latex_Logs(Rh, var1, var2, 
+					"\\overline{\\Q}", "", "")->string);
 	}
 
 	append_to_string(output, rightbinder);
@@ -726,9 +720,7 @@ STRING *integrate_rational_string(rational *rat_poly, char *var1, char *var2,
 	return output;
 }
 
-
-
-//this string will include the result, but not "\int{integrand}"
+//this string will include the result, but not "\int{integrand}" full includes atan conversion
 STRING *integral_string_full(rational *rat_poly, char *var1, char *var2, char *var3,
 		char *leftbinder, char *rightbinder) {
 
@@ -754,7 +746,7 @@ STRING *integral_string_full(rational *rat_poly, char *var1, char *var2, char *v
 	}
 
 	if(Rh != NULL) {
-		append_to_string(output, latex_Logs(Rh, var1, var3, "$$", "+ $$")->string);
+		append_to_string(output, latex_Logs(Rh, var1, var3, "\\Re", "$$", "+ $$")->string);
 		append_to_string(output, latex_real_transcendental_part(a, var1, var2, var3,
 					"", "")->string);
 	}
@@ -762,7 +754,7 @@ STRING *integral_string_full(rational *rat_poly, char *var1, char *var2, char *v
 	return output;
 }
 
-//this string will have "\int{integrand} = ...."
+//this string will have "\int{integrand} = ...." full includes atan conversion
 STRING *integrate_rational_string_full(rational *rat_poly, char *var1, char *var2, char *var3,
 		char *leftbinder, char *rightbinder) {
 	
@@ -775,8 +767,6 @@ STRING *integrate_rational_string_full(rational *rat_poly, char *var1, char *var
 	return output;
 }
 
-
-
 //write a given string to a file, returns 1
 int write_to_file(char *filename, STRING *str) { 
 	
@@ -788,11 +778,5 @@ int write_to_file(char *filename, STRING *str) {
 
 	return 1;
 }
-
-
-
-
-
-
 
 #endif /* LATEX_H */

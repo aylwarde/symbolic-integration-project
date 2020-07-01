@@ -38,6 +38,7 @@ frac *lcm_f();
 frac *gcd_array_f();
 frac *lcm_array_f();
 frac *abs_f();
+frac *one_f();
 
 frac *copy_f();
 frac **copy_array_f();
@@ -288,6 +289,15 @@ frac *abs_f(frac *frac_a) {
 
   mpz_clear(newnum);
   return result;
+}
+
+//make one frac;
+frac *one_f() {
+	mpz_t one; 
+	mpz_init_set_si(one, 1);
+	frac *onef = init_f(one, one);
+	mpz_clear(one);
+	return onef;
 }
 
 
