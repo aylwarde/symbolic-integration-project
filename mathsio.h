@@ -11,6 +11,7 @@
 #include "polynomials.h"
 #include "rationalfns.h"
 #include "bivariate_poly.h"
+#include "mvpolys.h"
 
 #define MAX(x, y) (((x) > (y)) ? (x) : (y))
 #define MIN(x, y) (((x) < (y)) ? (x) : (y))
@@ -20,6 +21,8 @@
 char *string_f(frac *, bool);
 char *string_p(poly *);
 char *string_r(rational *);
+char *string_monomial(char *, unsigned int *);
+char *string_mv(mvpoly *);
 
 /* End Fn Defs */
 
@@ -164,8 +167,7 @@ char *string_r(rational *rf1) {
 
   long maxstrlen = MAX(strlen(numstr), strlen(denomstr));
 
-  char *midbar = (char *)calloc(maxstrlen, sizeof(char));
-  int i;
+  char *midbar = (char *)calloc(maxstrlen, sizeof(char));  int i;
   
   for (i=0; i<maxstrlen; ++i) {
 
@@ -184,5 +186,76 @@ char *string_r(rational *rf1) {
   return result_str;
 }
 
+char *string_monomial(char * variables, unsigned int * degrees) {
+  unsigned int outterms = 0, i, outlen=0;
+  unsigned int *nonzeroterms = (unsigned int *)calloc(strlen(variables), sizeof(unsigned int));
+
+  for (i=0; i<strlen(variables); ++i) {
+
+    if (degrees[i] != 0) {
+      nonzeroterms[outterms] = i;
+      ++outterms;  
+    }
+  }
+  
+  char ** terms = (char **)calloc(outterms, sizeof(char *));
+
+  for (i=0; i<outterms; ++i) {
+    terms[i] = (char *)calloc(8, sizeof(char));
+    snprintf(terms[i], 8, "%c^%d", variables[nonzeroterms[i]], degrees[nonzeroterms[i]]);
+    outlen += strlen(terms[i]);
+  }
+
+  char *result = (char *)calloc(outlen + 1, sizeof(char));
+
+  for (i=0; i<outterms; ++i) {
+    
+    strcat(result, terms[i]);
+      
+  }
+
+  return result;
+}
+
+
+char *string_mv(mvpoly *mvp1) {
+  
+  long total_len = 0, *term_len = (long *)calloc(mvp1->size + 1, sizeof(long));
+  char **term_str = (char **)calloc(mvp1->size + 1, sizeof(char *));
+  long outlen = 0;
+  unsigned int i,j;
+  
+  for (i=0; i<mvp1->size; ++i) {
+    
+    unsigned int *coords = addr_offset_to_degs(mvp1->varnum, i, mvp1->degrees);
+    
+    char *coeff = string_f(mvp1->coefficients[i], false);
+    char *monomial = string_monomial(mvp1->variables, coords);
+
+    term_len[i] = strlen(coeff) + strlen(monomial) + 1;
+    total_len += term_len[i];
+    term_str[i] = (char *)calloc(term_len[i] + 1, sizeof(char));
+
+    strcat(term_str[i], "+");
+    strcat(term_str[i], coeff);
+    strcat(term_str[i], monomial);
+
+    free(coeff);
+    free(monomial);
+    free(coords);
+  }
+
+  char *result = calloc(total_len + 1, sizeof(char));
+
+  for (i=0; i<mvp1->size; ++i) {
+
+    strcat(result, term_str[i]);
+    
+  }
+  
+  free(term_len);
+  free(term_str);
+  return result;
+}
 
 #endif /* MATHSIO_H */

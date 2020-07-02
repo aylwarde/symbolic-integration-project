@@ -1,6 +1,6 @@
 #include "../squarefree.h"
 
-
+//testing squarefree example 1.7.1 in chap 1 of bronstein book, with terminal output 
 int main()
 {
 

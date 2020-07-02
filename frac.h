@@ -38,7 +38,9 @@ frac *lcm_f();
 frac *gcd_array_f();
 frac *lcm_array_f();
 frac *abs_f();
+frac *one_f();
 
+frac *copy_f();
 frac **copy_array_f();
 
 bool zero_f();
@@ -82,8 +84,9 @@ void print_f(frac *frac_a) {
 //free a frac
 void free_f(frac *frac_a) {
 	
-	mpz_clears(frac_a->num, frac_a->denom, NULL);	
-  	free(frac_a);
+	mpz_clears(frac_a->num, frac_a->denom, NULL);		
+	free(frac_a);
+
 }
 
 
@@ -288,6 +291,15 @@ frac *abs_f(frac *frac_a) {
   return result;
 }
 
+//make one frac;
+frac *one_f() {
+	mpz_t one; 
+	mpz_init_set_si(one, 1);
+	frac *onef = init_f(one, one);
+	mpz_clear(one);
+	return onef;
+}
+
 
 //returns true if rational zero, false otherwise
 bool zero_f(frac *frac_a)
@@ -316,14 +328,20 @@ bool equals_f(frac *frac_a, frac *frac_b) {
     
 }
 
-
+frac *copy_f(frac *input) {
+	
+	frac *result = (frac *)calloc(1, sizeof(frac));
+	mpz_init_set(result->num, input->num);
+	mpz_init_set(result->denom, input->denom);
+	return result;
+}
 
 //copy array of fractions
 frac **copy_array_f(frac **src, int len) {
   
   	frac **result = (frac **)malloc(len*sizeof(frac *));
   	int i;
-  
+ 
   	for (i=0 ; i<len; ++i) {
     
     		result[i]=src[i];

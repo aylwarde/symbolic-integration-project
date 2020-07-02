@@ -2,7 +2,9 @@
 #include <stdlib.h>
 
 #include "../hermite_reduce.h"
+#include "../latex.h"
 
+//Test for hermite reduction on a PROPER rational
 int main()
 {
 	FILE *polyfile;
@@ -25,24 +27,12 @@ int main()
 	input = init_r(polyarray[0], polyarray[1]);
 
 	result = hermite_reduce(input);
-	printf("Given f:\n");
-	print_r(input);
+	STRING *output;
+	output = integrate_rational(input, "x", "$$", "=");
+	append_to_string(output, latex_rational(result[0], "x" ,"", "+")->string);
+	append_to_string(output, integrate_rational(result[1], "x", "", "$$")->string);
 
-	printf("We have that the integral of f is equal to g plus the integral of h, with g:\n");
-	print_r(result[0]);
-	
-	printf("And h:\n");
-	print_r(result[1]);
-	
-	/*
-	free_p(result[0]);
-	free_p(result[1]);
-	free(result);
-	free_p(polyarray[0]);
-	free_p(polyarray[1]);
-	free(polyarray);
-
-	*/
+	write_to_file("hermite_output.txt", output);
 return 0;	
 }
 

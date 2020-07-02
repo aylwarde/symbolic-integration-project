@@ -2,6 +2,7 @@
 
 #include "../polynomials.h"
 
+//pseudo gcd testing
 int main() {
 
   poly *gcd,*gcd2 ;
@@ -23,12 +24,7 @@ int main() {
   /* for ( i=0; i<polys; ++i) { */
   /*   display_p(polyarray[i]); */
   /* } */
-
-
-
-
-
-
+  
   gcd2 = pseudogcd_p(polyarray[0],polyarray[1]);
   print_p(gcd2);
   gcd = primativePRS_p(polyarray[0],polyarray[1]);

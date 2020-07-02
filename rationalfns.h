@@ -14,7 +14,8 @@ typedef struct rational {
 /* Functions defined in this header */
 
 rational *init_r();
-
+rational **initialize_array_r();
+rational *copy_r();
 void print_r();
 void free_r();
 
@@ -27,6 +28,7 @@ rational *reciprocal_r();
 rational *pow_r();
 rational *subtract_r();
 rational *divide_r();
+rational *one_r();
 
 /* End of function defs */
 
@@ -67,11 +69,53 @@ rational *init_r(poly *num, poly *denom) {
   }
 }
 
+rational **initialize_array_r(int len) {
+	rational **result = (rational **)calloc(len, sizeof(rational *));
+	return result;
+}
+
 int reduce_r(rational *rfa) {
 
+  //find primitive gcd
   poly *gcd = gcd_p(rfa->num, rfa->denom);
-  poly *newnum = divide_p(rfa->num, gcd)[0];
-  poly *newdenom = divide_p(rfa->denom, gcd)[0];
+  poly **numdiv = divide_p(rfa->num, gcd);
+  poly **denomdiv = divide_p(rfa->denom, gcd);
+
+  poly *newnum = copy_p(numdiv[0]);
+  poly *newdenom = copy_p(denomdiv[0]);
+
+  free_array_p(numdiv, 2);
+  free_array_p(denomdiv, 2);
+  
+  //find gcd of contents
+
+  frac *numcont = content_p(newnum);
+  frac *denomcont = content_p(newdenom);
+  frac *gcd_content  = gcd_f(numcont, denomcont);
+  frac *recip_gcd_cont = reciprocal_f(gcd_content);
+  
+  newnum = scale_p(recip_gcd_cont, newnum);
+  newdenom = scale_p(recip_gcd_cont, newdenom);
+
+  //ensure lc in denominator is non-negative
+  if(mpz_sgn(newdenom->coefficients[0]->num)<0) {
+	  poly *negnewdenom, *negnewnum;
+	  negnewdenom = negative_p(newdenom);
+	  negnewnum = negative_p(newnum);
+	  free_p(newnum);
+	  free_p(newdenom);
+	  newnum = negnewnum;
+	  newdenom = negnewdenom;
+  }
+
+  free_f(numcont);
+  free_f(denomcont);
+  free_f(gcd_content);
+  free_f(recip_gcd_cont);
+  
+  free_p(rfa->num);
+  free_p(rfa->denom);
+  free_p(gcd);
   
   rfa->num = newnum;
   rfa->denom = newdenom;
@@ -87,16 +131,34 @@ void print_r(rational *rfa) {
   
 }
 
+//copy rational 
+rational *copy_r(rational *rfa) {
+
+	rational *duplicate = (rational *)calloc(1, sizeof(rational));
+	duplicate->num = copy_p(rfa->num);
+	duplicate->denom = copy_p(rfa->denom);
+	return duplicate;
+}
+
 
 // you know the drill by now
 rational *add_r(rational *rfa, rational *rfb) {
   
   rational *result;
 
-  poly *newnum = add_p(multiply_p( rfa->num, rfb->denom ), multiply_p( rfb->num, rfa->denom ));
+  poly *summand1 = multiply_p( rfa->num, rfb->denom );
+  poly *summand2 = multiply_p( rfb->num, rfa->denom );
+  
+  poly *newnum = add_p( summand1, summand2);
+
+  free_p(summand1);
+  free_p(summand2);
+  
   poly *newdenom = multiply_p( rfa->denom, rfb->denom );
   
   result = init_r( newnum, newdenom );
+  free_p(newnum);
+  free_p(newdenom);
   return result;
 }
 
@@ -108,6 +170,8 @@ rational *multiply_r(rational *rfa, rational *rfb) {
   poly *newdenom = multiply_p( rfa->denom, rfb->denom );
 
   result = init_r( newnum, newdenom );
+  free_p(newnum);
+  free_p(newdenom);
   return result;
 }
 
@@ -117,6 +181,7 @@ rational *negative_r(rational *rfa) {
   poly *newnum = negative_p( rfa->num );
 
   result = init_r( newnum, rfa->denom );
+  free_p(newnum);
   return result;
 }
 
@@ -152,4 +217,41 @@ rational *divide_r(rational *rfa, rational *rfb) {
   return result;
 }
 
+rational *gcd_r(rational *rat1, rational *rat2) {
+	
+	rational *result;
+	poly *num = gcd_p(rat1->num, rat2->num);
+	poly *denom =lcm_p(rat1->denom, rat2->denom);
+	result = init_r(num, denom);
+	free_p(num);
+	free_p(denom);
+	return result;
+}
+
+rational *gcd_array_r(int i, rational **rat_array) {
+
+	rational *gcd_array;
+
+	if(i==0) {
+		return rat_array[0];
+	}
+
+	else if(i==1) {
+		gcd_array = gcd_r(rat_array[1], rat_array[0]);
+		return gcd_array;
+	}
+
+	else {
+		return gcd_r(gcd_array_r(i-1, rat_array), rat_array[i]);
+	}
+}
+
+rational *one_r() {
+	
+	poly *onep = one_p();
+	rational *oner = init_r(onep, onep);
+	free_p(onep);
+	return oner;
+}
+	
 #endif /* RATIONALFNS_H */

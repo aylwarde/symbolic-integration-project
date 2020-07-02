@@ -1,11 +1,12 @@
 #include "../latex.h"
 #include "../lazard_rioboo_trager.h"
 
+//Tests the lazard rioboo trager algorithm so input must be a proper rational with squarefree denom
 int main() {
 
 	FILE *polyfile; 
 
-	polyfile = fopen("lrt_latex.txt", "r");
+	polyfile = fopen("trivariate.txt", "r");
 
 	if(polyfile==NULL) {
 		printf("Error: Invalid file read\n");
@@ -23,7 +24,7 @@ int main() {
 	integrand = init_r(input[0], input[1]);
 	
 	result = int_rational_log_part(integrand);
-	string_result = latex_Logs(result, "a", "x", "$$", "$$");
+	string_result = latex_Logs(result, "a", "x","\\mathbb{\\overline{Q}}", "$$", "$$");
 
 	//write to file
 	write_to_file("lrt_output.txt", string_result);

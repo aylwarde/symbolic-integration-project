@@ -86,7 +86,7 @@ bpoly **bsubresultant( bpoly *polya, bpoly *polyb, int *outlen) {
   
   if ( result[i]->deg > 0 ) {
 
-    result[0] = initialize_bp(0);
+    result[0] = initialize_and_zero_bp(0);
 
     return result;
     

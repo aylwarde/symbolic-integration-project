@@ -1,6 +1,18 @@
-#include "lazard_rioboo_trager.h"
+#ifndef RINTEGRATION_H
+#define RINTEGRATION_H
+
 #include "hermite_reduce.h"
-#include "latex.h"
+#include "lazard_rioboo_trager.h"
+#include "logtoatantri.h"
+
+typedef struct real_transcendental_part {
+	int num; //number of distinct squarefree factors we sum over
+	bpoly ***complex_roots; //arrays of length 2
+	tpoly **magnitude;
+	atan_tri ***arctan_arguments; // arrays of length lens[i]
+	int *lens;
+} realtrans;
+
 
 void integrate_r(rational *rpoly1,rational **g,poly **Q,logpart **Rh)
 {
@@ -10,9 +22,7 @@ void integrate_r(rational *rpoly1,rational **g,poly **Q,logpart **Rh)
   void *result;
 
   hermite = hermite_reduce(rpoly1);
-
   polydiv = divide_p(hermite[1]->num,hermite[1]->denom);
-
   *g = hermite[0];
   *Q = integrate_p(polydiv[0]);
 
@@ -34,43 +44,41 @@ void integrate_r(rational *rpoly1,rational **g,poly **Q,logpart **Rh)
     }
 }
 
-//this string will include the result, but not "\int{integrand}"
-STRING *integral_string(rational *rat_poly, char *var1, char *var2, char *leftbinder, char *rightbinder) {
+realtrans *logpart_to_realtrans(logpart *input) {
 
-	//perform integration
-	rational *g;
-	poly *Q;
-	logpart *Rh;
-	integrate_r(rat_poly, &g, &Q, &Rh);
-
-	STRING *output;
-	output = make_string();
-	append_to_string(output, leftbinder);
-
-	if(!zero_p(g->num)) {
-		append_to_string(output, latex_rational(g, var2, "", "")->string);
-		append_to_string(output, "+");
-	}
-
-	if(!zero_p(Q)) {
-		append_to_string(output, latex_poly(Q, var2, "", "")->string);
-		append_to_string(output, "+");
-	}
-
-	if(Rh != NULL) {
-		append_to_string(output, latex_Logs(Rh, var1, var2, "", "")->string);
-	}
-	append_to_string(output, rightbinder);
-
-	return output;
-}
-
-//this string will have "\int{integrand} = ...."
-STRING *integrate_rational_string(rational *rat_poly, char *var1, char *var2, char *leftbinder, char *rightbinder) {
+	realtrans *result = (realtrans *)calloc(1,
+			sizeof(realtrans));
 	
-	STRING *output;
-	output = make_string();
-	append_to_string(output, integrate_rational(rat_poly, var2, leftbinder, "=")->string);
-	append_to_string(output, integral_string(rat_poly, var1, var2, "", rightbinder)->string);
-	return output;
+	result->num = input->num;
+	result->lens = (int *)calloc(result->num, sizeof(int));
+	result->complex_roots = (bpoly ***)calloc(result->num, sizeof(bpoly **));
+	result->magnitude = (tpoly **)calloc(result->num, sizeof(tpoly *));
+	result->arctan_arguments = (atan_tri ***)calloc(result->num, sizeof(atan_tri **));
+
+	tpoly **complex_log_arguments;
+
+	for(int i=0; i<result->num; ++i) {
+		
+		result->complex_roots[i] = poly_complexify(input->roots[i]);
+		complex_log_arguments = bpoly_complexify(input->arguments[i]);
+		
+		result->magnitude[i] = add_tp(pow_tp(complex_log_arguments[0], 2),
+			       	pow_tp(complex_log_arguments[1], 2));
+
+		if(zero_tp(complex_log_arguments[1])) {
+			result->arctan_arguments[i] = NULL;
+		}
+		else {
+			result->arctan_arguments[i] = logtoatantri(complex_log_arguments[0], 
+				complex_log_arguments[1], &result->lens[i]);
+		}
+		
+		free_tp(complex_log_arguments[0]);
+		free_tp(complex_log_arguments[1]);
+		free(complex_log_arguments);
+	}
+
+	return result;
 }
+
+#endif /* RINTEGRATION_H */

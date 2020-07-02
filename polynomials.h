@@ -26,6 +26,7 @@ typedef struct poly {
 void assign_coeffs_p();
 void print_p();
 void free_p();
+void free_array_p();
 void strip_p();
 
 bool zero_p();
@@ -33,8 +34,10 @@ bool monomial_p();
 bool equals_p();
 
 poly *initialize_p();
+poly *initialize_and_zero_p();
 poly **initialize_array_p();
 poly *initialize_from_array_p();
+poly *one_p();
 poly *copy_p();
 poly *negative_p();
 poly *scale_p();
@@ -61,13 +64,24 @@ void to_file_p();
 /* End of function defs */
 
 
-//allocate a polynomial of certain degree, and intialize all coeffs to zero
+//allocate a polynomial of certain degree
 poly *initialize_p(int degree)
 {
 	int i;
 
 	poly *result= (poly *)calloc(1,sizeof(poly));
-	frac **coefficients=(frac **)calloc(degree+1,sizeof(frac *));
+	result->coefficients=(frac **)calloc(degree+1,sizeof(frac *));
+	result->deg = degree;
+	return result;
+	}
+
+//allocate a polynomial of certain degree, and intialize all coeffs to zero
+poly *initialize_and_zero_p(int degree)
+{
+	int i;
+
+	poly *result= (poly *)calloc(1,sizeof(poly));
+	result->coefficients=(frac **)calloc(degree+1,sizeof(frac *));
 	
 	mpz_t zero; mpz_init(zero);
 	mpz_t one; mpz_init_set_ui(one, 1);
@@ -75,25 +89,19 @@ poly *initialize_p(int degree)
 	for(i=0; i<=degree; ++i)
 	{
 		
-		coefficients[i] = init_f(zero,one);
+		result->coefficients[i] = init_f(zero,one);
 	}
 
 	result->deg = degree;
-	result->coefficients = coefficients;
+	mpz_clears(zero, one, NULL);
 	return result;
 	}
+
 
 //initialize an array of a prescribed length of polynomial structures
 poly **initialize_array_p(int len) {
 
-	poly **array_p = (poly **)calloc(len,sizeof(poly *));
-	int i;
-
-	for(i=0; i<len; ++i)
-	{
-		array_p[i] = (poly *)calloc(1, sizeof(poly));
-	}
-	
+	poly **array_p = (poly **)calloc(len,sizeof(poly *));	
 	return array_p;
 }
 
@@ -158,8 +166,23 @@ void print_p(poly *polynomial)
 //free a polynomial
 void free_p(poly *polynomial)
 {
+	for(int i=0; i<=polynomial->deg; ++i) {
+		free_f(polynomial->coefficients[i]);
+	}
 	free(polynomial->coefficients);
 	free(polynomial);
+}
+
+
+//free a polynomial array
+void free_array_p(poly **polyarray, int len) {
+  int i;
+
+  for (i=0; i<len; ++i) {
+    free_p(polyarray[i]);
+  }
+
+  free(polyarray);
 }
 
 
@@ -199,33 +222,60 @@ void strip_p(poly *polynomial)
 	//make a zero polynomial the constant zero
 	if(zero_p(polynomial))
 	{	
+		frac **new_coeffs = (frac **)calloc(1, sizeof(frac *));
+		new_coeffs[0] = copy_f(polynomial->coefficients[0]);
+		for(i=0; i<=polynomial->deg; ++i ) {
+			free_f(polynomial->coefficients[i]);
+		}
+		free(polynomial->coefficients);
 		polynomial->deg = 0;
+		polynomial->coefficients = new_coeffs;
 	}
-	
-	else
-	{
+
+	else {
 		while(zero_f(polynomial->coefficients[leading_zeroes]))
 		{
 			++leading_zeroes;
 		}
-		for(i=0; i<=polynomial->deg-leading_zeroes; ++i)
+
+		degree = polynomial->deg - leading_zeroes;
+		frac **new_coeffs = (frac **)calloc(degree+1, sizeof(frac *));
+
+		for(i=0; i<=degree; ++i)
 		{
-			polynomial->coefficients[i] = polynomial->coefficients[i+leading_zeroes];
+			
+			new_coeffs[i] = copy_f( polynomial->
+					coefficients[i+leading_zeroes]);
 		}	
-		degree = polynomial->deg-leading_zeroes;
+		for(i=0; i<=polynomial->deg; ++i ) {
+			free_f(polynomial->coefficients[i]);
+		}
+		free(polynomial->coefficients);
 		polynomial->deg = degree;
+		polynomial->coefficients = new_coeffs;
 	}
+}
+
+//generate a one polynomial
+poly *one_p() {
+
+      poly *onep = initialize_p(0);
+      frac *onef = one_f();
+      onep->coefficients[0] = copy_f(onef);
+      free_f(onef);
+      return onep;
 }
 
 //duplicate a polynomical structure
 poly *copy_p(poly *polynomial)
 {
 	int i;
-	poly *duplicate;
-	duplicate = initialize_p(polynomial->deg);
+	poly *duplicate = (poly *)calloc(1, sizeof(poly));
+	duplicate->deg = polynomial->deg;
+	duplicate->coefficients = (frac **)calloc(duplicate->deg+1, sizeof(frac *));
 	for(i=0; i<polynomial->deg+1;++i)
 	{
-		duplicate->coefficients[i]=polynomial->coefficients[i];
+		duplicate->coefficients[i]=copy_f(polynomial->coefficients[i]);
 	}
 	return duplicate;
 }
@@ -273,11 +323,12 @@ poly *add_p(poly *polynomial1, poly *polynomial2)
 
 		for(i=0; i<difference; ++i)
 		{
-			result->coefficients[i] = polynomial1->coefficients[i];
+			result->coefficients[i] = copy_f(polynomial1->coefficients[i]);
 		} 
 		for(i=difference; i<result->deg+1; ++i)
 		{
-			result->coefficients[i] = add_f(polynomial1->coefficients[i],polynomial2->coefficients[i-difference]);
+			result->coefficients[i] = add_f(polynomial1->coefficients[i],
+					polynomial2->coefficients[i-difference]);
 		}
 	}
 	strip_p(result);
@@ -289,8 +340,9 @@ poly *add_p(poly *polynomial1, poly *polynomial2)
 poly *subtract_p(poly *polynomial1, poly *polynomial2)
 {
 	poly *result;
-	polynomial2 = negative_p(polynomial2);
-	result = add_p(polynomial1, polynomial2);
+	poly *neg = negative_p(polynomial2);
+	result = add_p(polynomial1, neg);
+	free_p(neg);
 	return result;
 }
 
@@ -301,13 +353,21 @@ poly *multiply_p(poly *polynomial1, poly *polynomial2)
 	int i,j;
 	poly *result;
 
-	result = initialize_p(polynomial1->deg+polynomial2->deg);
+	result = initialize_and_zero_p(polynomial1->deg+polynomial2->deg);
 	
 	for(i=0; i<=polynomial1->deg; ++i)
 	{
 		for(j=0; j<=polynomial2->deg; ++j)
 		{
-			result->coefficients[i+j]=add_f(result->coefficients[i+j], multiply_f(polynomial1->coefficients[i], polynomial2->coefficients[j]));
+		  frac *increment = multiply_f(polynomial1->coefficients[i], polynomial2->coefficients[j]);
+		  frac *newcoeff = add_f(result->coefficients[i+j], increment);
+
+		  free_f(result->coefficients[i+j]);
+		  
+		  result->coefficients[i+j] = copy_f(newcoeff);
+
+		  free_f(increment);
+		  free_f(newcoeff);
 		}
 	}
 	strip_p(result);
@@ -319,10 +379,7 @@ poly *pow_p(poly *poly_a, int exponent) {
 
   if (exponent == 0)
     {
-      poly *onep = initialize_p(0);
-      mpz_t one;
-      mpz_init_set_si(one, 1);
-      onep->coefficients[0] = init_f(one, one);
+      poly *onep = one_p();
       return onep;
     }
   else if(exponent==1)
@@ -350,7 +407,7 @@ poly **divide_p(poly *polynomial1, poly *polynomial2)
 	else {
 		int d=0;
 		frac *t;
-		poly *division, *quotient, *remainder;
+		poly *division, *quotient, *remainder, *newquo, *newr;
 		poly **result;
 	
 		result = initialize_array_p(2);
@@ -362,7 +419,7 @@ poly **divide_p(poly *polynomial1, poly *polynomial2)
 		}
 		else 
 		{
-	  		quotient = initialize_p(MAX(polynomial1->deg-polynomial2->deg,0));
+	  		quotient = initialize_and_zero_p(0);
 	  		remainder = copy_p(polynomial1);
 
 	  	while(!zero_p(remainder) && (remainder->deg-polynomial2->deg)>=0)
@@ -370,11 +427,19 @@ poly **divide_p(poly *polynomial1, poly *polynomial2)
 	      		d = remainder->deg-polynomial2->deg;
 	      		t = divide_f(remainder->coefficients[0], polynomial2->coefficients[0]);
 			
-	      		division = initialize_p(d);
-	      		division->coefficients[0] = t;
+	      		division = initialize_and_zero_p(d);
+	      		division->coefficients[0] = copy_f(t);
 
-	      		quotient = add_p(quotient, division);
-	      		remainder = subtract_p(remainder, multiply_p(polynomial2, division));
+	      		newquo = add_p(quotient, division);
+			free_p(quotient);
+			quotient = newquo;
+			
+	      		newr = subtract_p(remainder, multiply_p(polynomial2, division));
+			free_p(remainder);
+			remainder = newr;
+			
+			free_f(t);
+			free_p(division);
 	    	}
 	
 		result[0] = quotient;
@@ -402,23 +467,45 @@ poly *derivative_p(poly *polynomial) {
 		mpz_sub_ui(d, d, 1);
 		++i;
 	}
+	mpz_clears(d, one, NULL);
 	return derivative;
 }
 
 //euclidean algorithm
 poly *gcd_p(poly *polynomial1, poly *polynomial2) {
 
-        poly *q, *r;
+        poly **div;
+	poly *a = copy_p(polynomial1);
+	poly *b = copy_p(polynomial2);
 
-        while(!zero_p(polynomial2))
+        while(!zero_p(b))
         {
-                //q = divide_p(polynomial1, polynomial2)[0];
-                r = divide_p(polynomial1, polynomial2)[1];
-                polynomial1 = copy_p(polynomial2);
-                polynomial2 = copy_p(r);
+                div = divide_p(a, b);
+                free_p(a);
+		a = copy_p(b);
+		free_p(b);
+                b = copy_p(div[1]);
+		free_array_p(div, 2);
         }
-	polynomial1 = scale_p(reciprocal_f(content_p(polynomial1)), polynomial1);
-        return polynomial1;
+	a = scale_p(reciprocal_f(content_p(a)), a);
+	free_p(b);
+        return a;
+}
+
+poly *lcm_p(poly *polynomial1, poly *polynomial2) {
+	
+  poly *divisor1 = multiply_p(polynomial1, polynomial2);
+  poly *divisor2 = gcd_p(polynomial1, polynomial2);
+
+  poly **div = divide_p(divisor1, divisor2);
+
+  poly *lcm = copy_p(div[0]);
+
+  free_array_p(div, 2);
+  free_p(divisor1);
+  free_p(divisor2);
+	
+  return lcm;
 }
 
 //return content of polynomial
@@ -436,7 +523,13 @@ frac *content_p(poly *polynomial) {
 
 bool equals_p(poly *poly_a, poly * poly_b) {
 
-  return zero_p(subtract_p(poly_a, poly_b));
+  poly * diff = subtract_p(poly_a, poly_b);
+
+  bool result = zero_p(diff);
+
+  free_p(diff);
+  
+  return result;
   
 }
 
@@ -599,7 +692,7 @@ void latex_p(poly *polynomial)
 poly *conmultiply_p(frac *c,poly *polynomial)
 {
   poly *q;
-  q=initialize_p(0);
+  q=initialize_and_zero_p(0);
   q->coefficients[0]=c;
   return multiply_p(q,polynomial);
 }
@@ -617,6 +710,10 @@ poly **pseudodiv_p(poly *poly1 , poly *poly2)
   cpoly = scale_p(c, poly1);
 
   result = divide_p(cpoly,poly2);
+
+  free_f(c);
+  free_p(cpoly);
+  
   return result;
 }
 
@@ -741,9 +838,7 @@ poly *integrate_p(poly* polynomial)
   int i;
   mpz_t degree,one;
   
-
-	
-	intergral = initialize_p(polynomial->deg+1);
+	intergral = initialize_and_zero_p(polynomial->deg+1);
  
 	mpz_init_set_si(degree, (long)polynomial->deg+1);
 	 mpz_init_set_ui(one,1);
@@ -754,6 +849,7 @@ poly *integrate_p(poly* polynomial)
 		mpz_sub_ui(degree, degree, 1);
 	       
 	}
+	mpz_clears(one, degree, NULL);
 	return intergral;
 }
 
