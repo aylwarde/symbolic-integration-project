@@ -9,7 +9,7 @@ int main() {
 	FILE *polyfile;
 	poly **input;
 
-	polyfile = fopen("integrate/integrate_latex4.txt", "r");
+	polyfile = fopen("integrate/integrate_latex7.txt", "r");
 	
 	if(polyfile == NULL) {
 		printf("Invalid File Path\n");

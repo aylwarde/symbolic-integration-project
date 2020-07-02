@@ -753,7 +753,7 @@ STRING *integrate_rational_string(rational *rat_poly, char *var1, char *var2,
 	
 	STRING *output;
 	output = make_string();
-	append_to_string(output, integrate_rational(rat_poly, var2, leftbinder, "=")->string);
+	append_to_string(output, integrate_rational(rat_poly, var2, leftbinder, "=$$ $$")->string);
 	append_to_string(output, integral_string(rat_poly, var1, var2, "", rightbinder)->string);
 	return output;
 }
