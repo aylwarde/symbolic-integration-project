@@ -28,6 +28,7 @@ biv_rational *subtract_br();
 biv_rational *divide_br();
 biv_rational *gcd_br();
 biv_rational *gcd_array_br();
+biv_rational *one_br();
 
 /* End of function defs */
 
@@ -227,6 +228,14 @@ biv_rational *gcd_array_br(int i, biv_rational **brat_array) {
 	else {
 		return gcd_br(gcd_array_br(i-1, brat_array), brat_array[i]);
 	}
+}
+
+biv_rational *one_br() {
+
+	field_extension *onefe = one_fe();
+	biv_rational *onebr = init_br(onefe, onefe);
+	free_fe(onefe);
+	return onebr;
 }
 
 

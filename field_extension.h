@@ -27,6 +27,7 @@ field_extension *gcd_fe();
 field_extension *lcm_fe();
 field_extension *bp_to_fe();
 field_extension *scale_fe();
+field_extension *one_fe();
 rational *content_fe();
 
 bool zero_fe();
@@ -362,6 +363,14 @@ field_extension *scale_fe(rational *scalar, field_extension *poly) {
 	}
 
 	return result;
+}
+
+field_extension *one_fe() {
+
+	field_extension *onefe = initialize_fe(0);
+	rational *oner = one_r();
+	onefe->rcoefficients[0] = one_r();
+	return onefe;
 }
 
 rational *content_fe(field_extension *poly) {

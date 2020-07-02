@@ -325,7 +325,7 @@ STRING *latex_bivariate_poly(bpoly *b_poly, char *var1, char *var2, char *leftbi
 	while(i<=b_poly->deg) {
 
 	if(!zero_p(b_poly->pcoefficients[i])) {
-		if(!monomial_p(b_poly->pcoefficients[i])) {
+		if(!monomial_p(b_poly->pcoefficients[i]) && i!= b_poly->deg) {
 		
 			if(i!=0) {
 				append_to_string(output, "+");
@@ -371,6 +371,7 @@ STRING *latex_field_extension(field_extension *poly, char *var1, char *var2,
 		char *leftbinder, char *rightbinder) {
 	STRING *output;
 	output = make_string();
+	rational *oner = one_r();
 	
 	append_to_string(output, leftbinder); 
 	
@@ -379,41 +380,41 @@ STRING *latex_field_extension(field_extension *poly, char *var1, char *var2,
 
 	if(!zero_p(poly->rcoefficients[i]->num)) {
 	
-		//add plus if lc is positive
 		if(i!=0) {
+			//add plus if lc is pos
 			if(mpz_sgn(poly->rcoefficients[i]->num->coefficients[0]->num)>0) {
 						append_to_string(output, "+");
+			}
+			else {
+			poly->rcoefficients[i] = negative_r(poly->rcoefficients[i]);
+			append_to_string(output, "-");
 			}	
 		}
 				
 		//include brackets 
 		if(!monomial_p(poly->rcoefficients[i]->num) && poly->rcoefficients[i]->denom
 				->deg==0 && i !=poly->deg) {
-					
-			//add negative sign and negation of rational if lc is neg
-			if(mpz_sgn(poly->rcoefficients[i]->num->coefficients[0]->num)<0) {
-				append_to_string(output, "-");
-				append_to_string(output,(latex_rational(negative_r(poly->
-						    rcoefficients[i]), var1, "(",")"))->string);
-			}
-	
-			else {
-				append_to_string(output,(latex_rational(poly->
-						rcoefficients[i], var1, "(",")"))->string);
-			}
+			append_to_string(output,(latex_rational(poly->rcoefficients[i], 
+							var1, "(",")"))->string);
 		}
 		
 		//no brackets
 		else {
-			append_to_string(output,(latex_rational(poly->rcoefficients[i],
-						       	var1, "",""))->string);
+			if(zero_p(subtract_r(oner, poly->rcoefficients[i])->num) && 
+					i!= poly->deg) {
+			//skip if frac is one (unless its constant term)
+			} 
+			else {
+				append_to_string(output,(latex_rational(poly->
+							rcoefficients[i],var1, "",""))->string);
+			}
 		}
 		
 		append_to_string(output, print_monomial(var2, poly->deg-i));
 	}
 	++i;
 	}
-
+	free_r(oner);
 	append_to_string(output, rightbinder);
 	return output;
 }
@@ -454,6 +455,7 @@ STRING *latex_trivariate_poly(tpoly *t_poly, char *var1, char *var2, char *var3,
 		char *leftbinder, char *rightbinder) {
 	
 	STRING *output;
+	biv_rational *onebr = one_br();
 	output = make_string();
 	append_to_string(output, leftbinder); 
 	
@@ -462,17 +464,49 @@ STRING *latex_trivariate_poly(tpoly *t_poly, char *var1, char *var2, char *var3,
 
 	if(!zero_fe(t_poly->brcoefficients[i]->num)) {
 		if(i!=0) {
-			append_to_string(output, "+");
+			//appending appropiate sign
+			if(mpz_sgn(t_poly->brcoefficients[i]->num->rcoefficients[0]
+						->num->coefficients[0]->num)<0) {
+				t_poly->brcoefficients[i] = negative_br(t_poly->brcoefficients[i]);
+				append_to_string(output, "-");
+			}
+			else {
+				append_to_string(output, "+");
+			}
 		}
-				
+		//no brackets for constant term		
 		if(i==t_poly->deg || monomial_fe(t_poly->brcoefficients[i]->num)) {
-			append_to_string(output,(latex_biv_rational(t_poly->brcoefficients[i], 
-							var1, var2, "",""))->string);
+		
+			if(zero_fe(subtract_br(onebr, t_poly->brcoefficients[i])->num) && 
+					i!= t_poly->deg) {
+			//skip if frac is one (unless its constant term)
+			} 
+			else {
+				append_to_string(output,(latex_biv_rational(t_poly->
+								brcoefficients[i], var1, var2,
+							       	"",""))->string);
+			}
 		}
 				
 		else {
-			append_to_string(output,(latex_biv_rational(t_poly->brcoefficients[i], 
-						 var1, var2, "\\big(","\\big)"))->string);
+			if(zero_fe(subtract_br(onebr, t_poly->brcoefficients[i])->num)) {
+			//skip if frac is one
+			}
+	
+			else {
+				if(t_poly->brcoefficients[i]->denom->deg==0) {
+			
+					append_to_string(output,(latex_biv_rational(t_poly->
+						brcoefficients[i], var1, var2, 
+						"\\big(","\\big)"))->string);
+				}
+			
+				else { //bigger brackets for fractions
+				append_to_string(output,(latex_biv_rational(t_poly->
+								brcoefficients[i], var1, var2, 
+								"\\Big(","\\Big)"))->string);
+				}
+			}
 		}
 		
 		append_to_string(output, print_monomial(var3, t_poly->deg-i));
@@ -481,6 +515,7 @@ STRING *latex_trivariate_poly(tpoly *t_poly, char *var1, char *var2, char *var3,
 	}
 
 	append_to_string(output, rightbinder);
+	free_br(onebr);
 	return output;
 }
 
@@ -603,7 +638,7 @@ STRING *latex_atan_tri(atan_tri *input, char *var1, char *var2, char *var3,
 				input->denom);
 		append_to_string(output, 
 				latex_trivariate_poly
-				(input->num, var1, var2, var3, "\\arctan(", ")")->string);
+				(input->num, var1, var2, var3, "\\arctan\\Big(", "\\Big)")->string);
 	}
 	append_to_string(output, rightbinder);
 	return output;
@@ -621,7 +656,7 @@ STRING *sum_over_complex_root(bpoly **complex_root, char *var1,
 	append_to_string(output, var1);
 	append_to_string(output, ",");
 	append_to_string(output, var2);
-	append_to_string(output, "\\in \\Re,");
+	append_to_string(output, "\\in \\mathbb{R},");
 	append_to_string(output, var2);
 	append_to_string(output, ">0 | \\\\");
 
@@ -650,13 +685,16 @@ STRING *latex_real_transcendental_part(realtrans *input, char *var1, char *var2,
 		append_to_string(output, "\\bigg[");
 		
 		if(input->arctan_arguments[i] != NULL) {
+
 			append_to_string(output, log_trivariate_poly(input->magnitude[i], var1, 
 					var2, var3, var1, "$$")->string);
+
 			for(j=0; j<input->lens[i]-1; ++j) {
 				append_to_string(output, " $$ +2");
 				append_to_string(output, latex_atan_tri(input->arctan_arguments[i][j]
 						, var1, var2, var3, var2, "$$")->string);
 			}
+			
 			j = input->lens[i]-1;
 			append_to_string(output, " $$ +2");
 			append_to_string(output, latex_atan_tri(input->arctan_arguments[i][j], var1,
@@ -701,7 +739,7 @@ STRING *integral_string(rational *rat_poly, char *var1, char *var2,
 
 	if(Rh != NULL) {
 		append_to_string(output, latex_Logs(Rh, var1, var2, 
-					"\\overline{\\Q}", "", "")->string);
+					"\\overline{\\mathbb{Q}}", "", "")->string);
 	}
 
 	append_to_string(output, rightbinder);
@@ -746,7 +784,8 @@ STRING *integral_string_full(rational *rat_poly, char *var1, char *var2, char *v
 	}
 
 	if(Rh != NULL) {
-		append_to_string(output, latex_Logs(Rh, var1, var3, "\\Re", "$$", "+ $$")->string);
+		append_to_string(output, latex_Logs(Rh, var1, var3, 
+					"\\mathbb{R}", "$$", "+ $$")->string);
 		append_to_string(output, latex_real_transcendental_part(a, var1, var2, var3,
 					"", "")->string);
 	}
