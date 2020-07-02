@@ -1,11 +1,15 @@
 #include "../latex.h"
 #include "../Rintegration.h"
 
+
+//This tests the integration algorithm without log to arctan conversion,
+//Answer is expressed as rational polynomials + log terms w/ arguments that are polynomials w/ coeffsover the algebraic closure of Q
+//note: integrate folder contains multiple examples, and output is txt file for latex 
 int main() {
 
 	FILE *polyfile;
 
-	polyfile = fopen("integrate/integrate_latex4.txt", "r");
+	polyfile = fopen("integrate/integrate_latex.txt", "r");
 
 	if(polyfile == NULL) {
 		printf("Error: Invalid file read\n");

@@ -3,6 +3,8 @@
 
 #include "../hermite_reduce.h"
 #include "../latex.h"
+
+//Test for hermite reduction on a PROPER rational
 int main()
 {
 	FILE *polyfile;

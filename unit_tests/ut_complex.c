@@ -3,12 +3,14 @@
 #include "../complex_polynomial.h"
 #include "../latex.h"
 
+//testing complexification of univariate and trivariate polys
+//input rational proper poly w/ squarefree denom
 int main() {
 	
 	FILE *polyfile;
 	poly **polyarray;
 
-	polyfile = fopen("lrt_latex.txt", "r");
+	polyfile = fopen("trivariate.txt", "r");
 
 	if(polyfile==NULL) {
 		printf("Invalid file path\n");
@@ -22,7 +24,7 @@ int main() {
 	fclose(polyfile);
 	integrand = init_r(input[0], input[1]);
 
-	result = int_rational_log_part(integrand);
+	result = int_rational_log_part(integrand); //why we have specf for rational input
 	STRING *output;
 	output = latex_bivariate_poly(poly_complexify(result->roots[0])[0], "u", "v", "$$" ,"$$");
 	append_to_string(output, latex_bivariate_poly(poly_complexify(
@@ -33,12 +35,6 @@ int main() {
 	append_to_string(output,
 			latex_trivariate_poly(bpoly_complexify
 				(result->arguments[0])[1], "u", "v", "x", "$$", "$$")->string);
-	bpoly *resultant;
-	int k;
-
-	resultant =bsubresultant(poly_complexify(result->roots[0])[0], 
-			poly_complexify(result->roots[0])[1], &k)[0];
-	append_to_string(output, latex_bivariate_poly(resultant, "u", "v", "$$", "$$")->string);	
 	
 	write_to_file("complex_output.txt", output);	
 

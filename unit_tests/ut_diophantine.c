@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include "../euclidean_algorithms.h"
-
+//Test for Example 1.3.4 in Bronstein book.. w/ terminal output
 int main()
 {
 	FILE *polyfile;

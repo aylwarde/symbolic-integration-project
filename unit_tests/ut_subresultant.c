@@ -4,6 +4,8 @@
 #include "../frac.h"
 #include "../subresultant.h"
 
+//testing univariate prs subresultant algorithm with terminal output
+//input is in example 1.5.1 chap 1 of Bronstein book
 int main() {
   
   FILE *polyfile;
@@ -21,11 +23,11 @@ int main() {
   poly **polyarray = from_file_p(polyfile, &polys);
   
   for ( i=0; i<polys; ++i) {
-    print_p(polyarray[i]);
+    print_p(polyarray[i]); //print input
   }
 
   fclose(polyfile);
-
+//a few examples
   poly **subresultantprs = subresultant_p(polyarray[0], polyarray[1], &subprsout);
 
   for (i=0; i<subprsout; ++i) {

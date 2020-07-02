@@ -1,6 +1,8 @@
 #include "../latex.h"
 #include "../Rintegration.h"
 
+//test for integration of rational polys, including log to arc tan coversion for real output
+//note: integrate folder has multiple examples
 int main() {
 
 	FILE *polyfile;

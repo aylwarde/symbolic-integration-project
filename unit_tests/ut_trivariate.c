@@ -3,6 +3,9 @@
 #include "../latex.h"
 #include "../logtoatantri.h"
 
+
+//testing some trivariate methods and logtoatantri (trivariate.txt  MUST contain a proper rational
+//poly w/ denom squarefree)
 int main() { 
 
 	FILE *polyfile;

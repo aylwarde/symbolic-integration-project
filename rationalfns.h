@@ -28,6 +28,7 @@ rational *reciprocal_r();
 rational *pow_r();
 rational *subtract_r();
 rational *divide_r();
+rational *one_r();
 
 /* End of function defs */
 
@@ -245,5 +246,12 @@ rational *gcd_array_r(int i, rational **rat_array) {
 	}
 }
 
+rational *one_r() {
+	
+	poly *onep = one_p();
+	rational *oner = init_r(onep, onep);
+	free_p(onep);
+	return oner;
+}
 	
 #endif /* RATIONALFNS_H */

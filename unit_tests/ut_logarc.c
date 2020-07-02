@@ -1,7 +1,7 @@
 #include "../LogToArctan.h"
 
-
-//implementing the exmple from the brosntien book pg75
+//testing univariate version of log to arc tan conversion
+//implementing the example from the bronstein book pg75
 
 int main()
 {
